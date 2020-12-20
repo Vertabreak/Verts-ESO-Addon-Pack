@@ -1,0 +1,5 @@
+--Replace leading table [index] = " entries in SavedVarible data with space
+\[.*\= " -> <empty>
+--Replace trailing table row closing ",
+\", -> <empty>
+

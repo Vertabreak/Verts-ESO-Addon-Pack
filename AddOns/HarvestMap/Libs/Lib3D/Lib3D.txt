@@ -1,0 +1,12 @@
+## Title: Lib3D-v3
+## Author: Shinni
+## Version: 3.13
+## AddOnVersion: 313
+## IsLibrary: true
+## APIVersion: 100033
+## DependsOn: LibGPS LibMapPing
+## SavedVariables: Lib3D_SavedVars
+
+Lib3D.lua
+GlobalToWorldFactors.lua
+ZoneMeasurement.lua

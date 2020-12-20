@@ -1,0 +1,5 @@
+SafeAddString(SI_SCOOTWORKS_BANK_SAVINGS_CHAT_MESSAGE, "Afficher un message dans le chat", 0)
+SafeAddString(SI_SCOOTWORKS_BANK_SAVINGS_CHAT_MESSAGE_TT, "Activez cette option pour afficher un message dans le chat en cas de retrait ou de dépôt automatique de devise.", 0)
+SafeAddString(SI_SCOOTWORKS_BANK_SAVINGS_DEPOSIT, "Déposé", 0)
+SafeAddString(SI_SCOOTWORKS_BANK_SAVINGS_WITHDRAW, "Retiré", 0)
+SafeAddString(SI_SCOOTWORKS_BANK_SAVINGS_SETTINGS_ERROR, "Entrez un numéro valide.", 0)

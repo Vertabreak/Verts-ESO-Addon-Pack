@@ -1,0 +1,19 @@
+<Bindings>
+	<Layer name="SI_KEYBINDINGS_LAYER_GENERAL">
+		<Category name="|c4B8BFEBandits|r Gear Manager">
+			<Action name="BUI_SHOW_GEAR"><Down>BUI_ShowGear()</Down></Action>
+			<Action name="BUI_GEAR_A"><Down>BUI_AdditionalPanel()</Down></Action>
+			<Action name="BUI_GEAR_0"><Down>BUI_SingleUse()</Down></Action>
+			<Action name="BUI_GEAR_1"><Down>BUI_EquipGear(1)</Down></Action>
+			<Action name="BUI_GEAR_2"><Down>BUI_EquipGear(2)</Down></Action>
+			<Action name="BUI_GEAR_3"><Down>BUI_EquipGear(3)</Down></Action>
+			<Action name="BUI_GEAR_4"><Down>BUI_EquipGear(4)</Down></Action>
+			<Action name="BUI_GEAR_5"><Down>BUI_EquipGear(5)</Down></Action>
+			<Action name="BUI_GEAR_6"><Down>BUI_EquipGear(6)</Down></Action>
+			<Action name="BUI_GEAR_7"><Down>BUI_EquipGear(7)</Down></Action>
+			<Action name="BUI_GEAR_8"><Down>BUI_EquipGear(8)</Down></Action>
+			<Action name="BUI_GEAR_9"><Down>BUI_EquipGear(9)</Down></Action>
+			<Action name="BUI_GEAR_10"><Down>BUI_EquipGear(10)</Down></Action>
+		</Category>
+	</Layer>
+</Bindings>

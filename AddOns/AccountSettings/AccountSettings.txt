@@ -1,0 +1,10 @@
+## Title: |cff00ffAccount|r|cff99ff Settings|r
+## Description: Automatic settings
+## Author: Jodynn
+## Version: 1.0
+## APIVersion: 100033
+## SavedVariables: AccountSettings_SV
+## DependsOn: LibAddonMenu-2.0
+
+AccountSettings.xml
+AccountSettings.lua

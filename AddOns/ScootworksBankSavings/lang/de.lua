@@ -1,0 +1,5 @@
+SafeAddString(SI_SCOOTWORKS_BANK_SAVINGS_CHAT_MESSAGE, "Chatnachricht anzeigen", 0)
+SafeAddString(SI_SCOOTWORKS_BANK_SAVINGS_CHAT_MESSAGE_TT, "Zeigt Euch einen Hinweis im Chat an, wenn Währungen Ein- oder Ausgelagert werden.", 0)
+SafeAddString(SI_SCOOTWORKS_BANK_SAVINGS_DEPOSIT, "Eingelagert", 0)
+SafeAddString(SI_SCOOTWORKS_BANK_SAVINGS_WITHDRAW, "Entnommen", 0)
+SafeAddString(SI_SCOOTWORKS_BANK_SAVINGS_SETTINGS_ERROR, "Bitte eine gültige Nummer eingeben.", 0)

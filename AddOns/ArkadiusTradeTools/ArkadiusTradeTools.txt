@@ -1,0 +1,15 @@
+## Title: Arkadius' Trade Tools
+## Author: Aldanga (@Aldanga NA), Arkadius (@Arkadius1 EU)
+## APIVersion: 100033
+## Description: None
+## Version: 1.11.1
+## DependsOn: LibAddonMenu-2.0 
+## SavedVariables: ArkadiusTradeToolsData
+
+ArkadiusTradeTools.lua
+i18n/en.lua
+i18n/$(language).lua
+ArkadiusTradeToolsTemplates.lua
+ArkadiusTradeToolsTemplates.xml
+ArkadiusTradeTools.xml
+bindings.xml

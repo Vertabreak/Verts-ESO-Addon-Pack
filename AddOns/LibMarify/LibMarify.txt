@@ -1,0 +1,13 @@
+
+## Title: LibMarify
+## Author: @Marify
+## IsLibrary: true
+## APIVersion: 100033
+## Version: 1.2.5
+## AddOnVersion: 125
+## IsLibrary: true
+
+
+LibMarify.lua
+
+
