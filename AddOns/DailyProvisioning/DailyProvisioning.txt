@@ -2,7 +2,7 @@
 ## Title: |c3CB371Daily Provisioning|r
 ## Author: @Marify
 ## APIVersion: 100033
-## Version: 1.4.10
+## Version: 1.4.11
 ## DependsOn: LibAddonMenu-2.0 LibCustomMenu LibMarify
 ## OptionalDependsOn: DolgubonsLazyWritCreator RuESO EsoPL
 ## SavedVariables: DailyProvisioningVariables

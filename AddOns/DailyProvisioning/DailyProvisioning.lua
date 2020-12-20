@@ -2,7 +2,7 @@ DailyProvisioning = {
     displayName = "|c3CB371" .. "Daily Provisioning" .. "|r",
     shortName = "DP",
     name = "DailyProvisioning",
-    version = "1.4.10",
+    version = "1.4.11",
 
     emptySlot = nil,        -- ※Don't Finalize
 
@@ -657,11 +657,11 @@ function DailyProvisioning:GetQuestInfos()
         if self:IsValidQuest(questIdx, questName) then
 
             local isMaster = self:Contains(questName, GetString(DP_CRAFTING_MASTER))
-            local isEvent = self:Contains(questName, GetString(DP_CRAFTING_WITCH))
+            local isEvent = self:Contains(questName, GetString(DP_CRAFTING_EVENT1), GetString(DP_CRAFTING_WITCH))
             if isMaster then
                 hasMaster = true
             elseif isEvent then
-                isEvent = true
+                hasEvent = true
             else
                 hasDaily = true
             end
@@ -1132,7 +1132,7 @@ function DailyProvisioning:IsValidQuest(questIdx, questName)
                 return true
             end
 
-            if self:Contains(questName, GetString(DP_CRAFTING_WITCH)) then
+            if self:Contains(questName, GetString(DP_CRAFTING_EVENT1), GetString(DP_CRAFTING_WITCH)) then
                 for stepIdx = 1, GetJournalQuestNumSteps(questIdx) do
                     for conditionIdx = 1, GetJournalQuestNumConditions(questIdx, stepIdx) do
                         local txt, current, max, _, _, _, isVisible = GetJournalQuestConditionInfo(questIdx,
@@ -1431,7 +1431,7 @@ function DailyProvisioning:ShowContextMenu(inventorySlot, slotActions)
     if craftingType ~= CRAFTING_TYPE_PROVISIONING then
         return
     end
-    local isEvent = self:Contains(GetItemLinkName(itemLink), GetString(DP_CRAFTING_EVENT1))
+    local isEvent = self:Contains(GetItemLinkName(itemLink), GetString(DP_CRAFTING_EVENT1BOOK))
     self:Debug("　　isEvent=" .. tostring(isEvent))
 
 

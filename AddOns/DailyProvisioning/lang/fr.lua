@@ -4,8 +4,10 @@
 
 ZO_CreateStringId("DP_CRAFTING_QUEST",      "Commande de cuisine")              -- [fr.lang.csv] "52420949","0","5409","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_MASTER",     "Un festin magistral")              -- [fr.lang.csv] "52420949","0","5977","xxxxxxxx"
+ZO_CreateStringId("DP_CRAFTING_EVENT1",     "Une contribution charitable")      -- [fr.lang.csv] "52420949","0","6327","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_WITCH",      "Festival des sorcières")           -- [fr.lang.csv] "52420949","0","6427","xxxxxxxx"
-ZO_CreateStringId("DP_CRAFTING_EVENT1",     "commande caritative impériale")    -- [fr.lang.csv] "242841733","0","167169","xxxxxxxx"
+
+ZO_CreateStringId("DP_CRAFTING_EVENT1BOOK", "commande caritative impériale")    -- [fr.lang.csv] "242841733","0","167169","xxxxxxxx"
 
 ZO_CreateStringId("DP_BULK_HEADER",         "Création en bloc")
 ZO_CreateStringId("DP_BULK_FLG",            "Créer tous les éléments demandés à la fois")

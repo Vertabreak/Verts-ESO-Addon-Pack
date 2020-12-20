@@ -4,8 +4,10 @@
 
 ZO_CreateStringId("DP_CRAFTING_QUEST",      "Versorgerschrieb")                   -- [de.lang.csv] "52420949","0","5409","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_MASTER",     "Ein meisterhaftes Mahl")             -- [de.lang.csv] "52420949","0","5977","xxxxxxxx"
+ZO_CreateStringId("DP_CRAFTING_EVENT1",     "Eine wohltätige Unternehmung")       -- [de.lang.csv] "52420949","0","6327","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_WITCH",      "Hexenfestschrieb")                   -- [de.lang.csv] "52420949","0","6427","xxxxxxxx"
-ZO_CreateStringId("DP_CRAFTING_EVENT1",     "kaiserlicher Wohltätigkeitsschrieb") -- [de.lang.csv] "242841733","0","167169","xxxxxxxx"
+
+ZO_CreateStringId("DP_CRAFTING_EVENT1BOOK", "kaiserlicher Wohltätigkeitsschrieb") -- [de.lang.csv] "242841733","0","167169","xxxxxxxx"
 
 ZO_CreateStringId("DP_BULK_HEADER",         "Massenerstellung")
 ZO_CreateStringId("DP_BULK_FLG",            "Créer de nombreux médicaments et poisons")

@@ -4,8 +4,10 @@
 
 ZO_CreateStringId("DP_CRAFTING_QUEST",      "Заказ для снабженцев")                           -- [ru.lang.csv] "52420949","0","5409","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_MASTER",     "Мастерский пир")                                      -- [ru.lang.csv] "52420949","0","5977","xxxxxxxx"
+ZO_CreateStringId("DP_CRAFTING_EVENT1",     "Великодушное пожертвование")              -- [ru.lang.csv] "52420949","0","6327","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_WITCH",      "Заказ на Праздник ведьм")                      -- [ru.lang.csv] "52420949","0","6427","xxxxxxxx"
-ZO_CreateStringId("DP_CRAFTING_EVENT1",     "Имперский благотворительный заказ") -- [ru.lang.csv] "242841733","0","167169","xxxxxxxx"
+
+ZO_CreateStringId("DP_CRAFTING_EVENT1BOOK", "Имперский благотворительный заказ") -- [ru.lang.csv] "242841733","0","167169","xxxxxxxx"
 
 ZO_CreateStringId("DP_BULK_HEADER",         "Массовое создание")
 ZO_CreateStringId("DP_BULK_FLG",            "Создаёт все необходимые предметы за раз")

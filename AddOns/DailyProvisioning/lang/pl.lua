@@ -2,10 +2,12 @@
 -- Polish localization for DailyProvisioning
 ------------------------------------------------
 
-ZO_CreateStringId("DP_CRAFTING_QUEST",      "Provisioner Writ")         -- [pl.lang.csv] "52420949","0","5409","xxxxxxxx"
-ZO_CreateStringId("DP_CRAFTING_MASTER",     "A Masterful Feast")        -- [pl.lang.csv] "52420949","0","5977","xxxxxxxx"
-ZO_CreateStringId("DP_CRAFTING_WITCH",      "Witches Festival Writ")    -- [pl.lang.csv] "52420949","0","6427","xxxxxxxx"
-ZO_CreateStringId("DP_CRAFTING_EVENT1",     "Imperial Charity Writ")    -- [pl.lang.csv] "242841733","0","167169","xxxxxxxx"
+ZO_CreateStringId("DP_CRAFTING_QUEST",      "Provisioner Writ")             -- [pl.lang.csv] "52420949","0","5409","xxxxxxxx"
+ZO_CreateStringId("DP_CRAFTING_MASTER",     "A Masterful Feast")            -- [pl.lang.csv] "52420949","0","5977","xxxxxxxx"
+ZO_CreateStringId("DP_CRAFTING_EVENT1",     "A Charitable Contribution")    -- [en.lang.csv] "52420949","0","6327","xxxxxxxx"
+ZO_CreateStringId("DP_CRAFTING_WITCH",      "Witches Festival Writ")        -- [en.lang.csv] "52420949","0","6427","xxxxxxxx"
+
+ZO_CreateStringId("DP_CRAFTING_EVENT1BOOK", "Imperial Charity Writ")        -- [pl.lang.csv] "242841733","0","167169","xxxxxxxx"
 
 ZO_CreateStringId("DP_BULK_HEADER",         "Bulk Creation")
 ZO_CreateStringId("DP_BULK_FLG",            "Create all the requested items at once")

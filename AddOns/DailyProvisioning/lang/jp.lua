@@ -4,9 +4,10 @@
 
 ZO_CreateStringId("DP_CRAFTING_QUEST",      "調理師の依頼")     -- [jp.lang.csv] "52420949","0","5409","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_MASTER",     "優れた料理")       -- [jp.lang.csv] "52420949","0","5977","xxxxxxxx"
+ZO_CreateStringId("DP_CRAFTING_EVENT1",     "慈善への貢献")     -- [jp.lang.csv] "52420949","0","6327","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_WITCH",      "魔女祭りの依頼")   -- [jp.lang.csv] "52420949","0","6427","xxxxxxxx"
-ZO_CreateStringId("DP_CRAFTING_EVENT1",     "帝国慈善依頼")     -- [jp.lang.csv] "242841733","0","167169","xxxxxxxx"
 
+ZO_CreateStringId("DP_CRAFTING_EVENT1BOOK", "帝国慈善依頼")     -- [jp.lang.csv] "242841733","0","167169","xxxxxxxx"
 
 ZO_CreateStringId("DP_BULK_HEADER",         "一括作成")
 ZO_CreateStringId("DP_BULK_FLG",            "依頼品を一括作成する")

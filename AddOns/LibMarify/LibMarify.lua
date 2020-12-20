@@ -3,7 +3,7 @@ LibMarify = {
     displayName = "|c3CB371" .. "Lib Marify" .. "|r",
     shortName = "LM",
     name = "LibMarify",
-    version = "1.2.5",
+    version = "1.2.6",
 
     hookColor      = "FFAC00",
     checkColor     = "55FF00",
@@ -282,10 +282,12 @@ function LibMarify:GetCraftingTypeByLink(itemLink)
             local resultItemLink = zo_strformat("|H1:item:<<1>>:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h", arg1)
             local resultItemType = GetItemLinkItemType(resultItemLink)
 
-            if self:Contains(itemIcon, "witchesfestival") then
-                return CRAFTING_TYPE_PROVISIONING, 4
-            else
-                return CRAFTING_TYPE_PROVISIONING, 12
+            if self:Contains(resultItemType, ITEMTYPE_FOOD, ITEMTYPE_DRINK) then
+                if self:Contains(itemIcon, "witchesfestival") then
+                    return CRAFTING_TYPE_PROVISIONING, 4
+                else
+                    return CRAFTING_TYPE_PROVISIONING, 12
+                end
             end
 
         elseif arg1 == "199" then
