@@ -738,16 +738,16 @@ local function OnAddOnLoaded(eventCode, addonName)
   --- Create default settings ---
   Settings = ArkadiusTradeToolsData.settings
   if (Settings.showOnMailbox == nil) then
-    Settings.showOnMailbox = true
+    Settings.showOnMailbox = false
   end
   if (Settings.showOnGuildStore == nil) then
-    Settings.showOnGuildStore = true
+    Settings.showOnGuildStore = false
   end
   if (Settings.showOnCraftingStation == nil) then
     Settings.showOnCraftingStation = false
   end
   if (Settings.showNotifications == nil) then
-    Settings.showNotifications = true
+    Settings.showNotifications = false
   end
   if (Settings.showNotificationsDuringCombat == nil) then
     Settings.showNotificationsDuringCombat = false

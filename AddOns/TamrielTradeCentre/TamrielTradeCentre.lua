@@ -544,7 +544,7 @@ function TamrielTradeCentre:GenerateDefaultSavedVar()
 	settings.EnableToolTipStat = true
 	settings.EnableToolTipLastUpdate = true
 
-	settings.MaxAutoRecordStoreEntryCount = 20000
+	settings.MaxAutoRecordStoreEntryCount = 40000
 
 	settings.AdditionalPriceToChatLang = {}
 

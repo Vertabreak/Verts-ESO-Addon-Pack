@@ -8,7 +8,7 @@ AccountSettings.displayName = "|cff8555Account Settings|r"
 AccountSettings.str = ""
 
 AccountSettings.Default = {}
-AccountSettings.Default.sync = true
+AccountSettings.Default.sync = false
 AccountSettings.Default.log = false
 AccountSettings.Default.debug = false
 AccountSettings.Default.settings = {}

@@ -67,7 +67,7 @@ MailR.SavedMail_defaults = {
 	sent_messages = {},
 	inbox_count = 0,
 	inbox_messages = {},
-	show_donation = true, 
+	show_donation = false, 
 	throttle_time = 1 --seconds (can be fractional)
 }
 -- saved mail
