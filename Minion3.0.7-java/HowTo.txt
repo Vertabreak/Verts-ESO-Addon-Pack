@@ -1,6 +1,0 @@
-Linux Users
-go to properties of start.sh and make it executable.
-open a terminal cd to this directory 
-run start.sh with command ./start.sh
-use minion as usual.
-
