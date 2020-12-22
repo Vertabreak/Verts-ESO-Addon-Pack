@@ -1,9 +1,0 @@
-<Bindings>
-  <Layer name="SI_KEYBINDINGS_LAYER_VOTANS_IMPROVED_LOCATIONS">
-    <Category>
-      <Action name="VOTANS_TOGGLE_LOCATION_FAVORITE">
-        <Down>return ZO_KeybindStrip_HandleKeybindDown(keybind)</Down>
-      </Action>
-    </Category>
-  </Layer>
-</Bindings>

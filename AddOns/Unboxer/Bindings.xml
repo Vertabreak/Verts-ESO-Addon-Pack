@@ -1,9 +1,0 @@
-<Bindings>
-  <Layer name="SI_KEYBINDINGS_LAYER_GENERAL">
-    <Category name="SI_UNBOXER">
-      <Action name="UNBOX_ALL" rebindable="true">
-        <Down>return Unboxer.UnboxAll()</Down>
-      </Action>
-    </Category>
-  </Layer>
-</Bindings>
