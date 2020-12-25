@@ -1,0 +1,41 @@
+[COLOR="DeepSkyBlue"]1.4.3 (7)[/COLOR]
+[LIST]
+[*] API bump (Markarth).
+[/LIST]
+
+[COLOR="DeepSkyBlue"]1.4.2 (6)[/COLOR]
+[LIST]
+[*] API bump.
+[/LIST]
+
+[COLOR="DeepSkyBlue"]1.4.1 (5)[/COLOR]
+[LIST]
+[*] API bump. Greymoor.
+[/LIST]
+
+[COLOR="DeepSkyBlue"]1.4 (4)[/COLOR]
+[LIST]
+[*] Corrected German translations courtesy of Sir Teddy the First. Thanks also to Baertram for the assist!
+[/LIST]
+
+[COLOR="DeepSkyBlue"]1.3 (3)[/COLOR]
+[LIST]
+[*] Added AddonVersion to manifest file.
+[/LIST]
+
+[COLOR="DeepSkyBlue"]1.2[/COLOR]
+[LIST]
+[*] Japanese translation courtesy of Calamath.
+[*] Removed loadup debug message that was printing in chat. Reported by Calamath)
+[/LIST]
+
+[COLOR="DeepSkyBlue"]1.1[/COLOR]
+[LIST]
+[*] German translations courtesy of Google. Corrections are welcome.
+[*] French translations courtesy of Google. Corrections are welcome.
+[/LIST]
+
+[COLOR="DeepSkyBlue"]1.0.1[/COLOR]
+[LIST]
+[*] Fixed missing initial quote mark on RS_ACCOUNTWIDE_TT for the German strings. (reported by EinsErr0R)
+[/LIST]

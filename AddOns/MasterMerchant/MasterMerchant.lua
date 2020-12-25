@@ -3058,10 +3058,10 @@ function MasterMerchant:Initialize()
     rankIndexRoster            = 1,
     viewBuyerSeller            = 'buyer',
     viewGuildBuyerSeller       = 'seller',
-    trimOutliers               = false,
-    trimDecimals               = false,
-    replaceInventoryValues     = false,
-    displaySalesDetails        = false,
+    trimOutliers               = true,
+    trimDecimals               = true,
+    replaceInventoryValues     = true,
+    displaySalesDetails        = true,
     displayItemAnalysisButtons = false,
     noSalesInfoDeal            = 2,
     focus1                     = 10,
@@ -3082,7 +3082,7 @@ function MasterMerchant:Initialize()
     --[[you can assign this as the default but it needs to be a global var
     customTimeframeText = tostring(90) .. ' ' .. GetString(MM_CUSTOM_TIMEFRAME_DAYS),
     ]]--
-    minimalIndexing            = false,
+    minimalIndexing            = true,
     useSalesHistory            = false,
     historyDepth               = 30,
     minItemCount               = 20,

@@ -120,10 +120,14 @@ local AvAitems={
 [SPECIALIZED_ITEMTYPE_AVA_REPAIR]=true,
 }
 local Fragments={
---[SPECIALIZED_ITEMTYPE_TROPHY_KEY]=true,[SPECIALIZED_ITEMTYPE_TROPHY_KEY_FRAGMENT]=true,[SPECIALIZED_ITEMTYPE_TROPHY_MATERIAL_UPGRADER]=true,[SPECIALIZED_ITEMTYPE_TROPHY_RUNEBOX_FRAGMENT]=true,
+--[SPECIALIZED_ITEMTYPE_TROPHY_KEY]=true,
+[SPECIALIZED_ITEMTYPE_TROPHY_KEY_FRAGMENT]=true,
+[SPECIALIZED_ITEMTYPE_TROPHY_MATERIAL_UPGRADER]=true,
+[SPECIALIZED_ITEMTYPE_TROPHY_RUNEBOX_FRAGMENT]=true,
 [SPECIALIZED_ITEMTYPE_TROPHY_RECIPE_FRAGMENT]=true,
 [SPECIALIZED_ITEMTYPE_TROPHY_COLLECTIBLE_FRAGMENT]=true,
-[SPECIALIZED_ITEMTYPE_TROPHY_UPGRADE_FRAGMENT]=true,}
+[SPECIALIZED_ITEMTYPE_TROPHY_UPGRADE_FRAGMENT]=true,
+}
 local IsCommonStyle={
 	[0]=true,
 	[ITEMSTYLE_RACIAL_BRETON]=true,
@@ -160,16 +164,16 @@ local Destroy={
 	}
 local Default={	--Base settings
 --	World			=string.match(GetWorldName(),"%a+"),
-	Sell			=false,
-	Transfer		=false,
-	Deposit		=false,
-	Launder		=false,
+	Sell			=true,
+	Transfer		=true,
+	Deposit		=true,
+	Launder		=true,
 	ChatOutput		=true,
-	DetailedBank	=false,
-	DetailedLoot	=false,
+	DetailedBank	=true,
+	DetailedLoot	=true,
 	RememberJunk	=true,
 	--			Quality,	Price,	Destroy,	Junk,		ToBank,	FromBank
-	Gold			={nil,	10000,	nil,		nil,		false,	false},
+	Gold			={nil,	250,	nil,		nil,		false,	false},
 	Telvar		={nil,	0,		nil,		nil,		false,	false},
 	AP			={nil,	0,		nil,		nil,		false,	false},
 	Voucher		={nil,	0,		nil,		nil,		false,	false},
@@ -180,8 +184,8 @@ local Default={	--Base settings
 --		MonsterParts	=false,
 		RareStyleEquip	=false,
 		SetItems		=false,
-		Ornate		=false,
-		Intricate		=false,
+		Ornate		=true,
+		Intricate		=true,
 		FishingLure		=false,
 	Stolen		={3,		10,		false,	false,	nil,		nil},
 	Jewelry		={1,		0,		false,	false,	false,	nil},
@@ -414,7 +418,10 @@ local ItemFilters={
 	}
 }
 --	/script local itemIcon=GetItemLinkInfo("|H1:item:71779:4:1:0:0:0:0:0:0:0:0:0:0:0:1:0:0:1:0:0:0|h|h") StartChatInput(itemIcon)
-local isRecipe={[SPECIALIZED_ITEMTYPE_RECIPE_PROVISIONING_STANDARD_DRINK]=true,[SPECIALIZED_ITEMTYPE_RECIPE_PROVISIONING_STANDARD_FOOD]=true}
+local isRecipe={
+[SPECIALIZED_ITEMTYPE_RECIPE_PROVISIONING_STANDARD_DRINK]=true,
+[SPECIALIZED_ITEMTYPE_RECIPE_PROVISIONING_STANDARD_FOOD]=true
+}
 local isScheme={
 [SPECIALIZED_ITEMTYPE_RECIPE_ALCHEMY_FORMULA_FURNISHING]=true,
 [SPECIALIZED_ITEMTYPE_RECIPE_BLACKSMITHING_DIAGRAM_FURNISHING]=true,

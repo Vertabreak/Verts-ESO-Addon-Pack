@@ -8,32 +8,32 @@ MD.version = "5.2"
 MD.settings = {}
 
 MD.defaults = {
-  DeconstructOrnate = false,
-  DeconstructBound = false,
-  DeconstructSetPiece = false,
-  DeconstructCrafted = false,
+  DeconstructOrnate = true,
+  DeconstructBound = true,
+  DeconstructSetPiece = true,
+  DeconstructCrafted = true,
   Debug = false,
-  BankMode = false,
-  Verbose = false,
+  BankMode = true,
+  Verbose = true,
   Clothing = {
     maxQuality = 4,
-    DeconstructIntricate = false,
+    DeconstructIntricate = true,
   },
   Blacksmithing = {
     maxQuality = 4,
-    DeconstructIntricate = false,
+    DeconstructIntricate = true,
   },
   Woodworking = {
     maxQuality = 4,
-    DeconstructIntricate = false,
+    DeconstructIntricate = true,
   },
   Enchanting = {
     maxQuality = 4,
-    DeconstructIntricate = false,
+    DeconstructIntricate = true,
   },
   JewelryCrafting = {
     maxQuality = 4,
-    DeconstructIntricate = false,
+    DeconstructIntricate = true,
   },
 }
 
