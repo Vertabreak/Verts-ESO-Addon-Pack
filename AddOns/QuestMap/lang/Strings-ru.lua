@@ -16,6 +16,7 @@ local strings = {
     QUESTMAP_DAILY                  = "Ежедневные",
     QUESTMAP_CADWELL                = "Кэдвелл",
     QUESTMAP_SKILL                  = "Очки навыков",
+    QUESTMAP_HOLIDAY              = "Holiday",
 
     QUESTMAP_HIDE                   = "Скрыть задание",
     QUESTMAP_UNHIDE                 = "Раскрыть задание",
@@ -100,6 +101,13 @@ local strings = {
 
     QUESTMAP_REPEATABLE_TOOLTIP_COLOR  = "Цвет подсказок повторяемых заданий",
     QUESTMAP_REPEATABLE_TOOLTIP_COLOR_DESC  = "Смена цвета подсказок повторяемых заданий",
+
+    -- Holiday quest pin text
+    QUESTMAP_HOLIDAY_PIN_COLOR  = "Holiday Quest Pin Color",
+    QUESTMAP_HOLIDAY_PIN_COLOR_DESC  = "Change Holiday Quest Pin Color",
+
+    QUESTMAP_HOLIDAY_TOOLTIP_COLOR  = "Holiday Quest Tooltip Color",
+    QUESTMAP_HOLIDAY_TOOLTIP_COLOR_DESC  = "Change Holiday Quest Tooltip Color",
 
     -- Daily quest pin text
     QUESTMAP_DAILY_PIN_COLOR  = "Цвет меток ежедневных заданий",

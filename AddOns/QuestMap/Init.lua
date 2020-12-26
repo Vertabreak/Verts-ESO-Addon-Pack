@@ -80,6 +80,7 @@ QuestMap.PIN_TYPE_QUEST_DAILY          = "QuestMap_daily"
 QuestMap.PIN_TYPE_QUEST_CADWELL        = "QuestMap_cadwell"
 QuestMap.PIN_TYPE_QUEST_SKILL          = "QuestMap_skill"
 QuestMap.PIN_TYPE_QUEST_DUNGEON        = "QuestMap_dungeon"
+QuestMap.PIN_TYPE_QUEST_HOLIDAY        = "QuestMap_holiday"
 
 QuestMap.PIN_TYPE_QUEST_UNCOMPLETED_PVP    = "QuestMap_uncompleted_pvp"
 QuestMap.PIN_TYPE_QUEST_COMPLETED_PVP      = "QuestMap_completed_pvp"
@@ -90,6 +91,7 @@ QuestMap.PIN_TYPE_QUEST_DAILY_PVP          = "QuestMap_daily_pvp"
 QuestMap.PIN_TYPE_QUEST_CADWELL_PVP        = "QuestMap_cadwell_pvp"
 QuestMap.PIN_TYPE_QUEST_SKILL_PVP          = "QuestMap_skill_pvp"
 QuestMap.PIN_TYPE_QUEST_DUNGEON_PVP        = "QuestMap_dungeon_pvp"
+QuestMap.PIN_TYPE_QUEST_HOLIDAY_PVP        = "QuestMap_holiday_pvp"
 
 QuestMap.icon_sets = {
     QuestMap = "QuestMap/icons/pinQuestCompleted.dds",
@@ -152,6 +154,7 @@ QuestMap.pin_color[QuestMap.PIN_TYPE_QUEST_DAILY]       = ZO_ColorDef:New(unpack
 QuestMap.pin_color[QuestMap.PIN_TYPE_QUEST_CADWELL]     = ZO_ColorDef:New(unpack(QuestMap.color_default))
 QuestMap.pin_color[QuestMap.PIN_TYPE_QUEST_SKILL]       = ZO_ColorDef:New(unpack(QuestMap.color_default))
 QuestMap.pin_color[QuestMap.PIN_TYPE_QUEST_DUNGEON]     = ZO_ColorDef:New(unpack(QuestMap.color_default))
+QuestMap.pin_color[QuestMap.PIN_TYPE_QUEST_HOLIDAY]     = ZO_ColorDef:New(unpack(QuestMap.color_default))
 
 QuestMap.tooltip_color = {}
 QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_UNCOMPLETED] = ZO_ColorDef:New(unpack(QuestMap.color_default))
@@ -163,6 +166,7 @@ QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_DAILY]       = ZO_ColorDef:New(un
 QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_CADWELL]     = ZO_ColorDef:New(unpack(QuestMap.color_default))
 QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_SKILL]       = ZO_ColorDef:New(unpack(QuestMap.color_default))
 QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_DUNGEON]     = ZO_ColorDef:New(unpack(QuestMap.color_default))
+QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_HOLIDAY] = ZO_ColorDef:New(unpack(QuestMap.color_default))
 
 QuestMap.QUEST_NAME_LAYOUT = {
 
@@ -187,31 +191,31 @@ QuestMap.QUEST_NAME_LAYOUT = {
     [QuestMap.PIN_TYPE_QUEST_STARTED] =
     {
         color_default = { [1] = 1, [2] = 0, [3] = 1, [4] = 1, },
-        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_UNCOMPLETED],
+        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_STARTED],
         suffix = "(ST)",
     },
     [QuestMap.PIN_TYPE_QUEST_REPEATABLE] =
     {
         color_default = { [1] = 0.1254902035, [2] = 0.9607843161, [3] = 1, [4] = 1, },
-        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_UNCOMPLETED],
+        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_REPEATABLE],
         suffix = "(RP)",
     },
     [QuestMap.PIN_TYPE_QUEST_DAILY] =
     {
         color_default = { [1] = 0.1843137294, [2] = 1, [3] = 0.1725490242, [4] = 1, },
-        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_UNCOMPLETED],
+        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_DAILY],
         suffix = "(DA)",
     },
     [QuestMap.PIN_TYPE_QUEST_CADWELL] =
     {
         color_default = { [1] = 0.8313725591, [2] = 0.6823529601, [3] = 0.2117647082, [4] = 1, },
-        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_UNCOMPLETED],
+        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_CADWELL],
         suffix = "(CW)",
     },
     [QuestMap.PIN_TYPE_QUEST_SKILL] =
     {
         color_default = { [1] = 0, [2] = 0, [3] = 1, [4] = 1, },
-        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_UNCOMPLETED],
+        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_SKILL],
         suffix = "(SK)",
     },
     [QuestMap.PIN_TYPE_QUEST_DUNGEON] =
@@ -219,6 +223,12 @@ QuestMap.QUEST_NAME_LAYOUT = {
         color_default = { [1] = 1, [2] = 1, [3] = 1, [4] = 1, },
         color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_DUNGEON],
         suffix = "(DN)",
+    },
+    [QuestMap.PIN_TYPE_QUEST_HOLIDAY] =
+    {
+        color_default = { [1] = 1, [2] = 1, [3] = 1, [4] = 1, },
+        color = QuestMap.tooltip_color[QuestMap.PIN_TYPE_QUEST_HOLIDAY],
+        suffix = "(HO)",
     },
 }
 
@@ -238,6 +248,7 @@ QuestMap.settings_default = {
         [QuestMap.PIN_TYPE_QUEST_CADWELL]                = false,
         [QuestMap.PIN_TYPE_QUEST_SKILL]                  = false,
         [QuestMap.PIN_TYPE_QUEST_DUNGEON]                = false,
+        [QuestMap.PIN_TYPE_QUEST_HOLIDAY]                = false,
         [QuestMap.PIN_TYPE_QUEST_UNCOMPLETED_PVP]    = true,
         [QuestMap.PIN_TYPE_QUEST_COMPLETED_PVP]      = false,
         [QuestMap.PIN_TYPE_QUEST_HIDDEN_PVP]         = false,
@@ -247,6 +258,7 @@ QuestMap.settings_default = {
         [QuestMap.PIN_TYPE_QUEST_CADWELL_PVP]        = false,
         [QuestMap.PIN_TYPE_QUEST_SKILL_PVP]          = false,
         [QuestMap.PIN_TYPE_QUEST_DUNGEON_PVP]        = false,
+        [QuestMap.PIN_TYPE_QUEST_HOLIDAY_PVP]        = false,
     },
     ["displayClickMsg"] = true,
     ["displayHideQuest"] = true,
@@ -263,6 +275,7 @@ QuestMap.settings_default = {
         [QuestMap.PIN_TYPE_QUEST_CADWELL]        = QuestMap.QUEST_NAME_LAYOUT[QuestMap.PIN_TYPE_QUEST_CADWELL].color_default,
         [QuestMap.PIN_TYPE_QUEST_SKILL]          = QuestMap.QUEST_NAME_LAYOUT[QuestMap.PIN_TYPE_QUEST_SKILL].color_default,
         [QuestMap.PIN_TYPE_QUEST_DUNGEON]        = QuestMap.QUEST_NAME_LAYOUT[QuestMap.PIN_TYPE_QUEST_DUNGEON].color_default,
+        [QuestMap.PIN_TYPE_QUEST_HOLIDAY]        = QuestMap.QUEST_NAME_LAYOUT[QuestMap.PIN_TYPE_QUEST_HOLIDAY].color_default,
     },
     ["pin_tooltip_colors"] = {
         [QuestMap.PIN_TYPE_QUEST_UNCOMPLETED]    = QuestMap.QUEST_NAME_LAYOUT[QuestMap.PIN_TYPE_QUEST_UNCOMPLETED].color_default,
@@ -274,5 +287,6 @@ QuestMap.settings_default = {
         [QuestMap.PIN_TYPE_QUEST_CADWELL]        = QuestMap.QUEST_NAME_LAYOUT[QuestMap.PIN_TYPE_QUEST_CADWELL].color_default,
         [QuestMap.PIN_TYPE_QUEST_SKILL]          = QuestMap.QUEST_NAME_LAYOUT[QuestMap.PIN_TYPE_QUEST_SKILL].color_default,
         [QuestMap.PIN_TYPE_QUEST_DUNGEON]        = QuestMap.QUEST_NAME_LAYOUT[QuestMap.PIN_TYPE_QUEST_DUNGEON].color_default,
+        [QuestMap.PIN_TYPE_QUEST_HOLIDAY]        = QuestMap.QUEST_NAME_LAYOUT[QuestMap.PIN_TYPE_QUEST_HOLIDAY].color_default,
     },
 }

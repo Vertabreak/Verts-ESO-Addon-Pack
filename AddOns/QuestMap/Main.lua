@@ -27,6 +27,7 @@ local flag_daily_quest         = 6
 local flag_skill_quest         = 7
 local flag_cadwell_quest       = 8
 local flag_dungeon_quest       = 9
+local flag_holiday_quest       = 10
 
 -- Local variables
 local zoneQuests = {}
@@ -249,6 +250,7 @@ function QuestMap:RefreshPins()
     LMP:RefreshPins(QuestMap.PIN_TYPE_QUEST_CADWELL)
     LMP:RefreshPins(QuestMap.PIN_TYPE_QUEST_SKILL)
     LMP:RefreshPins(QuestMap.PIN_TYPE_QUEST_DUNGEON)
+    LMP:RefreshPins(QuestMap.PIN_TYPE_QUEST_HOLIDAY)
 end
 
 -- Callback function which is called every time another map is viewed, creates quest pins
@@ -259,8 +261,11 @@ ZO_HINT_TEXT
 ]]--
 local function FormatQuestName(questName, questNameLayoutType)
     --QuestMap.dm("Debug", "FormatQuestName")
+    QuestMap.dm("Debug", questNameLayoutType)
     local layout = QuestMap.QUEST_NAME_LAYOUT[questNameLayoutType]
+    QuestMap.dm("Debug", layout)
     local color = layout.color
+    QuestMap.dm("Debug", color)
     local suffix = layout.suffix
     local color_def = QuestMap.settings["pin_tooltip_colors"][questNameLayoutType]
     color:SetRGBA(unpack(color_def))
@@ -302,7 +307,7 @@ WORLD_MAP_SCENE:RegisterCallback("StateChange", function(oldState, newState)
     end
 end)
 
-local function assign_quest_flag(completed_quest, hidden_quest, started_quest, repeatable_type, skill_quest, cadwell_quest)
+local function assign_quest_flag(completed_quest, hidden_quest, started_quest, repeatable_type, skill_quest, cadwell_quest, holiday_quest)
     --QuestMap.dm("Debug", completed_quest)
     --QuestMap.dm("Debug", hidden_quest)
     --QuestMap.dm("Debug", started_quest)
@@ -316,6 +321,7 @@ local function assign_quest_flag(completed_quest, hidden_quest, started_quest, r
     local fstq = false -- flag_started_quest
     local freq = false -- flag_repeatable_quest
     local fdaq = false -- flag_daily_quest
+    local fhoq = false -- flag_holiday_quest
     local fskq = false -- flag_skill_quest
     local fcwq = false -- flag_cadwell_quest
 
@@ -327,11 +333,17 @@ local function assign_quest_flag(completed_quest, hidden_quest, started_quest, r
     if repeatable_type == LQD.quest_data_repeat.quest_repeat_daily then fdaq = true end
     if skill_quest then fskq = true end
     if cadwell_quest then fcwq = true end
+    if holiday_quest then fhoq = true end
 
     --[[
     Repeatable and daily are unique since they
     could be in a completed or uncompleted state.
+
+    Added holliday
     ]]--
+    if fhoq then
+        return flag_holiday_quest
+    end
     if freq then
         return flag_repeatable_quest
     end
@@ -419,9 +431,12 @@ local function MapCallbackQuestPins(pinType)
             local repeatable_type = LQD:get_quest_repeat(quest[LQD.quest_map_pin_index.quest_id])
             local skill_quest = LQD.quest_rewards_skilpoint[quest[LQD.quest_map_pin_index.quest_id]] or false
             local cadwell_quest = LQD:get_qm_quest_type(quest[LQD.quest_map_pin_index.quest_id]) or false
+            local holiday_quest = LQD:is_holiday_quest(quest[LQD.quest_map_pin_index.quest_id]) or false
+            QuestMap.dm("Debug", name)
+            QuestMap.dm("Debug", holiday_quest)
 
             -- With the data collected pass it all to assign_quest_flag. The result should be one flag only
-            quest_flag = assign_quest_flag(completed_quest, hidden_quest, started_quest, repeatable_type, skill_quest, cadwell_quest)
+            quest_flag = assign_quest_flag(completed_quest, hidden_quest, started_quest, repeatable_type, skill_quest, cadwell_quest, holiday_quest)
 
             local pinInfo = { id = quest[LQD.quest_map_pin_index.quest_id] } -- pinName is defined later
 
@@ -472,6 +487,16 @@ local function MapCallbackQuestPins(pinType)
                         --QuestMap.dm("Debug", QuestMap.PIN_TYPE_QUEST_DAILY)
                         pinInfo.pinName = FormatQuestName(name, QuestMap.PIN_TYPE_QUEST_DAILY)
                         LMP:CreatePin(QuestMap.PIN_TYPE_QUEST_DAILY, pinInfo, quest[LQD.quest_map_pin_index.local_x], quest[LQD.quest_map_pin_index.local_y])
+                    end
+                end
+            end
+
+            if pinType == QuestMap.PIN_TYPE_QUEST_HOLIDAY then
+                if quest_flag == flag_holiday_quest then
+                    if LMP:IsEnabled(QuestMap.PIN_TYPE_QUEST_HOLIDAY) then
+                        --QuestMap.dm("Debug", QuestMap.PIN_TYPE_QUEST_HOLIDAY)
+                        pinInfo.pinName = FormatQuestName(name, QuestMap.PIN_TYPE_QUEST_HOLIDAY)
+                        LMP:CreatePin(QuestMap.PIN_TYPE_QUEST_HOLIDAY, pinInfo, quest[LQD.quest_map_pin_index.local_x], quest[LQD.quest_map_pin_index.local_y])
                     end
                 end
             end
@@ -555,6 +580,8 @@ function QuestMap:RefreshPinLayout()
     QuestMap:refresh_specific_layout(QuestMap.PIN_TYPE_QUEST_CADWELL, QuestMap.settings.pinSize, QuestMap.settings.pinLevel, QuestMap.icon_sets[QuestMap.settings.iconRepeatableSet])
 
     QuestMap:refresh_specific_layout(QuestMap.PIN_TYPE_QUEST_DUNGEON, QuestMap.settings.pinSize, QuestMap.settings.pinLevel, QuestMap.icon_sets[QuestMap.settings.iconRepeatableSet])
+
+    QuestMap:refresh_specific_layout(QuestMap.PIN_TYPE_QUEST_HOLIDAY, QuestMap.settings.pinSize, QuestMap.settings.pinLevel+DAILY_REPEATABLE_PIN_OFFSET, QuestMap.icon_sets[QuestMap.settings.iconRepeatableSet])
 end
 
 -- Function to refresh pin filters (e.g. from settings menu)
@@ -567,6 +594,7 @@ function QuestMap:RefreshPinFilters()
     LMP:SetEnabled(QuestMap.PIN_TYPE_QUEST_DAILY,        QuestMap.settings.pinFilters[QuestMap.PIN_TYPE_QUEST_DAILY])
     LMP:SetEnabled(QuestMap.PIN_TYPE_QUEST_SKILL,        QuestMap.settings.pinFilters[QuestMap.PIN_TYPE_QUEST_SKILL])
     LMP:SetEnabled(QuestMap.PIN_TYPE_QUEST_CADWELL,      QuestMap.settings.pinFilters[QuestMap.PIN_TYPE_QUEST_CADWELL])
+    LMP:SetEnabled(QuestMap.PIN_TYPE_QUEST_HOLIDAY,      QuestMap.settings.pinFilters[QuestMap.PIN_TYPE_QUEST_HOLIDAY])
 end
 
 -- Function to (un)hide all quests on the currently displayed map
@@ -722,6 +750,12 @@ local function OnLoad(eventCode, addOnName)
             size = QuestMap.settings.pinSize,
             tint = QuestMap.pin_color[QuestMap.PIN_TYPE_QUEST_DUNGEON]
         },
+        [QuestMap.PIN_TYPE_QUEST_HOLIDAY] = {
+            level = QuestMap.settings.pinLevel+DAILY_REPEATABLE_PIN_OFFSET,
+            texture = QuestMap.icon_sets[QuestMap.settings.iconRepeatableSet],
+            size = QuestMap.settings.pinSize,
+            tint = QuestMap.pin_color[QuestMap.PIN_TYPE_QUEST_HOLIDAY]
+        },
     }
 
     -- Add new pin types for quests
@@ -731,6 +765,7 @@ local function OnLoad(eventCode, addOnName)
     LMP:AddPinType(QuestMap.PIN_TYPE_QUEST_STARTED, function() MapCallbackQuestPins(QuestMap.PIN_TYPE_QUEST_STARTED) end, nil, pinLayout[QuestMap.PIN_TYPE_QUEST_STARTED], pinTooltipCreator)
     LMP:AddPinType(QuestMap.PIN_TYPE_QUEST_REPEATABLE, function() MapCallbackQuestPins(QuestMap.PIN_TYPE_QUEST_REPEATABLE) end, nil, pinLayout[QuestMap.PIN_TYPE_QUEST_REPEATABLE], pinTooltipCreator)
     LMP:AddPinType(QuestMap.PIN_TYPE_QUEST_DAILY, function() MapCallbackQuestPins(QuestMap.PIN_TYPE_QUEST_DAILY) end, nil, pinLayout[QuestMap.PIN_TYPE_QUEST_DAILY], pinTooltipCreator)
+    LMP:AddPinType(QuestMap.PIN_TYPE_QUEST_HOLIDAY, function() MapCallbackQuestPins(QuestMap.PIN_TYPE_QUEST_HOLIDAY) end, nil, pinLayout[QuestMap.PIN_TYPE_QUEST_HOLIDAY], pinTooltipCreator)
 
     LMP:AddPinType(QuestMap.PIN_TYPE_QUEST_CADWELL, function() MapCallbackQuestPins(QuestMap.PIN_TYPE_QUEST_CADWELL) end, nil, pinLayout[QuestMap.PIN_TYPE_QUEST_CADWELL], pinTooltipCreator)
     LMP:AddPinType(QuestMap.PIN_TYPE_QUEST_SKILL, function() MapCallbackQuestPins(QuestMap.PIN_TYPE_QUEST_SKILL) end, nil, pinLayout[QuestMap.PIN_TYPE_QUEST_SKILL], pinTooltipCreator)
@@ -745,6 +780,7 @@ local function OnLoad(eventCode, addOnName)
     LMP:AddPinFilter(QuestMap.PIN_TYPE_QUEST_DAILY, GetString(QUESTMAP_QUESTS).." ("..GetString(QUESTMAP_DAILY)..")", true, QuestMap.settings.pinFilters, QuestMap.PIN_TYPE_QUEST_DAILY, QuestMap.PIN_TYPE_QUEST_DAILY_PVP)
     LMP:AddPinFilter(QuestMap.PIN_TYPE_QUEST_CADWELL, GetString(QUESTMAP_QUESTS).." ("..GetString(QUESTMAP_CADWELL)..")", true, QuestMap.settings.pinFilters, QuestMap.PIN_TYPE_QUEST_CADWELL, QuestMap.PIN_TYPE_QUEST_CADWELL_PVP)
     LMP:AddPinFilter(QuestMap.PIN_TYPE_QUEST_SKILL, GetString(QUESTMAP_QUESTS).." ("..GetString(QUESTMAP_SKILL)..")", true, QuestMap.settings.pinFilters, QuestMap.PIN_TYPE_QUEST_SKILL, QuestMap.PIN_TYPE_QUEST_SKILL_PVP)
+    LMP:AddPinFilter(QuestMap.PIN_TYPE_QUEST_HOLIDAY, GetString(QUESTMAP_QUESTS).." ("..GetString(QUESTMAP_HOLIDAY)..")", true, QuestMap.settings.pinFilters, QuestMap.PIN_TYPE_QUEST_HOLIDAY, QuestMap.PIN_TYPE_QUEST_HOLIDAY_PVP)
 
     LMP:SetPinFilterHidden(QuestMap.PIN_TYPE_QUEST_CADWELL, "pvp", true)
     LMP:SetPinFilterHidden(QuestMap.PIN_TYPE_QUEST_CADWELL, "imperialPvP", true)
@@ -752,6 +788,9 @@ local function OnLoad(eventCode, addOnName)
     LMP:SetPinFilterHidden(QuestMap.PIN_TYPE_QUEST_SKILL, "pvp", true)
     LMP:SetPinFilterHidden(QuestMap.PIN_TYPE_QUEST_SKILL, "imperialPvP", true)
     LMP:SetPinFilterHidden(QuestMap.PIN_TYPE_QUEST_SKILL, "battleground", true)
+    LMP:SetPinFilterHidden(QuestMap.PIN_TYPE_QUEST_HOLIDAY, "pvp", true)
+    LMP:SetPinFilterHidden(QuestMap.PIN_TYPE_QUEST_HOLIDAY, "imperialPvP", true)
+    LMP:SetPinFilterHidden(QuestMap.PIN_TYPE_QUEST_HOLIDAY, "battleground", true)
 
     QuestMap:RefreshPinFilters()
     QuestMap:RefreshPinLayout()

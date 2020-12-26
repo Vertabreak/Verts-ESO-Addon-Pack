@@ -18,7 +18,7 @@ local panelData = {
     name = QuestMap.displayName,
     displayName = "|c70C0DE"..QuestMap.displayName.."|r",
     author = "|c70C0DECaptainBlagbird|r, |cff9b15Sharlikran|r",
-    version = "2.82",
+    version = "2.83",
     slashCommand = "/questmap", --(optional) will register a keybind to open to this panel
     registerForRefresh = true,  --boolean (optional) (will refresh all options controls when a setting is changed and when the panel is shown)
     registerForDefaults = true, --boolean (optional) (will set all options controls back to default values)
@@ -262,6 +262,31 @@ local optionsTable = {
         end,
         default = QuestMap.create_color_table_rbga( QuestMap.settings_default.pin_tooltip_colors[QuestMap.PIN_TYPE_QUEST_DAILY] ),
     },
+    -- Holiday pins
+    {
+        type = "colorpicker",
+        name = GetString(QUESTMAP_HOLIDAY_PIN_COLOR),
+        tooltip = GetString(QUESTMAP_HOLIDAY_PIN_COLOR_DESC),
+        getFunc = function() return unpack(QuestMap.settings.pin_colors[QuestMap.PIN_TYPE_QUEST_HOLIDAY]) end,
+        setFunc = function(r,g,b,a)
+            QuestMap.settings.pin_colors[QuestMap.PIN_TYPE_QUEST_HOLIDAY] = QuestMap.create_color_table(r, g, b, a)
+            QuestMap.pin_color[QuestMap.PIN_TYPE_QUEST_HOLIDAY]:SetRGBA(unpack(QuestMap.settings["pin_colors"][QuestMap.PIN_TYPE_QUEST_HOLIDAY]))
+            LMP:RefreshPins(QuestMap.PIN_TYPE_QUEST_HOLIDAY)
+        end,
+        default = QuestMap.create_color_table_rbga( QuestMap.settings_default.pin_colors[QuestMap.PIN_TYPE_QUEST_HOLIDAY] ),
+    },
+    {
+        type = "colorpicker",
+        name = GetString(QUESTMAP_HOLIDAY_TOOLTIP_COLOR),
+        tooltip = GetString(QUESTMAP_HOLIDAY_TOOLTIP_COLOR_DESC),
+        getFunc = function() return unpack(QuestMap.settings.pin_tooltip_colors[QuestMap.PIN_TYPE_QUEST_HOLIDAY]) end,
+        setFunc = function(r,g,b,a)
+            QuestMap.settings.pin_tooltip_colors[QuestMap.PIN_TYPE_QUEST_HOLIDAY] = QuestMap.create_color_table(r, g, b, a)
+            QuestMap:RefreshPinLayout()
+        end,
+        default = QuestMap.create_color_table_rbga( QuestMap.settings_default.pin_tooltip_colors[QuestMap.PIN_TYPE_QUEST_HOLIDAY] ),
+    },
+
     -- Cadwell pins
     {
         type = "colorpicker",

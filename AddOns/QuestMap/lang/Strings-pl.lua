@@ -16,6 +16,7 @@ local strings = {
     QUESTMAP_DAILY                  = "Dzienne",
     QUESTMAP_CADWELL                = "Cadwell",
     QUESTMAP_SKILL                  = "Punkt umiejętności",
+    QUESTMAP_HOLIDAY              = "Holiday",
 
     QUESTMAP_HIDE                   = "Ukryj zadanie",
     QUESTMAP_UNHIDE                 = "Wyświetl zadanie",
@@ -107,6 +108,13 @@ local strings = {
 
     QUESTMAP_DAILY_TOOLTIP_COLOR  = "Kolor okna podpowiedzi do zadań dziennych (DA)",
     QUESTMAP_DAILY_TOOLTIP_COLOR_DESC  = "Zmiana koloru okna podpowiedzi do zadań dziennych (DA)",
+
+    -- Holiday quest pin text
+    QUESTMAP_HOLIDAY_PIN_COLOR  = "Holiday Quest Pin Color",
+    QUESTMAP_HOLIDAY_PIN_COLOR_DESC  = "Change Holiday Quest Pin Color",
+
+    QUESTMAP_HOLIDAY_TOOLTIP_COLOR  = "Holiday Quest Tooltip Color",
+    QUESTMAP_HOLIDAY_TOOLTIP_COLOR_DESC  = "Change Holiday Quest Tooltip Color",
 
     -- Cadwell quest pin text
     QUESTMAP_CADWELL_PIN_COLOR  = "Kolor znacznika zadań z Cadwellem (CW)",

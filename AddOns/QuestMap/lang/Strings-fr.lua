@@ -16,6 +16,7 @@ local strings = {
     QUESTMAP_DAILY                  = "Daily",
     QUESTMAP_CADWELL                = "Almanach de Cadwell",
     QUESTMAP_SKILL                  = "Point de compétence",
+    QUESTMAP_HOLIDAY              = "Holiday",
 
     QUESTMAP_HIDE                   = "Cacher les quêtes",
     QUESTMAP_UNHIDE                 = "Rendre visible les quêtes",
@@ -107,6 +108,13 @@ local strings = {
 
     QUESTMAP_DAILY_TOOLTIP_COLOR  = "Daily Quest Tooltip Color",
     QUESTMAP_DAILY_TOOLTIP_COLOR_DESC  = "Change Daily Quest Tooltip Color",
+
+    -- Holiday quest pin text
+    QUESTMAP_HOLIDAY_PIN_COLOR  = "Holiday Quest Pin Color",
+    QUESTMAP_HOLIDAY_PIN_COLOR_DESC  = "Change Holiday Quest Pin Color",
+
+    QUESTMAP_HOLIDAY_TOOLTIP_COLOR  = "Holiday Quest Tooltip Color",
+    QUESTMAP_HOLIDAY_TOOLTIP_COLOR_DESC  = "Change Holiday Quest Tooltip Color",
 
     -- Cadwell quest pin text
     QUESTMAP_CADWELL_PIN_COLOR  = "Cadwell Quest Pin Color",
