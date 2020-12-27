@@ -14,12 +14,12 @@ Postmaster = {
     
     -- Flag to signal that once one email is taken and deleted, the next message 
     -- should be selected and the process should continue on it
-    takingAll = true,
+    takingAll = false,
     
     -- Flag to signal that a message is in the process of having its attachments
     -- taken and then subsequently being deleted.  Used to disable other keybinds
     -- while this occurs.
-    taking = true,
+    taking = false,
     
     -- Used to synchronize item and money attachment retrieval events so that
     -- we know when to issue a DeleteMail() call.  DeleteMail() will not work
