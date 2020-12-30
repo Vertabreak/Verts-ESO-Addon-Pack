@@ -7,4 +7,4 @@ place the addon folder in the usual place to install
 
 everything is licenced to its respective owner ive just curated it all in one place.
 
-for users familiar with git suggest syncing up with the repo daily for the latest changes rathern then minion as custom tweaks/fixs will only be here. 
+for users familiar with git suggest syncing up with the repo daily for the latest changes rather then minion as custom tweaks/fixs will only be here. 
