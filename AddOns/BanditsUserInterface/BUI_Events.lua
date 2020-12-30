@@ -443,7 +443,7 @@ local function OnGroupLeave(_,characterName)
 	if name==BUI.Player.name then
 		BUI.GroupMembers={}
 		BUI.GroupLeader=nil
-		BUI.OnScreen.Update(true)	--Hide Notifications
+--		BUI.OnScreen.Update(true)	--Hide Notifications
 		BUI.Player.role=nil
 		--Clear death count
 		for accname in pairs(BUI.Group) do if accname~="members" then BUI.Group[accname].death=nil end end

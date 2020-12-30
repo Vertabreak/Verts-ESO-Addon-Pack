@@ -1,8 +1,8 @@
 ## Title: LibDateTime
 ## Author: sirinsidiator
-## Version: 1.1.0
+## Version: 1.1.1
 ## APIVersion: 100033 100034
-## AddOnVersion: 24
+## AddOnVersion: 28
 ## IsLibrary: true
 ##
 ## This Add-on is not created by, affiliated with or sponsored by ZeniMax Media Inc. or its affiliates. 

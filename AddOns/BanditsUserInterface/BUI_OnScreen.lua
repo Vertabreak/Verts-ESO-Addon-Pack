@@ -1211,7 +1211,7 @@ local function Glyphs_Show(show)
 end
 
 --Notifications
-local function UI_Init()
+function BUI.OnScreen.UI_Init()
 	local fs	=BUI.Vars.NotificationsSize
 	local w	=800
 	--Create Primary Notifications frame container
@@ -1828,7 +1828,7 @@ function BUI.OnScreen.Initialize(disable)
 				EVENT_MANAGER:AddFilterForEvent("BUI_OnScreen"..i, EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, filters[i], REGISTER_FILTER_IS_ERROR, false)
 			end
 		end
-		if not BUI.init.OnScreen then UI_Init() BUI.OnScreen.UI_Init=UI_Init end
+		if not BUI.init.OnScreen then BUI.OnScreen.UI_Init() end
 		BUI.init.OnScreen=true
 		return true
 	else

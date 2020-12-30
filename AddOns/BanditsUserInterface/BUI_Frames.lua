@@ -702,8 +702,7 @@ function BUI.Frames.Fade(frame, hide)
 			timeline:SetPlaybackType(ANIMATION_PLAYBACK_ONE_SHOT,1)
 			frame.fade=timeline
 		end
-		if frame:GetAlpha()<.05 or frame.fade:IsPlaying() then return end
-		frame.fade:PlayFromStart()
+		if not(frame:GetAlpha()<.05 or frame.fade:IsPlaying()) then frame.fade:PlayFromStart() end
 	else
 		if frame.fade and frame.fade:IsPlaying() then frame.fade:Stop() end
 		frame:SetAlpha(BUI.inCombat and BUI.Vars.FrameOpacityIn/100 or BUI.Vars.FrameOpacityOut/100)
@@ -1219,14 +1218,16 @@ function BUI.Frames.Attribute(unitTag, attribute, powerValue, powerMax, pct, shi
 	if unitTag=='player' then
 		frame		=BUI_PlayerFrame
 		enabled	=BUI.Vars.PlayerFrame
-		if enabled and BUI.Vars.FramesFade and not PlayerFrameFadeDelay and not BUI.inMenu and BUI.Player.alt==nil then
-			if BUI.inCombat or BUI.Player.health.pct<1 or BUI.Player.magicka.pct<1 or BUI.Player.stamina.pct<1 then
-				if BUI_PlayerFrame_Base:GetAlpha()<.01 then BUI.Frames.Fade(BUI_PlayerFrame_Base) end
-			elseif BUI_PlayerFrame_Base:GetAlpha()>0 then
+		if enabled and BUI.Vars.FramesFade and not BUI.inMenu and BUI.Player.alt==nil then
+			if BUI.inCombat or BUI.Player.health.pct<.99 or BUI.Player.magicka.pct<.99 or BUI.Player.stamina.pct<.99 then
+				if BUI_PlayerFrame_Base:GetAlpha()<.05 then
+					BUI.Frames.Fade(BUI_PlayerFrame_Base)
+				end
+			elseif not PlayerFrameFadeDelay and BUI_PlayerFrame_Base:GetAlpha()>.05 then
 				PlayerFrameFadeDelay=true
 				BUI.CallLater("Player_FramesFade",1500,function()
 					PlayerFrameFadeDelay=false
-					if not(BUI.inCombat or BUI.Player.health.pct<1 or BUI.Player.magicka.pct<1 or BUI.Player.stamina.pct<1) then
+					if not(BUI.inCombat or BUI.Player.health.pct<.95 or BUI.Player.magicka.pct<.95 or BUI.Player.stamina.pct<.95) then
 						BUI.Frames.Fade(BUI_PlayerFrame_Base,true)
 					end
 				end)
@@ -1540,15 +1541,17 @@ function BUI.Frames:UpdateAltBar(powerValue, powerMax, powerEffectiveMax,context
 		local parent=_G["BUI_PlayerFrame_Alt"]
 		parent.bar:SetWidth(pct*(parent.bg:GetWidth()-6))
 
-		if BUI.Vars.FramesFade and not PlayerFrameFadeDelay and not BUI.inMenu then
-			if BUI.inCombat or BUI.Player.health.pct<1 or BUI.Player.magicka.pct<1 or BUI.Player.stamina.pct<1 or pct<1 then
-				if BUI_PlayerFrame:GetAlpha()<.01 then BUI.Frames.Fade(BUI_PlayerFrame) end
-			elseif BUI_PlayerFrame:GetAlpha()>0 then
+		if BUI.Vars.FramesFade and not BUI.inMenu then
+			if BUI.inCombat or BUI.Player.health.pct<.99 or BUI.Player.magicka.pct<.99 or BUI.Player.stamina.pct<.99 or pct<.99 then
+				if BUI_PlayerFrame_Base:GetAlpha()<.05 then
+					BUI.Frames.Fade(BUI_PlayerFrame_Base)
+				end
+			elseif not PlayerFrameFadeDelay and BUI_PlayerFrame_Base:GetAlpha()>.05 then
 				PlayerFrameFadeDelay=true
 				BUI.CallLater("Player_FramesFade",1500,function()
 					PlayerFrameFadeDelay=false
-					if not(BUI.inCombat or BUI.Player.health.pct<1 or BUI.Player.magicka.pct<1 or BUI.Player.stamina.pct<1 or pct<1) then
-						BUI.Frames.Fade(BUI_PlayerFrame,true)
+					if not(BUI.inCombat or BUI.Player.health.pct<.95 or BUI.Player.magicka.pct<.95 or BUI.Player.stamina.pct<.95 or pct<.95) then
+						BUI.Frames.Fade(BUI_PlayerFrame_Base,true)
 					end
 				end)
 			end

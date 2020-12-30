@@ -381,7 +381,7 @@ local PingEventAction={
 	end,
 	[7]=function(unitTag,_,code)	--Place marker 1
 --		if code==7 and BUI.Vars.NotificationsGroup and IsUnitGroupLeader(unitTag) then
-			BUI.PlaseMarker(1)
+			BUI.PlaceMarker(1)
 --		end
 	end,
 	[Election_Yes]=function(unitTag,_,code)	--Election Yes

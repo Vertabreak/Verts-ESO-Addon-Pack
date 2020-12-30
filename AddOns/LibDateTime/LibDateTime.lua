@@ -98,6 +98,11 @@ function lib:CalculateIsoWeekCount(year)
     return WEEKS_IN_YEAR
 end
 
+function lib:GetDaysInMonth(month, isLeapYear)
+    local daysPerMonth = isLeapYear and DAYS_PER_MONTH_LEAP_YEAR or DAYS_PER_MONTH_REGULAR_YEAR
+    return daysPerMonth[month]
+end
+
 function lib:CalculateIsoWeekAndYear(timestamp)
     return tonumber(osdate("%Y", timestamp)), tonumber(osdate("%V", timestamp))
 end
@@ -139,7 +144,8 @@ function lib:GetTraderWeek(weekOffset) -- TODO update usecases
     local startTime = endTime - SECONDS_PER_WEEK
 
     -- we add a few days because ISO week starts on Monday so the majority of days would be in the wrong week with trader change happening on Sunday
-    local isoWeekTime = startTime + SECONDS_PER_DAY * 4 -- TODO: separate this into GetIsoTraderWeek(weekOffset)?
+    -- TODO need to check if this is still relevant now that the trading week starts on Tuesday
+    local isoWeekTime = startTime + SECONDS_PER_DAY * 2 -- TODO: separate this into GetIsoTraderWeek(weekOffset)?
     local year, week = lib:CalculateIsoWeekAndYear(isoWeekTime)
     return lib:CombineIsoWeekAndYear(year, week), startTime, endTime
 end

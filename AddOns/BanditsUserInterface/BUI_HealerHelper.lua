@@ -50,7 +50,7 @@ local player_buffs,target_buffs={},{
 --	["Healing Bane"]=true,["Исцеляющее проклятие"]=true,
 	["Minor Cowardice"]=true,["Малая трусость"]=true,
 	["Weakening"]=true,["Слабость"]=true,
-	["Off Balance"]=true,["Потеря равновесия"]=true,
+	["Off-Balance"]=true,["Off Balance"]=true,["Потеря равновесия"]=true,
 	}
 --	/script local i=0 for n,data in pairs(BUI.Stats.Current[BUI.ReportN].TargetBuffs) do for name in pairs(data) do d(i..". "..name) i=i+1 if i==2 then StartChatInput(name) end end end
 BUI:JoinTables(player_buffs,crit_forces)
@@ -452,7 +452,9 @@ local function Helper_Update()
 		local pct=StartTime==0 and 1 or math.min(math.max(duration,1)/testtime,1)
 		if crit_forces[name] then crit_buff_bonus=crit_buff_bonus+crit_forces[name]*pct
 		elseif healing_forces[name] then buff_bonus=buff_bonus+healing_forces[name]*pct
-		elseif class_forces[name] then class_buff=pct class_buff_name=name
+		elseif class_forces[name] then
+			class_buff=pct class_buff_name=name
+			BUI_Helper_Label_2_4:SetText("|cccccaa"..class_buff_name.."|r")
 		elseif name=="Major Courage" or name=="Великая храбрость" then major_courage=pct
 		elseif name=="Major Resolve" or name=="Великая решимость" then major_resist=pct
 		elseif name=="Minor Resolve" or name=="Малая решимость" then minor_resist=pct
@@ -481,7 +483,7 @@ local function Helper_Update()
 --		elseif name=="Minor Breach" or name=="Малый прорыв" then minor_penetr=pct
 		elseif name=="Minor Lifesteal" or name=="Малое похищение жизни" then lifesteal=pct
 		elseif name=="Minor Cowardice" or name=="Малая трусость" then minor_cowardice=pct
-		elseif name=="Off Balance" or name=="Потеря равновесия" then off_balance=pct
+		elseif name=="Off Balance" or name=="Off-Balance" or name=="Потеря равновесия" then off_balance=pct
 		elseif name=="Weakening" or name=="Слабость" then weakening=pct
 		end
 	end
@@ -500,7 +502,6 @@ local function Helper_Update()
 	BUI_Helper_Value_2_1:SetText(math.floor(major_courage*100) .."|cccccaa%|r")
 	BUI_Helper_Value_2_2:SetText(math.floor((major_resist+minor_resist/4)*100).."|cccccaa%|r")
 	BUI_Helper_Value_2_3:SetText(math.floor(berserk*100) .."|cccccaa%|r")
-	BUI_Helper_Label_2_4:SetText("|cccccaa"..class_buff_name.."|r")
 	BUI_Helper_Value_2_4:SetText(math.floor(class_buff*100) .."|cccccaa%|r")
 	BUI_Helper_Value_2_5:SetText(math.floor(worm_buff*100) .."|cccccaa%|r")
 	--Section 3
@@ -528,7 +529,7 @@ local function Helper_Update()
 		+major_courage*88
 		+(major_resist+minor_resist/4)*62
 		+berserk*73
-		+class_buff*88*class_forces[class_buff_name]
+		+class_buff*88*(class_forces[class_buff_name] or 1)
 		+worm_buff*62
 		+magickasteal*88
 		+vulnerability*88

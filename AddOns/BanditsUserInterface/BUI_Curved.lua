@@ -411,7 +411,7 @@ end
 local function FramesFadeCheck(pct)
 	if pct then
 		if BUI.Vars.FramesFade and not BUI.inMenu then
-			if BUI.inCombat or BUI.Player.health.pct<.95 or BUI.Player.magicka.pct<.95 or BUI.Player.stamina.pct<.95 or pct<.95 then
+			if BUI.inCombat or BUI.Player.health.pct<.99 or BUI.Player.magicka.pct<.99 or BUI.Player.stamina.pct<.99 or pct<.99 then
 				if BUI_Curved:GetAlpha()<.05 then BUI.Frames.Fade(BUI_Curved, false) end
 			elseif not CurvedFrameFadeDelay and BUI_Curved:GetAlpha()>.05 then
 				CurvedFrameFadeDelay=true
@@ -425,7 +425,9 @@ local function FramesFadeCheck(pct)
 		end
 	else
 		if BUI.Vars.FramesFade and not(BUI.Player.health.pct<.95 or BUI.Player.magicka.pct<.95 or BUI.Player.stamina.pct<.95) then
-			BUI.Frames.Fade(BUI_Curved,true)
+			if not CurvedFrameFadeDelay and BUI_Curved:GetAlpha()>.05 then
+				BUI.Frames.Fade(BUI_Curved,true)
+			end
 		end
 	end
 end
@@ -435,7 +437,7 @@ function BUI.Curved.Attribute(unitTag, attribute, powerValue, powerMax, pct, shi
 	if not frame then return end
 
 	--Frame fade
-	if unitTag=='player' then
+	if unitTag=='player' and Attributes[unitTag][attribute].cur~=pct then
 		FramesFadeCheck(pct)
 	end
 

@@ -1,6 +1,6 @@
 local targetX,targetY,targetZ=0,0,0
 
-function BUI.PlaseMarker(num)
+function BUI.PlaceMarker(num)
 	local r=3
 	local zone,worldX,worldY,worldZ=GetUnitRawWorldPosition('player')
 	local pX,pY,pZ=WorldPositionToGuiRender3DPosition(worldX,worldY,worldZ)
@@ -26,7 +26,7 @@ end
 	/script BUI_Marker:Set3DLocalDimensions(.5,.5)
 	/script BUI_Marker:Set3DRenderSpaceUsesDepthBuffer(false)
 	/script BUI_Marker:Set3DRenderSpaceOrientation(0,math.pi,0)
-	/script BUI.PlaseMarker(1)
+	/script BUI.PlaceMarker(1)
 --]]
 local function GetTargetPosition()
 	local _,worldX,worldY,worldZ=GetUnitRawWorldPosition(BUI.GroupLeader)
