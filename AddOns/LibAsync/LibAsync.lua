@@ -27,11 +27,13 @@ local function RemoveCall(job, callstackIndex)
 end
 
 local current, call
+local currentStackIndex = 0
 local function safeCall()
 	return call(current)
 end
 
 local function DoCallback(job, callstackIndex)
+	currentStackIndex = callstackIndex
 	local success, shouldContinue = pcall(safeCall)
 	if success then
 		-- If the call returns true, the call wants to be called again
@@ -99,9 +101,11 @@ function async.Scheduler()
 		return
 	end
 
-	job, name, runTime = nil, nil
+	job = nil
+	local name, runTime = nil, nil
 	local GetGameTimeSeconds = GetGameTimeSeconds
 	local start, now = GetFrameTimeSeconds(), GetGameTimeSeconds()
+	async.frameTimeSeconds = start
 	runTime, cpuLoad = start, now - start
 	if cpuLoad > spendTime then
 		spendTime = min(0.030, spendTime + spendTime * 0.02)
@@ -232,16 +236,21 @@ do
 
 	-- Continue your task context execution with the given FuncOfTask after the previous as finished.
 	function task:Then(funcOfTask)
-		if self.lastCallIndex == 0 then
-			return self:Call(funcOfTask)
-		end
 		if current == self then
-			-- assert(self.lastCallIndex > 0 and self.lastCallIndex <= #self.callstack, "cap!")
+			if self.lastCallIndex <= currentStackIndex then
+				-- first nested Then should be a Call
+				return self:Call(funcOfTask)
+			end
 			insert(self.callstack, self.lastCallIndex, funcOfTask)
 		else
+			if self.lastCallIndex == 0 then
+				-- First Then should be a Call
+				return self:Call(funcOfTask)
+			end
 			insert(self.callstack, 1, funcOfTask)
 			self.lastCallIndex = self.lastCallIndex + 1
 		end
+		-- assert(self.lastCallIndex > 0 and self.lastCallIndex <= #self.callstack, "cap!")
 		return self
 	end
 end
@@ -426,14 +435,11 @@ do
 
 	-- This sort function works like table.sort(). The compare function is optional.
 	function task:Sort(array, compare)
-		local sortJob = function(task)
-			sort(task, array, compare or simpleCompare)
-		end
-		if current or #self.callstack == 0 then
-			return self:Call(sortJob)
-		else
-			return self:Then(sortJob)
-		end
+		return self:Then(
+			function(task)
+				sort(task, array, compare or simpleCompare)
+			end
+		)
 	end
 end
 

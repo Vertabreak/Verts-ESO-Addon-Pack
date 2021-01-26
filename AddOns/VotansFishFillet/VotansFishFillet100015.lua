@@ -407,7 +407,7 @@ function addon:SetupSettings()
 		name = addon.title,
 		displayName = addon.title,
 		author = "votan",
-		version = "1.6.2",
+		version = "1.6.3",
 		-- slashCommand = "",
 		-- registerForRefresh = true,
 		registerForDefaults = true,

@@ -379,11 +379,13 @@ local PingEventAction={
 			if BUI.OnScreen.Message[80] then BUI.OnScreen.Message[80].count=nil else BUI.OnScreen.Notification(80,"Break",nil,10*60000) end
 		end
 	end,
+--[[
 	[7]=function(unitTag,_,code)	--Place marker 1
 --		if code==7 and BUI.Vars.NotificationsGroup and IsUnitGroupLeader(unitTag) then
 			BUI.PlaceMarker(1)
 --		end
 	end,
+--]]
 	[Election_Yes]=function(unitTag,_,code)	--Election Yes
 		if code==7 and GroupElectionPending then
 			local frame=BUI.Group[unitTag] and BUI.Group[unitTag].frame

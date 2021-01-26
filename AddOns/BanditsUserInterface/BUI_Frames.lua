@@ -1505,7 +1505,7 @@ function BUI.Frames:SetupAltBar()
 			--The Thief
 			else icon="/esoui/art/champion/champion_points_stamina_icon-hud-32.dds" color={0.3,0.6,0.1} end
 			--Fetch the current experience level
-			maxExp=GetNumChampionXPInChampionPoint(BUI.Player.clevel)
+			maxExp=GetNumChampionXPInChampionPoint(BUI.Player.clevel) or 1
 			pct=math.min(BUI.Player.cxp/maxExp,1)
 		else
 			icon="/esoui/art/compass/quest_icon_assisted.dds"

@@ -635,7 +635,7 @@ function addon:BuildLocationList()
 	if not mapData then
 		mapData = {}
 		local GetMapInfoByIndex, LocalizeString = GetMapInfoByIndex, ZO_CachedStrFormat
-		local SI_WORLD_MAP_LOCATION_NAME = GetString(SI_WORLD_MAP_LOCATION_NAME)
+		local SI_WORLD_MAP_LOCATION_NAME = GetString(SI_QUEST_JOURNAL_ZONE_FORMAT)
 		for i = 1, GetNumMaps() do
 			local mapName, mapType, mapContentType, zoneIndex, description = GetMapInfoByIndex(i)
 			if mapName ~= "" then
@@ -1007,7 +1007,7 @@ function addon:InitSettings()
 		type = "panel",
 		name = "Improved Locations",
 		author = "votan",
-		version = "1.21.5",
+		version = "1.21.6",
 		registerForRefresh = false,
 		registerForDefaults = true,
 		website = "http://www.esoui.com/downloads/info1096-VotansImprovedLocations.html"

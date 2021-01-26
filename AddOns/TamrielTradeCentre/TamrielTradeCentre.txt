@@ -1,7 +1,7 @@
 ## APIVersion: 100033
 ## Title: Tamriel Trade Centre
 ## Description: Addon for TamrielTradeCentre.com
-## Version: 3.38.381.19203
+## Version: 4.0.0.12472
 ## Author: TamrielTradeCentre.com
 ## DependsOn: LibAddonMenu-2.0>=31 LibCustomMenu>=694
 ## SavedVariables: TamrielTradeCentreVars

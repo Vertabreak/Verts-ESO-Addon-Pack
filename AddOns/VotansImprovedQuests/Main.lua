@@ -511,7 +511,7 @@ function addon:InitSettings()
 		type = "panel",
 		name = "Improved Quests",
 		author = "votan",
-		version = "1.2.8",
+		version = "1.2.9",
 		registerForRefresh = false,
 		registerForDefaults = true,
 		website = "http://www.esoui.com/downloads/info1523-VotansImprovedQuests.html"

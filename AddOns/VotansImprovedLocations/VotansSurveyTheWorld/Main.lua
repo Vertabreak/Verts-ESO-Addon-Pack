@@ -1,6 +1,6 @@
 -- With permission of @manavortex
 local addon = VOTANS_IMPROVED_LOCATIONS
-addon.tresureMap = {}
+addon.treasureMap = {}
 addon.survey = {}
 
 local em = GetEventManager()
@@ -69,7 +69,7 @@ do
 	function addon:SetupLocationName(rowData)
 		local locationName = orgSetupLocationName(self, rowData)
 		local mapIndex = rowData.index
-		local hasTreasure, hasSurvey = findIn(self.tresureMap, mapIndex), findIn(self.survey, mapIndex)
+		local hasTreasure, hasSurvey = findIn(self.treasureMap, mapIndex), findIn(self.survey, mapIndex)
 		if hasTreasure or hasSurvey then
 			local types = hasSurvey and getTypes(self.survey, mapIndex) or ""
 			locationName = string.format("%s %s%s", locationName, hasTreasure and "|t100%:100%:/esoui/art/tradinghouse/tradinghouse_trophy_treasure_map_up.dds:inheritcolor|t" or "", types)
@@ -80,7 +80,7 @@ end
 
 local ITEMTYPE_TROPHY, SPECIALIZED_ITEMTYPE_TROPHY_TREASURE_MAP, SPECIALIZED_ITEMTYPE_TROPHY_SURVEY_REPORT = ITEMTYPE_TROPHY, SPECIALIZED_ITEMTYPE_TROPHY_TREASURE_MAP, SPECIALIZED_ITEMTYPE_TROPHY_SURVEY_REPORT
 local function GetMapTable(slot)
-	return slot.itemType == ITEMTYPE_TROPHY and slot.specializedItemType == SPECIALIZED_ITEMTYPE_TROPHY_TREASURE_MAP and addon.tresureMap or slot.specializedItemType == SPECIALIZED_ITEMTYPE_TROPHY_SURVEY_REPORT and addon.survey
+	return slot.itemType == ITEMTYPE_TROPHY and slot.specializedItemType == SPECIALIZED_ITEMTYPE_TROPHY_TREASURE_MAP and addon.treasureMap or slot.specializedItemType == SPECIALIZED_ITEMTYPE_TROPHY_SURVEY_REPORT and addon.survey
 end
 
 do
@@ -89,11 +89,13 @@ do
 	local function getLocationsUpper()
 		local list = {}
 		locationsUpper = list
+                local blacklist = { [24] = true, [40] = true }
 		local GetMapInfo, zo_strformat = GetMapInfoByIndex or GetMapInfo, LocalizeString
 		for i = 2, GetNumMaps() do
-			local mapName = GetMapInfo(i)
-			list[zo_strformat("<<Z!a:1>>", mapName):gsub("^THE ", "")] = i
-			-- The Rift. :|
+			if not blacklist[i] then
+				local mapName = GetMapInfo(i)
+				list[zo_strformat("<<Z!a:1>>", mapName):gsub("^THE ", "")] = i -- The Rift. :|
+			end
 		end
 		list["ORSINIUM"] = 27
 		return locationsUpper

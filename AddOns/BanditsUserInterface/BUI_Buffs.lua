@@ -8,9 +8,10 @@ local Passives={
 	[89683]=true,[66776]=true,[64210]=true,[84364]=true,[84365]=true,[99463]=true,[99462]=true,[85502]=true,[85503]=true,[91369]=true,[118985]=true,[136348]=true,--EXP Buff
 	[96118]=true,--Witchmother's Boon
 	[21676]=true,--Recall cooldown
+	[147687]=true,--Alliance Skill Gain Boost
 	}
 local buffFood={
-	[17407]={Health=true},[66551]={Health=true},[61259]={Health=true},[66124]={Health=true},[66125]={Health=true},[72816]={Health=true},[72824]={Health=true},[72957]={Health=true},[72960]={Health=true},[72962]={Health=true},[72819]={Health=true},[89971]={Health=true},
+	[72822]={Health=true},[17407]={Health=true},[66551]={Health=true},[61259]={Health=true},[66124]={Health=true},[66125]={Health=true},[72816]={Health=true},[72824]={Health=true},[72957]={Health=true},[72960]={Health=true},[72962]={Health=true},[72819]={Health=true},[89971]={Health=true},
 --	[17565]=true,[17567]=true,[17569]=true,[47049]=true,[47051]=true,[66576]=true,[17573]=true,[47050]=true,
 	[17577]={Magicka=true,Stamina=true},[61294]={Magicka=true,Stamina=true},[72961]={Magicka=true,Stamina=true},[84681]={Magicka=true,Stamina=true},
 	[61257]={Health=true,Magicka=true},[72959]={Health=true,Magicka=true},[84731]={Health=true,Magicka=true},[84735]={Health=true,Magicka=true},[100498]={Health=true,Magicka=true},[107748]={Health=true,Magicka=true},[127531]={Health=true,Magicka=true},
@@ -572,7 +573,7 @@ function BUI.Frames.Widgets_Init(widget,dup)
 	if dup then return ability end
 	ability:SetMouseEnabled(true)
 	ability:SetHandler("OnMouseDown", function(self,button) BUI.Buffs.ButtonHandler(self,button) end)
-	ability:SetHandler("OnMoveStop", function(self) BUI.Menu:SaveAnchor(self,nil,nil,nil,side,data[7],data[8],data[9],data[10],data[11]) end)
+	ability:SetHandler("OnMoveStop", function(self) BUI.Menu:SaveAnchor(self,nil,nil,nil,side,data[7],data[8],data[9],data[10],data[11],data[12],data[13]) end)
 	ability:SetHandler("OnMouseEnter", BUI.Buffs.ShowTooltip)
 	ability:SetHandler("OnMouseExit", function()ClearTooltip(InformationTooltip)end)
 --	ability:SetDrawTier(DT_HIGH)
