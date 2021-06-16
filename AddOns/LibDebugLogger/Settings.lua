@@ -2,7 +2,7 @@ local lib = LibDebugLogger
 local internal = lib.internal
 
 internal.defaultSettings = {
-    version = 1,
+    version = 2,
     logTraces = false, -- save a trace for each call to one of the Log functions
     minLogLevel = internal.LOG_LEVEL_INFO, -- define which entries we will actually keep
     loadScreenStartTime = internal.UI_LOAD_START_TIME -- not an actual setting, used to measure how long loading screens take
@@ -32,6 +32,11 @@ function internal:InitializeSettings()
         self.settings.version = tempSettings.version
     else
         LibDebugLoggerSettings = self.settings
+    end
+
+    if LibDebugLoggerSettings.version < 2 then
+        -- just as a hint for the external logviewer since we have changed the initialized message
+        LibDebugLoggerSettings.version = 2
     end
 
     -- we want to avoid having a dependency on LibChatLogger, but still use it in case it is around

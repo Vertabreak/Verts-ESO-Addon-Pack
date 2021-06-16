@@ -60,7 +60,7 @@ local function LLC_CraftAlchemyItemByItemId(self, solventId, reagentId1, reagent
 		["timesToMake"] = timesToMake or 1,
 	}
 	)
-
+	LibLazyCrafting.AddHomeMarker(nil, CRAFTING_TYPE_ALCHEMY)
 	--sortCraftQueue()
 	if GetCraftingInteractionType()==CRAFTING_TYPE_ALCHEMY then
 		LibLazyCrafting.craftInteract(event, CRAFTING_TYPE_ALCHEMY)
@@ -130,9 +130,9 @@ local function LLC_AlchemyCraftInteraction(station, earliest, addon , position)
 	currentCraftAttempt.prevSlots = LibLazyCrafting.backpackInventory()
 end
 
-local function LLC_AlchemyCraftingComplete(event, station, lastCheck)
+local function LLC_AlchemyCraftingComplete(station, lastCheck)
 	dbug("EVENT:CraftComplete")
-	LibLazyCrafting.stackableCraftingComplete(event, station, lastCheck, CRAFTING_TYPE_ALCHEMY, currentCraftAttempt)
+	LibLazyCrafting.stackableCraftingComplete(station, lastCheck, CRAFTING_TYPE_ALCHEMY, currentCraftAttempt)
 
 end
 

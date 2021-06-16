@@ -1,6 +1,6 @@
 local UT = UnknownTracker or {}
 UT.name = "UnknownTracker"
-UT.version = "0.69"
+UT.version = "0.71"
 
 local account
 local server
@@ -8,14 +8,18 @@ local character
 local allCharacters = {}
 local allAccounts = {}
 local m = nil
+local groupMembers = {}
 
 local VALID_ITEMTYPES = {
   [ITEMTYPE_RACIAL_STYLE_MOTIF] = true,
   [ITEMTYPE_RECIPE] = true,
+  [ITEMTYPE_COLLECTIBLE] = true,
   [ITEMTYPE_CONTAINER] = true,
   [ITEMTYPE_ARMOR] = true,
   [ITEMTYPE_WEAPON] = true,  
 }
+
+local SHORTEN_NAME_LENGTH = 3
 
 ------------------------------------------------------------------------------
 -- @Shadowfen - AutoCategory integration
@@ -107,8 +111,8 @@ function UT:IsValidAndWhoKnowsIt(itemLink)
     end
   end
 
-  -- Check for containers which are stylepages or runeboxes and return a list of account ids who know it
-  if itemType == ITEMTYPE_CONTAINER then
+  -- Collectible = stylepages, Container = runeboxes, Check and return a list of account ids who know it
+  if itemType == ITEMTYPE_CONTAINER or itemType == ITEMTYPE_COLLECTIBLE then
     local linkIcon = GetItemLinkIcon(itemLink)
 
     -- using icon names to find the correct containers
@@ -147,22 +151,33 @@ end
 
 -- TOOLTIPS ----------------------------------------------------------------------------------
 function UT:SetTooltip(tooltip, itemLink)
+  if UTOpts.displayTooltip == false then return end
   local isValid, knownByNameList, isGear = self:IsValidAndWhoKnowsIt(itemLink)
   if not isValid then return end
   if isGear then return end
   local itemType = GetItemLinkItemType(itemLink)
-  local allArray = (itemType == ITEMTYPE_CONTAINER) and allAccounts or allCharacters
+  local allArray = (itemType == ITEMTYPE_CONTAINER or itemType == ITEMTYPE_COLLECTIBLE) and allAccounts or allCharacters
   local outstr = ""
 
   -- output relevant character/account names and set colours
-  for i = 1, #allArray do
-    -- need to start using this ZO_GenerateCommaSeparatedList() and table.concat or string.format()
-    if knownByNameList ~= nil and knownByNameList[allArray[i]] then
-      outstr = outstr .. self:SetColour(allArray[i], UTOpts.knownByAllColour) .. ", "
+  local out = {}
+  for k, name in pairs(allArray) do
+    
+    if knownByNameList ~= nil and knownByNameList[name] then
+      if UTOpts.shortenTooltipNames then name = string.sub(name, 1, SHORTEN_NAME_LENGTH) end
+      name = self:SetColour(name, UTOpts.knownByAllColour)
+
+      if UTOpts.displayTooltipNameOnlyIfUnknown == false then
+        table.insert(out, name)
+      end
     else
-      outstr = outstr .. self:SetColour(allArray[i], UTOpts.unknownColour) .. ", "
-    end
+      if UTOpts.shortenTooltipNames then name = string.sub(name, 1, SHORTEN_NAME_LENGTH) end    
+      name = self:SetColour(name, UTOpts.unknownColour)
+      table.insert(out, name)
+    end    
   end
+  outstr = table.concat(out, ", ")
+  --outstr = ZO_GenerateCommaSeparatedList(out)
 
   if outstr then
     tooltip:AddVerticalPadding(5)
@@ -214,8 +229,8 @@ function UT:SetInventoryIcon(control, itemLink, tradingHouse)
 
   -- this stuff is mostly because stylepage/runebox are organised by account/displayname and not charactername
   local itemType = GetItemLinkItemType(itemLink)
-  local allArray = (itemType == ITEMTYPE_CONTAINER) and allAccounts or allCharacters
-  local name = (itemType == ITEMTYPE_CONTAINER) and account or character
+  local allArray = (itemType == ITEMTYPE_CONTAINER or itemType == ITEMTYPE_COLLECTIBLE) and allAccounts or allCharacters
+  local name = (itemType == ITEMTYPE_CONTAINER or itemType == ITEMTYPE_COLLECTIBLE) and account or character
 
   if not c then
     c = WINDOW_MANAGER:CreateControl(control:GetName() .. "UTIcon", control, CT_TEXTURE)
@@ -276,10 +291,9 @@ function UT:SetInventoryIcon(control, itemLink, tradingHouse)
   c:SetTexture(UTOpts.inventoryIconStyle)
 
   -- different textures for gear
-  if isGear and isUnknown then
-    c:SetTexture("/UnknownTracker/Textures/learngear.dds")  
-  elseif isGear and not isUnknown then
-    c:SetTexture("/UnknownTracker/Textures/tradegear.dds")  
+  if isGear then
+  	local txt = isUnknown and "learngear.dds" or "tradegear.dds"
+  	c:SetTexture("/UnknownTracker/Textures/" .. txt)
   end
 
   c:SetColor(r, g, b, a)  
@@ -541,26 +555,69 @@ function UT:HookTradingHouse()
   end
 end
 
+function UT:OnGroupChanged()
+  gsize = GetGroupSize()
+  for i = 1, gsize do
+    groupMembers[GetUnitName('group' .. i)] = GetUnitDisplayName('group' .. i)
+  end
+end
+
+function UT:OnLootReceived(eventCode, receivedBy, itemName, quantity, soundCategory, lootType, self, isPickpocketLoot, questItemIcon, itemId, isStolen) 	
+
+	--/script UnknownTracker.OnLootReceived(0,"Roleplayer^Mx","|H1:item:55990:363:50:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:500:0|h|h",0,0,0,0,0,"",55990,0)
+	
+  if UTOpts.displayGear then  	  	
+    if IsItemLinkSetCollectionPiece(itemName) and not IsItemSetCollectionPieceUnlocked(itemId) then
+    	-- hmm
+    	UT:OnGroupChanged() 
+
+    	-- try to get @name (falls back to character name)
+      local name = groupMembers[zo_strformat(SI_UNIT_NAME, receivedBy)] or receivedBy
+      name = name:gsub("%^%a+$", "", 1) -- get rid of ^Mx stuff if applicable
+      
+      d("UT Collectable: " .. itemName .. " " ..  UT:MakeLink("8F8F8F", "UT Gear Link", name, tostring(itemId)))
+    end
+  end
+end
+
+function UT:MakeLink(colour, type, name, msg)
+  -- |H1:ability:69|h[Test]|h
+  local combineTable = {"|c", colour, "|H1:", tostring(type), ":", name, ":", msg, "|h", name, "|h", "|r"}
+  return table.concat(combineTable)
+end
+
+-- lol beggar AI
+function UT.HandleClickEvent(rawLink, mouseButton, linkText, linkStyle, linkType, name, msg)
+	if linkType == "UT Gear Link" then
+		--local msg = "hi :) can i have |H1:item:" .. msg .. ":363:50:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:500:0|h|h if you dont need it plz ? "
+		--CHAT_SYSTEM.textEntry:SetText("/w " .. name .. " " .. msg)
+		return true
+	end
+end
+
 function UT:SetupEvents(toggle)
   if toggle then
-    -- could just specifically add the single item learned to master list and then refresh, lazy f
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_COLLECTIBLE_NOTIFICATION_NEW, function(...) self:CheckStylePagesAndRuneboxes(...) end)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_STYLE_LEARNED , function(...) self:CheckMotifs(...) end)
-
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_RECIPE_LEARNED, function(...) self:CheckRecipesAndFurniture(...) end)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_MULTIPLE_RECIPES_LEARNED, function(...) self:CheckRecipesAndFurniture(...) end)
-
-    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_OPEN_STORE, function(... ) self:HookStore(...) end)
-    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_OPEN_TRADING_HOUSE, function(... ) self:HookTradingHouse(...) end)
-  else
+    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_OPEN_STORE, function(...) self:HookStore(...) end)
+    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_OPEN_TRADING_HOUSE, function(...) self:HookTradingHouse(...) end)
+    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_LOOT_RECEIVED, function(...) self:OnLootReceived(...) end)
+    EVENT_MANAGER:RegisterForEvent(self.ame, EVENT_GROUP_MEMBER_JOINED, function(...)  self:OnGroupChanged(...) end)
+  else    
     EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_COLLECTIBLE_NOTIFICATION_NEW)
     EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_RECIPE_LEARNED)
     EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_STYLE_LEARNED)
+    EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_LOOT_RECEIVED)
+    EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_GROUP_MEMBER_JOINED)
+
   end
 end
 
 -- INITIALISATION -------------------------------------------------------------------------------
 function UT:Initialise()
+  groupMembers[GetUnitName('player')] = "You"
 
   -- gather info
   server = GetWorldName()
@@ -614,3 +671,5 @@ function UT.OnLoad(event, addonName)
 end
 
 EVENT_MANAGER:RegisterForEvent(UT.name, EVENT_ADD_ON_LOADED, UT.OnLoad)
+LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_MOUSE_UP_EVENT, UT.HandleClickEvent) --as for Update 4 default ingame GUI uses this event
+LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_CLICKED_EVENT, UT.HandleClickEvent)  --this event still can be used, so the best practise is registering both events

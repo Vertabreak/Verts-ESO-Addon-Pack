@@ -636,7 +636,7 @@ function class.UnboxAll:StopListeningForPause()
             end
         end
     end
-    EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_MOUNT_FAILURE, self:CreateMountFailureHandler())
+    EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_MOUNT_FAILURE)
 end
     
 --[[ TODO: figure out a way to deal with loot scene changes.  Pause and resume, but without delay?

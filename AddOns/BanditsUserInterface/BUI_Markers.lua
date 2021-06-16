@@ -44,7 +44,7 @@ local function Update()
 	local _,worldX,worldY,worldZ=GetUnitRawWorldPosition('player')
 	local pX,pY,pZ=WorldPositionToGuiRender3DPosition(worldX,worldY,worldZ)
 	if BUI.Compass then
-		BUI_Compass:Set3DRenderSpaceOrigin(pX,pY+.02,pZ)
+		BUI_Compass:Set3DRenderSpaceOrigin(pX,pY+.5,pZ)
 --		if BUI.GroupLeader and not BUI.Player.isLeader then
 			local tX,tY,tZ=GetTargetPosition()
 --			local dist=math.sqrt((pX-tX)^2+(pZ-tZ)^2))

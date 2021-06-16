@@ -322,7 +322,7 @@ local function CreateOptions(parent,options,panel,submenu)
 		elseif data.type=="dropdown" then
 			frame=BUI.UI.Control("$(parent)_Drop"..i, parent, {w,h}, anchor)
 			frame.label=BUI.UI.Label("$(parent)_Label", frame, {w/3*2,h}, {TOPLEFT,TOPLEFT,0,0}, font_bold, {.8,.8,.6,1}, {0,1}, name)
-			frame.control=BUI.UI.ComboBox(data.reference or "$(parent)_DropBox", frame.label, {w/3,28}, {TOPLEFT,TOPRIGHT,0,0}, data.choices, data.getFunc(),func)
+			frame.control=BUI.UI.ComboBox(data.reference or "$(parent)_DropBox", frame.label, {w/3,28}, {TOPLEFT,TOPRIGHT,0,0}, data.choices, data.getFunc(),func,false,data.scrollable)
 			anchor={TOPLEFT,BOTTOMLEFT,0,space,frame}
 		elseif data.type=="editbox" then
 			frame=BUI.UI.Control("$(parent)_Edit"..i, parent, {w,h}, anchor)

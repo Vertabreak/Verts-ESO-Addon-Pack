@@ -1,3 +1,23 @@
+Version: 1.2.12 ---------------
+1.APIVersion Up 100035
+
+
+Version: 1.2.11 ---------------
+1.Add parameters to GetHouseBankIdList() & GetItemBagList()
+
+
+Version: 1.2.9 to 1.2.10 ---------------
+1.Update Debug Log Functions.
+
+
+Version: 1.2.8 ---------------
+1.Update Debug Log.
+
+
+Version: 1.2.7 ---------------
+1.APIVersion Up 100034
+
+
 Version: 1.2.4 to 1.2.6 ---------------
 1.APIVersion Up 100033
 2.Bug fix

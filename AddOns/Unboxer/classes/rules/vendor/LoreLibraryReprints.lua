@@ -18,7 +18,7 @@ function class.LoreLibraryReprints:New()
                 120384, -- [Guild Reprint: Daedric Princes]
                 126792, -- [Temple Doctrine: The 36 Lessons]
             },
-            dependencies  = { "excluded", "festival" },
+            dependencies  = { "excluded", "festival", "furnisher" },
             submenu        = submenu,
             title          = GetString(SI_UNBOXER_REPRINTS),
             knownIds       = knownIds,

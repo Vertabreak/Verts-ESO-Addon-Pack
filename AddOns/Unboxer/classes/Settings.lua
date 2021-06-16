@@ -4,14 +4,14 @@ local LAM2 = LibAddonMenu2
 
 -- Local variables
 local debug = false
-local libLootSummaryWarning, renamedSettings, removedSettings, refreshPrefix, tableMultiInsertSorted, version5, version7, version8
+local libLootSummaryWarning, renamedSettings, removedSettings, refreshPrefix, tableMultiInsertSorted, version5, version7, version8, version9
 
 ----------------- Settings -----------------------
 function addon:SetupSavedVars()
     
     self.defaults = 
     {
-        autoloot = tonumber(GetSetting(SETTING_TYPE_LOOT,LOOT_SETTING_AUTO_LOOT)) ~= 0,
+        autoloot = true,
         autolootDelay = 2,
         reservedSlots = 0,
         chatColor = { 1, 1, 1, 1 },
@@ -22,11 +22,17 @@ function addon:SetupSavedVars()
         coloredPrefix = false,
         chatContentsSummary = {
             enabled = true,
-            minQuality = ITEM_QUALITY_MIN_VALUE or ITEM_FUNCTIONAL_QUALITY_MIN_VALUE,
+            minQuality = ITEM_FUNCTIONAL_QUALITY_MIN_VALUE,
             showIcon = true,
             showTrait = true,
+            showNotCollected = true,
             hideSingularQuantities = true,
-            iconSize = 90
+            iconSize = 90,
+            delimiter = " ",
+            combineDuplicates = true,
+            sortedByQuality = true,
+            linkStyle = LINK_STYLE_DEFAULT,
+            showCounter = true,
         },
     }
     self.trackingDefaults = {
@@ -50,14 +56,20 @@ function addon:SetupSavedVars()
          :RemoveSettings(6, "containerUniqueItemIds")
          :Version(7, version7)
          :Version(8, version8)
+         :Version(9, version9)
     
     if LSV_Data.EnableDefaultsTrimming then
         self.settings:EnableDefaultsTrimming()
     end
     
     self.chat = self.classes.ChatProxy:New()
-    self.summary = LibLootSummary({ chat = self.chat, sortedByQuality = true })
-    self.summary:SetOptions(self.settings.chatContentsSummary, self.defaults.chatContentsSummary)
+    self.summary = LibLootSummary({ chat = self.chat })
+    
+    local counterText = GetString(SI_ITEMTYPE18)
+    if GetCVar("Language.2") ~= "de" then
+        counterText = zo_strlower(counterText)
+    end
+    self.summary:SetCounterText(counterText)
     
     self.chatColor = ZO_ColorDef:New(unpack(self.settings.chatColor))
     refreshPrefix()
@@ -78,16 +90,6 @@ function addon:SetupSettings()
         registerForRefresh = true,
         registerForDefaults = true,
     }
-    
-    self.chatContentsSummaryProxy = setmetatable({},
-        {
-            __index = function(_, key)
-                return addon.settings.chatContentsSummary[key]
-            end,
-            __newindex = function(_, key, value)
-                addon.settings.chatContentsSummary[key] = value
-            end,
-        })
   
     self.optionsTable = {
         
@@ -183,7 +185,7 @@ function addon:SetupSettings()
                 -- divider
                 { type = "divider", width = "full" },
                 -- Log container contents to chat
-                self.summary:GenerateLam2LootOptions(self.title, self.chatContentsSummaryProxy, self.defaults.chatContentsSummary),
+                self.summary:GenerateLam2LootOptions(self.title, self.settings, self.defaults, 'chatContentsSummary'),
             },
         },
         
@@ -340,6 +342,18 @@ function version8(sv)
     sv.chatContentsHideSingularQuantities = nil
     sv.chatContentsIcons = nil
     sv.chatContentsTraits = nil
+end
+
+function version9(sv)
+    local oldAutoLootDefault = tonumber(GetSetting(SETTING_TYPE_LOOT,LOOT_SETTING_AUTO_LOOT)) ~= 0
+    if sv.autoloot == nil then
+        sv.autoloot = oldAutoLootDefault
+    end
+    for _, rule in ipairs(addon.rules) do
+        if sv[rule.autolootSettingName] == nil then
+            sv[rule.autolootSettingName] = oldAutoLootDefault
+        end
+    end
 end
 
 renamedSettings = {

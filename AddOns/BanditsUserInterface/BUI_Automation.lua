@@ -93,11 +93,6 @@ local DailyPledges={
 		shift=0
 	},
 	[3]={	--Urgarlag
-		{en="Lair of Maarselok",	ru="Логово Марселока",		de="Der Hort von Maarselok",	fr="Repaire de Maarselok"},
-		{en="Icereach",			ru="Ледяной Предел",		de="Eiskap",			fr="Crève-Nève"},
-		{en="Unhallowed Grave",		ru="Нечестивая Могила",		de="Unheiliges Grab",		fr="Sépulcre profane"},
-		{en="Stone Garden",		ru="Каменный Сад",		de="Steingarten",			fr="Jardin de pierre"},
-		{en="Castle Thorn",		ru="Замок Шипов",			de="Kastell Dorn",		fr="Bastion-les-Ronce"},
 		{en="Imperial City Prison",	ru="Тюрьма Имперского города",de="Gefängnis der Kaiserstadt",	fr="Tour d'Or Blanc"},
 		{en="Ruins of Mazzatun",	ru="Руины Маззатуна",		de="Ruinen von Mazzatun",	fr="Ruines de Mazzatun"},
 		{en="White-Gold Tower",		ru="Башня Белого Золота",	de="Weißgoldturm",		fr="Tour d'Or Blanc"},
@@ -111,7 +106,14 @@ local DailyPledges={
 		{en="Depths of Malatar",	ru="Глубины Малатара",		de="Tiefen von Malatar",	fr="Profondeurs de Malatar"},
 		{en="Frostvault",			ru="Морозное хранилище",	de="Frostgewölbe",		fr="Arquegivre"},
 		{en="Moongrave Fane",		ru="Храм Погребенных Лун",	de="Mondgrab-Tempelstadt",	fr="le reliquaire des Lunes funèbres"},
-		shift=0
+		{en="Lair of Maarselok",	ru="Логово Марселока",		de="Der Hort von Maarselok",	fr="Repaire de Maarselok"},
+		{en="Icereach",			ru="Ледяной Предел",		de="Eiskap",			fr="Crève-Nève"},
+		{en="Unhallowed Grave",		ru="Нечестивая Могила",		de="Unheiliges Grab",		fr="Sépulcre profane"},
+		{en="Stone Garden",		ru="Каменный Сад",		de="Steingarten",			fr="Jardin de pierre"},
+		{en="Castle Thorn",		ru="Замок Шипов",			de="Kastell Dorn",		fr="Bastion-les-Ronce"},
+		{en="Black Drake Villa",	ru="Вилла Черного Змея",	de="Schwarzdrachenvilla",	fr="Villa du Dragon noir"},
+		{en="The Cauldron",		ru="Котел",				de="Der Kessel",			fr="Le Chaudron"},
+		shift=3
 	},
 }
 
@@ -158,7 +160,9 @@ local DungeonIndex={
 [503]	={id=2539},	--Icereach
 [505]	={id=2549},	--Unhallowed Grave
 [507]	={id=2694},	--Stone Garden
-[509] ={id=2704},	--Castle Thorn
+[509]	={id=2704},	--Castle Thorn
+[591]	={id=2831},	--Black Drake Villa
+[593]	={id=2841},	--Cauldron
 --Veteran
 [19]	={id=421,	hm=448,	tt=446,	nd=1572},	--Spindleclutch II
 [20]	={id=1549,	hm=1554,	tt=1552,	nd=1553},	--Banished Cells I
@@ -202,6 +206,8 @@ local DungeonIndex={
 [506]	={id=2550,	hm=2551,	tt=2552,	nd=2553},	--Unhallowed Grave
 [508]	={id=2695,	hm=2755,	tt=2697,	nd=2698},	--Stone Garden
 [510]	={id=2705,	hm=2706,	tt=2707,	nd=2708},	--Castle Thorn
+[592]	={id=2832,	hm=2833,	tt=2834,	nd=2835},	--Black Drake Villa
+[594]	={id=2842,	hm=2843,	tt=2844,	nd=2845},	--Cauldron
 }
 
 function SiegeCameraToggle()
@@ -539,7 +545,6 @@ local function SynergyHandler()
 end
 
 local function Menu_Init()
---	local Menu=LibStub("LibAddonMenu-b",true)
 	local warning=BUI.Loc("ReloadUiWarn1")
 	local MenuOptions={
 		{type="header",	param="AutomationHeader"},

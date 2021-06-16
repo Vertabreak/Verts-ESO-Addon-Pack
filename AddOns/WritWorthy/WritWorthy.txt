@@ -1,18 +1,18 @@
-## Title: WritWorthy 6.2.7
-## Version: 6.2.7
-## AddOnVersion: 060207
-## Last Updated: 2021-01-05
-## APIVersion: 100032
+## Title: WritWorthy 7.0.4
+## Version: 7.0.4
+## AddOnVersion: 070004
+## Last Updated: 2021-06-07
+## APIVersion: 100035
 ## Description: Master Writs: calculate material costs and automate crafting.
 ## Author: ziggr
 ## Contributors: Dolgubon
 ## SavedVariables: WritWorthyVars
-## DependsOn: LibAddonMenu-2.0 LibPrice LibLazyCrafting LibSets
-## OptionalDependsOn: LibCustomMenu AwesomeGuildStore LibSlashCommander LibDebugLogger
+## DependsOn: LibAddonMenu-2.0 LibPrice LibLazyCrafting LibSets LibMotif
+## OptionalDependsOn: LibCustomMenu AwesomeGuildStore LibSlashCommander LibDebugLogger HomeStationMarker
 
 # DE translation by Baertram 2019-04-30
 # RU translation by ivann339 2019-09-06 2020-10-16
-# FR translation by JAKEZ31  2020-08-27
+# FR translation by JAKEZ31  2020-08-27 2021-01-05
 
             # LibAddonMenu-2.0  required
             #   by Seerah, sirinsidiator
@@ -40,6 +40,12 @@
             #       https://www.esoui.com/downloads/info2241-LibSets.html
             #       https://github.com/Baertram/LibSets
             #   Set names such as "Alessia's Bullwark" and their required trait counts.
+
+            # LibMotif required
+            #   by ziggr
+            #       https://somewhere
+            #       https://github.com/ziggr/ESO-LibMotif
+            #  Motif knowledge: do you know Ashlander Bows?
 
             # LibSlashCommander optional
             #   by sirinsidiator
@@ -95,6 +101,7 @@ WritWorthy_AGS.lua
 WritWorthy_I18N.lua
 WritWorthy_Profiler.lua
 # WritWorthy_AutoQuest.lua
+WritWorthy_MatListWindow.lua
 WritWorthy.lua
 WritWorthy.xml
 Bindings.xml

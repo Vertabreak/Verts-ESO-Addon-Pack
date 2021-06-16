@@ -70,10 +70,7 @@ end
 local function GetMasterMerchantPrice(itemLink)
     if(not MasterMerchant) then return end
 
-    local itemId = string.match(itemLink, '|H.-:item:(.-):')
-    local itemData = MasterMerchant.makeIndexFromLink(itemLink)
-
-    local postedStats = MasterMerchant:toolTipStats(tonumber(itemId), itemData)
+    local postedStats = MasterMerchant:itemStats(itemLink, false)
     return postedStats.avgPrice
 end
 
@@ -83,8 +80,7 @@ local function GetMasterMerchantLastUsedPrice(itemLink)
     local settings = MasterMerchant:ActiveSettings()
     if(not settings.pricingData) then return end
 
-    local itemId = string.match(itemLink, '|H.-:item:(.-):')
-    itemId = tonumber(itemId)
+    local itemId = GetItemLinkItemId(itemLink)
     if(not settings.pricingData[itemId]) then return end
 
     local itemIndex = MasterMerchant.makeIndexFromLink(itemLink)
@@ -677,35 +673,47 @@ end
 function SellTabWrapper:SetCurrentInventory(bagId)
     self:UnsetPendingItem()
 
-    SCENE_MANAGER:RemoveFragment(self.currentInventoryFragment)
     if(bagId == BAG_BACKPACK) then
         self.currentInventoryFragment = INVENTORY_FRAGMENT
-        ZO_PlayerInventoryInfoBar:SetParent(ZO_PlayerInventory)
     elseif(bagId == BAG_VIRTUAL) then
         self.currentInventoryFragment = CRAFT_BAG_FRAGMENT
-        ZO_PlayerInventoryInfoBar:SetParent(ZO_CraftBag)
     end
-    SCENE_MANAGER:AddFragment(self.currentInventoryFragment)
+    self:UpdateFragments()
 end
 
 function SellTabWrapper:IsCraftBagActive()
     return self.currentInventoryFragment == CRAFT_BAG_FRAGMENT
 end
 
-function SellTabWrapper:OnOpen(tradingHouseWrapper)
-    if(self.currentInventoryFragment == CRAFT_BAG_FRAGMENT) then
-        ZO_PlayerInventoryInfoBar:SetParent(ZO_CraftBag)
-        SCENE_MANAGER:RemoveFragment(INVENTORY_FRAGMENT)
-        SCENE_MANAGER:AddFragment(CRAFT_BAG_FRAGMENT)
-    end
-    self.isOpen = true
+function SellTabWrapper:UpdateFragments()
+    SCENE_MANAGER:RemoveFragment(INVENTORY_FRAGMENT)
+    SCENE_MANAGER:RemoveFragment(CRAFT_BAG_FRAGMENT)
+    ZO_PlayerInventoryInfoBar:SetParent(self:IsCraftBagActive() and ZO_CraftBag or ZO_PlayerInventory)
+    SCENE_MANAGER:AddFragment(self.currentInventoryFragment)
 end
 
-function SellTabWrapper:OnClose(tradingHouseWrapper)
+local function IsCraftBagItemSellableOnTradingHouse(slot)
+    return not IsItemBound(slot.bagId, slot.slotIndex)
+end
+
+function SellTabWrapper:SetupCraftBag()
+    -- no need to set the craft bag here, since UpdateFragments will be called right after OnOpen anyway
+end
+
+function SellTabWrapper:TeardownCraftBag()
     if(self.currentInventoryFragment == CRAFT_BAG_FRAGMENT) then
         ZO_PlayerInventoryInfoBar:SetParent(ZO_PlayerInventory)
         SCENE_MANAGER:RemoveFragment(CRAFT_BAG_FRAGMENT)
     end
+end
+
+function SellTabWrapper:OnOpen(tradingHouseWrapper)
+    self:SetupCraftBag()
+    self.isOpen = true
+end
+
+function SellTabWrapper:OnClose(tradingHouseWrapper)
+    self:TeardownCraftBag()
     self:UnsetPendingItem()
     self.isOpen = false
     self.suppressNextInventorySlotEvent = false

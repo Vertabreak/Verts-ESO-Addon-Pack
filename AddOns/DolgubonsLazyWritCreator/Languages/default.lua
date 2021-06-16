@@ -16,6 +16,23 @@ function WritCreater.language()
 
 end
 
+local function myLower(str)
+	return zo_strformat("<<z:1>>",str)
+end
+
+function WritCreater.getWritAndSurveyType(link)
+	if not WritCreater.langCraftKernels then return end
+	local itemName = GetItemLinkName(link)
+	local kernels = WritCreater.langCraftKernels()
+	local craftType
+	for craft, kernel in pairs(kernels) do
+		if string.find(myLower(itemName), myLower(kernel)) then
+			craftType = craft
+		end
+	end
+	return craftType
+end
+
 local function proper(str)
 	if type(str)== "string" then
 		return zo_strformat("<<C:1>>",str)
@@ -178,7 +195,7 @@ WritCreater.optionStrings["new container tooltip"]						= "Keep the new status f
 WritCreater.optionStrings["master"]										= "Master Writs"
 WritCreater.optionStrings["master tooltip"]								= "If this is ON the addon will craft Master Writs you have active"
 WritCreater.optionStrings["right click to craft"]						= "Right Click to Craft"
-WritCreater.optionStrings["right click to craft tooltip"]				= "If this is ON the addon will craft Master Writs you tell it to craft after right clicking a sealed writ"
+WritCreater.optionStrings["right click to craft tooltip"]				= "If this is ON the addon will craft Master Writs you tell it to craft after right clicking a sealed writ. Turn LibCustomMenu on to enable"
 WritCreater.optionStrings["crafting submenu"]							= "Trades to Craft"
 WritCreater.optionStrings["crafting submenu tooltip"]					= "Turn the addon off for specific crafts"
 WritCreater.optionStrings["timesavers submenu"]							= "Timesavers"
@@ -219,6 +236,20 @@ WritCreater.optionStrings["questBuffer"]								= "Writ Quest Buffer"
 WritCreater.optionStrings["questBufferTooltip"]							= "Keep a buffer of quests so you can always have room to pick up writs"
 WritCreater.optionStrings["craftMultiplier"]							= "Craft multiplier"
 WritCreater.optionStrings["craftMultiplierTooltip"]						= "Craft multiple copies of each required item so that you don't need to recraft them next time the writ comes up. Note: Save approximately 37 slots for each increase above 1"
+
+WritCreater.optionStrings["allReward"]									= "All Crafts"
+WritCreater.optionStrings["allRewardTooltip"]							= "Action to take for all crafts"
+
+WritCreater.optionStrings['sameForALlCrafts']							= "Use the same option for all"
+WritCreater.optionStrings['sameForALlCraftsTooltip']					= "Use the same option for rewards of this type for all crafts"
+WritCreater.optionStrings['1Reward']									= "Blacksmithing"
+WritCreater.optionStrings['2Reward']									= "Use for all"
+WritCreater.optionStrings['3Reward']									= "Use for all"
+WritCreater.optionStrings['4Reward']									= "Use for all"
+WritCreater.optionStrings['5Reward']									= "Use for all"
+WritCreater.optionStrings['6Reward']									= "Use for all"
+WritCreater.optionStrings['7Reward']									= "Use for all"
+
 WritCreater.optionStrings["matsReward"]									= "Mat Rewards"
 WritCreater.optionStrings["matsRewardTooltip"]							= "What to do with crafting material rewards"
 WritCreater.optionStrings["surveyReward"]								= "Survey Rewards"
@@ -244,7 +275,8 @@ WritCreater.optionStrings["fragmentRewardTooltip"]						= "What to do with psiji
 WritCreater.optionStrings["writRewards submenu"]						= "Writ Reward Handling"
 WritCreater.optionStrings["writRewards submenu tooltip"]				= "What to do with all the rewards from writs"
 
-
+WritCreater.optionStrings["jubilee"]									= "Loot Anniversary Boxes"
+WritCreater.optionStrings["jubilee tooltip"]							= "Auto Loot Anniversary Boxes"
 
 
 WritCreater.optionStrings["rewardChoices"]								= {"Nothing","Deposit","Junk", "Destroy"}

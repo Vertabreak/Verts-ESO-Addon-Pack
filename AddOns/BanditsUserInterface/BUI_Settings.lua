@@ -1,7 +1,7 @@
 -- MENU OPTIONS COMPONENT
 local MenuOptions,MenuPanel,MenuHandlers={},{},{}
 local TexturesList={} for t in pairs(BUI.Textures) do table.insert(TexturesList,t) end
-local MoveMode_1,MoveMode_2,MoveMode_1,MoveMode_2=true,true,true,true
+local MoveMode_1,MoveMode_2=true,true
 local move_init,move_anchor
 local PinTypes={
 --	[MAP_PIN_TYPE_PLAYER]={name="Player",icon="/EsoUI/Art/MapPins/UI-WorldMapPlayerPip.dds"},
@@ -189,30 +189,34 @@ local function MenuOptions_Init()	--Menu options
 	--Change language
 	{	type		="dropdown",
 		name		="ChangeLanguage",
-		choices	={"en", "ru", "de", "fr", "jp"},
+		choices	={"en", "ru", "de", "fr", "jp","it","br"},
 		getFunc	=function() return BUI.language end,
 		setFunc	=function(i,value) SCENE_MANAGER:SetInUIMode(false) BUI.OnScreen.Notification(8,"Reloading UI") BUI.CallLater("Language",1000,SetCVar,"Language.2",value) end,
 		warning	="ChangeLanguageWarn",
 	},
-	--Player attributes section
+--[[	--Player attributes section
 	{	type		="checkbox",
 		name		="PlayerStatSection",
 		getFunc	=function() return BUI.Vars.PlayerStatSection end,
 		setFunc	=function(value) BUI.Vars.PlayerStatSection=value end,
 		warning	=true,
+		disabled	=function() return BUI.API>100033 end,
 	},
+--]]
 	--PvPmode
 	{	type		="checkbox",
 		name		="PvPmode",
 		getFunc	=function() return BUI.Vars.PvPmode end,
 		setFunc	=function(value) BUI.Vars.PvPmode=value end,
 	},
-	--Champion system helper
+--[[	--Champion system helper
 	{	type		="checkbox",
 		name		="ChampionHelper",
 		getFunc	=function() return BUI.Vars.ChampionHelper end,
 		setFunc	=function(value) BUI.Vars.ChampionHelper=value BUI.Champion_Init() end,
+		disabled	=function() return BUI.API>100033 end,
 	},
+--]]
 	--Reset Addon
 	{	type		="button",
 		name		="Reset",
@@ -271,6 +275,7 @@ local function MenuOptions_Init()	--Menu options
 --		choicesValues={1,2,3},
 		getFunc	=function() return BUI.Vars.ReticleResist end,
 		setFunc	=function(i,value) BUI.Vars.ReticleResist=i end,
+		disabled	=function() return BUI.API>100033 end,
 	},
 	--Cast bar
 	{	type		="dropdown",
@@ -850,6 +855,7 @@ end
 				BUI.Frames:SetupGroup()
 				PreviewGroupFrames()
 			else
+				BUI.Vars.GroupSynergy=3
 				SCENE_MANAGER:SetInUIMode(false)
 				BUI.OnScreen.Notification(8,"Reloading UI")
 				BUI.CallLater("ReloadUI",1000,ReloadUI)
@@ -1017,7 +1023,7 @@ end
 		end,
 		disabled	=function() return not BUI.Vars.RaidFrames or not BUI.Vars.StatShare end,
 	}}},
-	--Group synergys
+	--Group synergy
 	{type="submenu",name="GroupSynergy",controls={
 	{	type		="dropdown",
 		name		="GroupSynergy",
@@ -1364,21 +1370,6 @@ end
 		setFunc	=function(value) BUI.Vars.CustomBuffSize=value BUI.Frames.CustomBuffs_Init() end,
 		disabled	=function() return not BUI.Vars.EnableCustomBuffs end
 	},
-	{	type="editbox",
-		name		="CustomBuffsAdd",
-		getFunc	=function() end,
-		setFunc	=function(text) BUI.Buffs.AddTo(BUI.Vars.CustomBuffs,text,"Custom buffs") end,
-		disabled	=function() return not BUI.Vars.EnableCustomBuffs end,
-	},
-	{	type		="dropdown",
-		name		="CustomBuffsDel",
-		choices	=BUI.Menu.Custom_List,
-		scrollable	=30,
-		getFunc	=function() end,
-		setFunc	=function(i,value) BUI.Buffs.RemoveFrom(BUI.Vars.CustomBuffs,BUI.Menu.Custom_List_Values[i],"Custom buffs") end,
-		disabled	=function() return not BUI.Vars.EnableCustomBuffs end,
-		reference	="BUI_Custom_Buffs_Dropdown"
-	},
 	{	type		="dropdown",
 		name		="CustomBuffsDirection",
 		choices	={"horisontal","vertical"},
@@ -1407,6 +1398,21 @@ end
 		getFunc	=function() return BUI.Vars.CustomBuffsPSide end,
 		setFunc	=function(i,value) BUI.Vars.CustomBuffsPSide=value BUI.Frames.CustomBuffs_Init() end,
 		disabled	=function() return not BUI.Vars.EnableCustomBuffs or not BUI.Vars.CustomBuffsProgress or BUI.Vars.CustomBuffsDirection~="vertical" end
+	},
+	{	type="editbox",
+		name		="CustomBuffsAdd",
+		getFunc	=function() end,
+		setFunc	=function(text) BUI.Buffs.AddTo(BUI.Vars.CustomBuffs,text,"Custom buffs") end,
+		disabled	=function() return not BUI.Vars.EnableCustomBuffs end,
+	},
+	{	type		="dropdown",
+		name		="CustomBuffsDel",
+		choices	=BUI.Menu.Custom_List,
+		scrollable	=30,
+		getFunc	=function() end,
+		setFunc	=function(i,value) BUI.Buffs.RemoveFrom(BUI.Vars.CustomBuffs,BUI.Menu.Custom_List_Values[i],"Custom buffs") end,
+		disabled	=function() return not BUI.Vars.EnableCustomBuffs end,
+		reference	="BUI_Custom_Buffs_Dropdown"
 	}}},
 	--Synergy CD
 	{type="submenu",name="SynergyCdHeader",controls={
@@ -1983,6 +1989,11 @@ end
 		setFunc	=function(value) BUI.Vars.Meter_Power=value BUI.Meters.Initialize() end,
 	},
 	{	type		="checkbox",
+		name		="Meter_Crit",
+		getFunc	=function() return BUI.Vars.Meter_Crit end,
+		setFunc	=function(value) BUI.Vars.Meter_Crit=value BUI.Meters.Initialize() end,
+	},
+	{	type		="checkbox",
 		name		="Meter_Exp",
 		getFunc	=function() return BUI.Vars.Meter_Exp end,
 		setFunc	=function(value) BUI.Vars.Meter_Exp=value BUI.Meters.Initialize() end,
@@ -2019,18 +2030,16 @@ end
 
 function BUI.Menu.MakeList(var)
 	local fs=18
-	local options,values={},{}
-	local i=0
+	local data,options,values={},{},{}
 	for id,value in pairs(var) do
 		if value then
-			i=i+1
-			if type(id)=="number" then
-				options[i]=zo_iconFormat(GetAbilityIcon(id),fs,fs).."["..id.."] "..GetAbilityName(id)
-			else
-				options[i]=id
-			end
-			values[i]=id
+			table.insert(data,{type(id)=="number" and GetAbilityName(id) or id,id})
 		end
+	end
+	table.sort(data,function(a,b) return a[1]<b[1] end)
+	for i,value in ipairs(data) do
+		options[i]=type(value[2])=="number" and zo_iconFormat(GetAbilityIcon(value[2]),fs,fs).."["..value[2].."] "..value[1] or value[1]
+		values[i]=value[2]
 	end
 	return options,values
 end
@@ -2051,7 +2060,6 @@ end
 
 function BUI.Menu.Initialize()
 	if BUI.init.Menu then return true end
---	local LAMb=LibStub("LibAddonMenu-b")
 	local AdvancedMenu=true
 	--Setup the menu
 	MenuOptions_Init()

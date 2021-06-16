@@ -26,6 +26,23 @@ local PLATFORMS = {
     [5] = "Stadia"
 }
 
+local FULLSCREEN_MODE = {
+    [tostring(FULLSCREEN_MODE_FULLSCREEN_EXCLUSIVE)] = "fullscreen",
+    [tostring(FULLSCREEN_MODE_FULLSCREEN_WINDOWED)] = "fullscreen windowed",
+    [tostring(FULLSCREEN_MODE_WINDOWED)] = "windowed",
+}
+
+local GAMEPAD_TYPE = {
+    [GAMEPAD_TYPE_NONE] = "no gamepad",
+    [GAMEPAD_TYPE_PS4] = "ps4 gamepad",
+    [GAMEPAD_TYPE_PS4_NO_TOUCHPAD] = "ps4 gamepad (no touchpad)",
+    [GAMEPAD_TYPE_PS5] = "ps5 gamepad",
+    [GAMEPAD_TYPE_SWITCH] = "switch gamepad",
+    [GAMEPAD_TYPE_XBOX] = "xbox gamepad",
+    [GAMEPAD_TYPE_XBSX] = "xbox series-x gamepad",
+    [GAMEPAD_TYPE_HERON] = "stadia gamepad",
+}
+
 -- player info logging
 
 local AddOnManager = GetAddOnManager()
@@ -33,6 +50,30 @@ local numAddons = AddOnManager:GetNumAddOns()
 local numEnabledAddons = 0
 local addOnInfo = {}
 local skippedAddOnInfo = {}
+
+local function GetMissingDependencyInfo(i)
+    local info = {}
+    for j = 1, AddOnManager:GetAddOnNumDependencies(i) do
+        local dependencyName, dependencyExists, dependencyActive, dependencyMinVersion, dependencyVersion = AddOnManager:GetAddOnDependencyInfo(i, j)
+        local dependencyTooLowVersion = dependencyVersion < dependencyMinVersion
+        if not dependencyActive or not dependencyExists or dependencyTooLowVersion then
+            local reason
+            if not dependencyExists then
+                reason = "missing"
+            elseif not dependencyActive then
+                reason = "disabled"
+            elseif dependencyTooLowVersion then
+                reason = "outdated"
+            end
+            info[#info + 1] = string.format("%s: %s", reason, dependencyName)
+        end
+    end
+    if #info > 0 then
+        return string.format(" (%s)", table.concat(info, ", "))
+    end
+    return ""
+end
+
 for i = 1, numAddons do
     local name, _, _, _, enabled, state = AddOnManager:GetAddOnInfo(i)
     local version = AddOnManager:GetAddOnVersion(i)
@@ -41,36 +82,77 @@ for i = 1, numAddons do
         if(state == ADDON_STATE_ENABLED) then
             addOnInfo[name] = strformat("Addon loaded: %s, AddOnVersion: %d, directory: '%s'", name, version, directory)
         else
-            skippedAddOnInfo[name] = strformat("Did not load addon: %s, AddOnVersion: %d, directory: '%s', state: %s", name, version, directory, STATE_STRING[state] or UNKNOWN_STATE_STRING:format(state))
+            local stateString = STATE_STRING[state] or UNKNOWN_STATE_STRING:format(state)
+            if state == ADDON_STATE_DEPENDENCIES_DISABLED then
+                stateString = stateString .. GetMissingDependencyInfo(i)
+            end
+            skippedAddOnInfo[name] = strformat("Did not load addon: %s, AddOnVersion: %d, directory: '%s', state: %s", name, version, directory, stateString)
         end
         numEnabledAddons = numEnabledAddons + 1
     end
 end
 
-local debugInfo = {
-    GetDisplayName(),
-    GetUnitName("player"),
-    internal.FormatTime(internal.SESSION_START_TIME),
-    GetESOVersionString(),
-    GetWorldName(),
-    PLATFORMS[GetPlatformServiceType()],
-    IsInGamepadPreferredMode() and "gamepad" or "keyboard",
-    IsESOPlusSubscriber() and "eso+" or "regular",
-    GetCVar("language.2"),
-    GetKeyboardLayout(),
-    strformat("addon count: %d/%d", numEnabledAddons, numAddons),
-    AddOnManager:GetLoadOutOfDateAddOns() and "allow outdated" or "block outdated",
-}
-internal.Log(internal.LOG_LEVEL_INFO, lib.id, "Initializing...\n" .. tconcat(debugInfo, "\n"))
+local function GenerateDebugInfo()
+    local buildInfo = ScriptBuildInfo()
+    local graphicsInfo = {
+        GetCVar("GraphicsDriver.7"), 
+    }
+    if IsMacUI() then
+        graphicsInfo[#graphicsInfo + 1] = "mac ui"
+    end
+    if IsMinSpecMachine() then
+        graphicsInfo[#graphicsInfo + 1] = "min spec"
+    end
+
+    local customScale
+    if GetSetting(SETTING_TYPE_UI, UI_SETTING_USE_CUSTOM_SCALE) == "1" then
+        customScale = strformat("custom scale (%s; %s)", tostring(GetUICustomScale()), tostring(GetUIGlobalScale()))
+    else
+        customScale = strformat("default scale (%s)", tostring(GetUIGlobalScale()))
+    end
+
+    local debugInfo = {
+        "", -- for the first line break
+        GetDisplayName(),
+        GetUnitName("player"),
+        internal.FormatTime(internal.SESSION_START_TIME),
+        strformat("%s (%s)", GetESOVersionString(), GetAPIVersion()),
+        GetWorldName(),
+        strformat("%s (%s)", PLATFORMS[GetPlatformServiceType()], buildInfo["Platform"]),
+        IsInGamepadPreferredMode() and "gamepad" or "keyboard",
+        IsESOPlusSubscriber() and "eso+" or "regular",
+        GetCVar("language.2"),
+        GetKeyboardLayout(),
+        strformat("addon count: %d/%d", numEnabledAddons, numAddons),
+        AddOnManager:GetLoadOutOfDateAddOns() and "allow outdated" or "block outdated",
+        strformat("%s (%s)", FULLSCREEN_MODE[GetSetting(SETTING_TYPE_GRAPHICS, GRAPHICS_SETTING_FULLSCREEN)], tconcat(graphicsInfo, "; ")),
+        strformat("%d x %d", GuiRoot:GetWidth(), GuiRoot:GetHeight()),
+        customScale,
+        GAMEPAD_TYPE[GetMostRecentGamepadType()],
+        GetTrialInfo() > 0 and "trial account" or "regular account"
+    }
+    return tconcat(debugInfo, "\n")
+end
+
+local function LogErrorMessage(errorString)
+    local message, stacktrace = errorString:match("(.+)\n(stack traceback:.+)")
+    if(not message) then message = errorString end
+
+    internal.LogRaw(internal.LOG_LEVEL_ERROR, internal.TAG_INGAME, message, stacktrace)
+end
+
+local success, debugInfo = pcall(GenerateDebugInfo)
+if not success then
+    LogErrorMessage(debugInfo)
+    debugInfo = ""
+end
+internal.Log(internal.LOG_LEVEL_INFO, lib.id, "Initializing..." .. debugInfo)
 
 -- ingame logging hooks
 
 EVENT_MANAGER:RegisterForEvent(lib.id, EVENT_LUA_ERROR, function(eventCode, errorString)
     if(errorString) then
-        local message, stacktrace = errorString:match("(.+)\n(stack traceback:.+)")
-        if(not message) then message = errorString end
-
-        internal.LogRaw(internal.LOG_LEVEL_ERROR, internal.TAG_INGAME, message, stacktrace)
+        LogErrorMessage(errorString)
     end
 end)
 

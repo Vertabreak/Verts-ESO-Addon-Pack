@@ -2,7 +2,7 @@ local SF = LibSFUtils
 
 RidingSchool = {
     name = "RidingSchool",
-    version = "1.4.3",
+    version = "1.4.5",
     settingName = "RidingSchool",
     settingDisplayName = "RidingSchool",
     author = "Shadowfen",
@@ -17,9 +17,9 @@ RidingSchool.defaults = {
         [3] = RIDING_TRAIN_STAMINA,
     },
     threshold = {
-        [RIDING_TRAIN_SPEED] = 60,
-        [RIDING_TRAIN_STAMINA] = 60,
-        [RIDING_TRAIN_CARRYING_CAPACITY] = 60,
+        [RIDING_TRAIN_SPEED] = 50,
+        [RIDING_TRAIN_STAMINA] = 50,
+        [RIDING_TRAIN_CARRYING_CAPACITY] = 50,
     },
     disables = {
         [RIDING_TRAIN_SPEED] = false,

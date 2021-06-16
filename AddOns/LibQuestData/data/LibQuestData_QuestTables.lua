@@ -49,6 +49,32 @@ quest giver.
 4680 = "To My Friend From the Beach", "Storm on the Horizon"
 6134 = "The New Life Festival", "New Life Festival Scroll"
 6549 = "The Ravenwatch Inquiry", "House Ravenwatch Contract"
+4382 = "Moment of Truth", "Dugroth"
+4585 = "Relative Matters", "Hojard"
+5664 = "The Sweetroll Killer", "A Call to the Worthy",
+6449 = "Lumpy Sack", "Take Your Lumps"
+6445 = "J'saad's Note", "J'saad's Stone"
+6431 = "Sourcing the Ensorcelled", "Guybert Flaubert"
+4955 = "A Lucky Break", "Nedras' Journal"
+6226 = Cyrodilic Collections Needs You!, "Cyrodilic Collections Needs You!"
+5950 = "The Ancestral Tombs", "Librarian Bradyn"
+6275 = "Frog Totem Turnaround", "Romantic Argonian Poem"
+6295 = "Death-Hunts", "Death-Hunts Await"
+4145 = "Mine All Mine", Tervur Sadri
+5599 = "Questions of Faith", "Kor"
+5352 = "Into the Maw", "Adara'hai"
+6549 = "The Ravenwatch Inquiry",
+6612 = "A Mortal's Touch",
+5013 = "Hushed Whispers", "Dominion Correspondence"
+6370 = "Ache for Cake", "Jubilee Cake Voucher"
+4379 = "Lover's Torment", "Shard of Alanwe"
+3970 = "An Ill-Fated Venture", "Letter to Tavo"
+4656 = "Tharayya's Trail", "Tharayya Journal Entry: 19"
+6144 = "Pearls Before Traitors", "To Chief Justiciar Carawen"
+6314 = "Scariest in Show", "Tahara's Traveling Menagerie",
+6596 = "The Symbol of Hrokkibeg", "Letter to Apprentice Gwerina"
+6631 = "Giving Up the Ghost", "Phantasmal Discovery Awaits!"
+6337 = "A Battle of Silk and Flame", "Morgane's Guild Orders"
 
 ID   = Quest Name, Object for comments
 --]]
@@ -89,6 +115,58 @@ lib.questid_giver_lookup = {
     [6170] = 91012,
     [6549] = 80017,
     [5742] = 80018, -- special holliday quest for halloween check if it's in any location
+    [4382] = 35873,
+    [4585] = 39774,
+    [5664] = 80023,
+    [6442] = 80027,
+    [6449] = 81018,
+    [6445] = 81019,
+    [6431] = 100034,
+    [4955] = 500085,
+    [6226] = 100134,
+    [5950] = 80016,
+    [6275] = 94002,
+    [6295] = 94004,
+    [4145] = 27743,
+    [5599] = 100136,
+    [5352] = 60285,
+    [5941] = 100138,
+    [6375] = 100160,
+    [6549] = 79001,
+    [6612] = 79001,
+    [5013] = 100169,
+    [6370] = 100173,
+    [4379] = 33961,
+    [3970] = 100186,
+    [4656] = 100183,
+    [6144] = 100182,
+    [6314] = 100181,
+    [6596] = 90004,
+    [6631] = 95012,
+    [6646] = 95033,
+    [6337] = 95034,
+}
+
+--[[ List of what the numbers mean
+This is a list of special NPCs that run around
+or hunt you down. Once XY location is set, do not
+change it
+
+[4831] = "The Harborage",
+[5941] = "The Jester's Festival",
+[6370] = "Ache for Cake",
+[5935] = "The Missing Prophecy",
+[6023] = "Of Knives and Long Shadows",
+[6097] = "Through a Veil Darkly",
+[6226] = "Ruthless Competition",
+[6299] = "The Demon Weapon",
+[6395] = "The Dragonguard's Legacy",
+[6454] = "The Coven Conspiracy",
+[6549] = "The Ravenwatch Inquiry",
+[6612] = "A Mortal's Touch",
+]]--
+lib.prologue_quest_list = {
+  4831, 5941, 6370, 5935, 6023, 6097, 6226, 6299, 6395, 6454, 6549, 6612,
 }
 
 --[[ List of what the numbers mean
@@ -109,6 +187,12 @@ change it
 10714 - Rajesh : Quest ID 4841: "Trouble at the Rain Catchers"
 11315 - Qadim : Quest ID 2251: "Gone Missing"
 28505 - Bera Moorsmith : Quest ID 3858: "The Dangerous Past"
+28505 - Bera Moorsmith : Quest ID 3885: "The Prismatic Core"
+28505 - Bera Moorsmith : Quest ID 3856: "Anchors from the Harbour"
+5897 - Serge Arcole : Quest ID 2451: "A Ransom for Miranda"
+xx - xx : Quest ID 5102: "The Mage's Tower"
+5057 - First Mate Elvira Derre : Quest ID 1637: "Divert and Deliver",
+6624 - Tyree Marence : Quest ID 728: "Repair Koeglin Lighthouse"
 
 Note: Table is of Quest ID numbers since that
 is part of the XY location information from
@@ -116,7 +200,32 @@ lib.quest_locations
 --]]
 -- 4841 need more data first for Rajesh
 -- 5742 needs verified as it is for halloween quest
-lib.quest_giver_moves = { 5450, 4220, 5058, 4264, 3992, 5923, 5950, 2251, 3858, 5742}
+
+
+--[[
+Another use is that this will prevent a daily or quest from
+a location that is off the map. Southern Elsweyr for example
+and the quests in the Dragonguard place
+]]--
+lib.quest_giver_moves = {
+-- regular quests
+  5450, 4220, 5058, 4264, 3992, 5923, 5950, 2251, 5742, 5102, 3856, 3858, 3885, 2451, 728,
+
+--[[
+[6428] = "Sticks and Bones",
+[6429] = "Digging Up the Garden",
+[6430] = "File Under D",
+[6433] = "Rude Awakening",
+[6434] = "The Dragonguard's Quarry",
+[6435] = "The Dragonguard's Quarry",
+[6405] = "Taking Them to Tusk",
+[6406] = "A Lonely Grave",
+[3924] = "Song of Awakening",
+
+]]--
+-- Dragonguard quests
+  6428, 6429, 6430, 6433, 6434, 6435, 6405, 6406, 3924
+}
 
 --[[
 This is a list of qusts that give skill points
@@ -129,17 +238,24 @@ This is a list of qusts that give skill points
 6057 - In Search of a Sponsor
 6409 - Reformation
 6394 - Uneasy Alliances
+5534 = Cleaning House
 ]]--
 
-lib.quest_has_skill_point = { 465, 467, 575, 1633, 2192, 2222, 2997, 3006, 3235, 3267, 3379, 3634, 3735, 3797, 3817, 3831, 3867, 3868, 3968, 3993, 4054, 4061, 4107, 4115, 4117, 4139, 4143, 4188, 4222, 4261, 4319, 4337, 4345, 4346, 4386, 4432, 4452, 4474, 4479, 4542, 4552, 4590, 4602, 4606, 4607, 4613, 4690, 4712, 4720, 4730, 4733, 4750, 4758, 4764, 4765, 4778, 4832, 4836, 4837, 4847, 4868, 4884, 4885, 4891, 4912, 4960, 4972, 5090, 5433, 6455, 6476, 6050, 6481, 6466, 6057, 6409, 
+lib.quest_has_skill_point = { 465, 467, 575, 1633, 2192, 2222, 2997, 3006, 3235, 3267, 3379, 3634, 3735, 3797, 3817, 3831, 3867, 3868, 3968, 3993, 4054, 4061, 4107, 4115, 4117, 4139, 4143, 4188, 4222, 4261, 4319, 4337, 4345, 4346, 4386, 4432, 4452, 4474, 4479, 4542, 4552, 4590, 4602, 4606, 4607, 4613, 4690, 4712, 4720, 4730, 4733, 4750, 4758, 4764, 4765, 4778, 4832, 4836, 4837, 4847, 4868, 4884, 4885, 4891, 4912, 4960, 4972, 5090, 5433, 6455, 6476, 6050, 6481, 6466, 6057, 6409,
 -- new
-6560, 6547, 6548, 6550, 6551, 6552, 6570, 6554, 6566, 4296, 5540}
+6560, 6547, 6548, 6550, 6551, 6552, 6570, 6554, 6566, 4296, 5540, 6399, 6349, 6394, 6351, 5534,
+--also new
+5889, 3910, 5447, 4555, 4813, 6414, 4303, 6416, 4822, 5595, 5532, 5597, 5598, 5599, 5600, 4641, 5481, 4202, 6507, 6188, 5549, 5545, 6576, 4145, 6578, 5468, 5556, 4469, 5403, 6505, 4336, 5113, 5342, 6186, 6249, 5596, 5702, 5567, 4246, 4589, 4675, 4831, 6304, 6113, 6315, 6126, 6336, 6048, 5922, 4867, 6052, 6025, 6063, 5136, 6003, 6132, 4597, 4379, 4538, 5531, 5948, 5120, 6046, 6047, 6432,
+--blackwood
+6616, 6660, 6619,
+
+}
 
 lib.quest_cadwell = quest_ids { 465, 467, 737, 736, 1341, 1346, 1437, 1529, 1536, 1541, 1591, 1799, 1834, 2130, 2146, 2184, 2192, 2222, 2495, 2496, 2497, 2552, 2564, 2566, 2567, 2997, 3064, 3082, 3174, 3189, 3191, 3235, 3267, 3277, 3280, 3338, 3379, 3584, 3585, 3587, 3588, 3615, 3616, 3632, 3633, 3634, 3637, 3673, 3686, 3687, 3695, 3696, 3705, 3734, 3735, 3749, 3791, 3797, 3810, 3817, 3818, 3826, 3831, 3837, 3838, 3868, 3909, 3928, 3957, 3968, 3978, 4058, 4059, 4060, 4061, 4069, 4075, 4078, 4086, 4095, 4106, 4115, 4116, 4117, 4123, 4124, 4139, 4143, 4147, 4150, 4158, 4166, 4186, 4188, 4193, 4194, 4217, 4222, 4255, 4256, 4260, 4261, 4293, 4294, 4302, 4330, 4331, 4345, 4385, 4386, 4437, 4452, 4453, 4459, 4461, 4479, 4546, 4550, 4573, 4574, 4580, 4587, 4590, 4593, 4601, 4606, 4608, 4613, 4652, 4653, 4690, 4712, 4719, 4720, 4739, 4750, 4755, 4765, 4857, 4868, 4884, 4885, 4902, 4903, 4912, 4922, 4943, 4958, 4959, 4960, 4972, 5024, }
 
 -- list of map ID numbers using GetCurrentMapId()
 -- 1552 Norg-Tzel
-lib.zone_id_list = { 75, 74, 13, 61, 26, 7, 125, 30, 20, 227, 1, 10, 12, 201, 143, 9, 300, 258, 22, 256, 1429, 1747, 1313, 1348, 1354, 255, 1126, 1006, 994, 1484, 1552, 1555, 1654, 1349, 1060, 1719, 667, 16, 660, 108, 1207, 1208, }
+lib.zone_id_list = { 75, 74, 13, 61, 26, 7, 125, 30, 20, 227, 1, 10, 12, 201, 143, 9, 300, 258, 22, 256, 1429, 1747, 1313, 1348, 1354, 255, 1126, 1006, 994, 1484, 1552, 1555, 1654, 1349, 1060, 1719, 667, 16, 660, 108, 1207, 1208, 1261, }
 
 lib.zone_names_list = {
     [75] = "balfoyen_base_0",
@@ -184,6 +300,27 @@ lib.zone_names_list = {
     [108] = "eyevea_base_0",
     [1207] = "reach_base_0",
     [1208] = "u28_blackreach_base_0",
+    [1261] = "blackwood_base_0",
+}
+
+--[[
+This is a list of quests that can not be completed, until
+you have completed and achievement. Unlike conditional_quest_list
+this is not a table.
+
+
+Example, hide "A Cold Wind From the Mountain" while missing the achievement "Hero of Wrothgar".
+
+Format:
+
+    quest_id, the main quest (integer)
+    achievement_quest_id, the achievement ID
+
+    quest_id = achievement_quest_id
+]]--
+lib.achievement_quest_list = {
+  [5479] = 1248, -- "A Cold Wind From the Mountain", "Hero of Wrothgar"
+  [6320] = 2463, -- "The Singing Crystal", Mural
 }
 
 --[[
@@ -393,6 +530,43 @@ lib.conditional_quest_list = {
         4704, -- Welcome to Cyrodiil
         4705, -- Siege Warfare
     },
+    [1834] = { -- Heart of Evil
+        4992, -- Searching for the Searchers
+        3530, -- Destroying the Dark Witnesses
+    },
+    [3817] = { -- The Seal of Three
+        5103, -- Mournhold Market Misery
+    },
+    [2495] = { -- The Signet Ring
+        5050, -- Waiting for Word
+    },
+    [1536] = { -- Fire in the Fields"
+        1735, -- Unanswered Questions
+    },
+    [5071] = { --Curinure's Invitation
+        5074,
+        5076,
+    },
+    [5074] = { --Rudrasa's Invitation
+        5071,
+        5076,
+    },
+    [5076] = { --Nemarc's Invitation
+        5071,
+        5074,
+    },
+    [5073] = { --Aicessar's Invitation
+        5077,
+        5075,
+    },
+    [5077] = { --Basile's Invitation
+        5073,
+        5075,
+    },
+    [5075] = { --Hilan's Invitation
+        5073,
+        5077,
+    },
 
 }
 
@@ -400,3 +574,53 @@ lib.conditional_quest_list = {
 /script LibQuestData_Internal.dm("Debug", LibQuestData.completed_quests[4726])
 /script LibQuestData_Internal.dm("Debug", LibQuestData.player_alliance)
 ]]--
+
+
+--[[
+This is a list of quests that you get when using an object such
+as Folded Note for Real Marines; ID 4210
+
+[4210] = "Real Marines", "Folded Note"
+]]--
+lib.object_quest_starter_list = {
+  4210, 5312,
+}
+
+--[[
+These tables are quests for guilds that are not available
+until you reach a certain rank
+
+Format: [QuestID] = rank
+]]--
+lib.guild_rank_quest_list = {
+  [lib.quest_series_type.quest_type_guild_fighter] = {
+    [3856] = 0,
+    [3858] = 1,
+    [3885] = 2,
+    [3898] = 3,
+    [3973] = 4,
+  },
+  [lib.quest_series_type.quest_type_guild_mage] = {
+    [3916] = 0,
+    [4435] = 1,
+    [3918] = 2,
+    [3953] = 3,
+    [3997] = 4,
+    [4971] = 4,
+  },
+  [lib.quest_series_type.quest_type_guild_thief] = {
+    [5549] = 6,
+    [5545] = 7,
+    [5581] = 8,
+    [5553] = 9,
+  },
+  [lib.quest_series_type.quest_type_guild_dark] = {
+    [5595] = 1,
+    [5599] = 2,
+    [5596] = 3,
+    [5567] = 4,
+    [5597] = 5,
+    [5598] = 6,
+    [5600] = 7,
+  },
+}

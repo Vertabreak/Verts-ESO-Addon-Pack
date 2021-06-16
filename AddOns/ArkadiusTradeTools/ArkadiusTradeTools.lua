@@ -1,7 +1,7 @@
 ArkadiusTradeTools = ZO_CallbackObject:New()
 ArkadiusTradeTools.NAME = 'ArkadiusTradeTools'
 ArkadiusTradeTools.TITLE = 'Arkadius Trade Tools'
-ArkadiusTradeTools.VERSION = '1.11.2'
+ArkadiusTradeTools.VERSION = '1.13.0'
 ArkadiusTradeTools.AUTHOR = '@Aldanga, @Arkadius1'
 ArkadiusTradeTools.Localization = {}
 ArkadiusTradeTools.SavedVariables = {}
@@ -14,7 +14,8 @@ ArkadiusTradeTools.EVENTS = {
   ON_CRAFTING_STATION_OPEN = 5,
   ON_CRAFTING_STATION_CLOSE = 6,
   ON_GUILDSTORE_ITEM_BOUGHT = 7,
-  ON_GUILDHISTORY_STORE = 8
+  ON_GUILDHISTORY_STORE = 8,
+  ON_GUILDSTORE_PENDING_ITEM_UPDATE = 9,
 }
 local internalModules = { ['Sales'] = true, ['Purchases'] = true, ['Statistics'] = true, ['Exports'] = true }
 
@@ -557,7 +558,7 @@ function ArkadiusTradeTools:ShowNotification(notification)
     return
   end
 
-  d(notification)
+  CHAT_ROUTER:AddSystemMessage(notification)
   CENTER_SCREEN_ANNOUNCE:AddMessage(
     nil,
     CSA_CATEGORY_SMALL_TEXT,
@@ -653,6 +654,13 @@ function ArkadiusTradeTools:OnEvent(eventCode, arg1, arg2, ...)
         GetTimeStamp()
       )
     end
+  -- Could probably nix this as we removed it from the auto pricing, but it's not hurting anything right now
+  elseif (eventCode == EVENT_TRADING_HOUSE_PENDING_ITEM_UPDATE) then
+    self:FireCallbacks(
+        EVENTS.ON_GUILDSTORE_PENDING_ITEM_UPDATE,
+        arg1,
+        arg2
+      )
   elseif (eventCode == EVENT_PLAYER_COMBAT_STATE) then
     self.isInCombat = arg1
   end
@@ -718,6 +726,7 @@ local function OnPlayerActivated(eventCode)
   else
     EVENT_MANAGER:RegisterForEvent(ArkadiusTradeTools.NAME, EVENT_TRADING_HOUSE_CONFIRM_ITEM_PURCHASE, OnEvent)
     EVENT_MANAGER:RegisterForEvent(ArkadiusTradeTools.NAME, EVENT_TRADING_HOUSE_RESPONSE_RECEIVED, OnEvent)
+    EVENT_MANAGER:RegisterForEvent(ArkadiusTradeTools.NAME, EVENT_TRADING_HOUSE_PENDING_ITEM_UPDATE, OnEvent)
   end
 
   ScanGuildHistoryEvents()

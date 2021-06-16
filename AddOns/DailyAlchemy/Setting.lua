@@ -5,12 +5,20 @@
 function DailyAlchemy:CreateMenu()
 
     self.savedVariables.debugLog = {}
+    if self.savedVariables.isAcquireItem == nil then
+        self.savedVariables.isAcquireItem = true
+    end
+    if self.savedVariables.acquireDelay == nil then
+        self.savedVariables.acquireDelay = 1
+    end
     if self.savedVariables.isLog == nil then
         self.savedVariables.isLog = true
     end
-    if self.savedVariables.useItemLock == nil then
-        self.savedVariables.useItemLock = true
+    if self.savedVariables.isDebugQuest == nil then
+        self.savedVariables.isDebugQuest = true
     end
+
+
     self.savedVariables.showPrice = nil -- Todo: Delete
     self.MAX_ITEM_INDEX = #self:GetMenuItemIdList()
 
@@ -126,6 +134,25 @@ function DailyAlchemy:CreateMenu()
             default = true,
         },
         {
+            type = "slider",
+            name = GetString(DA_DELAY),
+            tooltip = GetString(DA_DELAY_TOOLTIP),
+            min = 0,
+            max = 10,
+            step = 0.5,
+            disabled = function()
+                return (not self.savedVariables.isAcquireItem)
+            end,
+            getFunc = function()
+                return self.savedVariables.acquireDelay
+            end,
+            setFunc = function(value)
+                self.savedVariables.acquireDelay = tonumber(value)
+            end,
+            width = "full",
+            default = 1,
+        },
+        {
             type = "checkbox",
             name = GetString(DA_AUTO_EXIT),
             tooltip = GetString(DA_AUTO_EXIT_TOOLTIP),
@@ -136,7 +163,7 @@ function DailyAlchemy:CreateMenu()
                 self.savedVariables.isAutoExit = value
             end,
             width = "full",
-            default = false,
+            default = true,
         },
         {
             type = "checkbox",
@@ -158,25 +185,121 @@ function DailyAlchemy:CreateMenu()
             end,
             setFunc = function(value)
                 self.savedVariables.isDebug = value
+                DA_IsDebugSettings:SetHidden(not value)
+                DA_IsDebugQuest:SetHidden(not value)
+                DA_IsDebugSolvent:SetHidden(not value)
+                DA_IsDebugTrait:SetHidden(not value)
+                DA_IsDebugReagent:SetHidden(not value)
+                DA_IsDebugPriority:SetHidden(not value)
             end,
             width = "full",
             default = false,
         },
+        {
+            type = "checkbox",
+            name = zo_strformat("<<1>>(<<2>>)", GetString(DA_DEBUG_LOG), GetString(SI_GAME_MENU_SETTINGS)),
+            getFunc = function()
+                DA_IsDebugSettings:SetHidden(not self.savedVariables.isDebug)
+                return self.savedVariables.isDebugSettings
+            end,
+            setFunc = function(value)
+                self.savedVariables.isDebugSettings = value
+            end,
+            width = "full",
+            default = true,
+            reference = "DA_IsDebugSettings",
+        },
+        {
+            type = "checkbox",
+            name = zo_strformat("<<1>>(<<2>>)", GetString(DA_DEBUG_LOG), GetString(SI_QUEST_JOURNAL_MENU_JOURNAL)),
+            getFunc = function()
+                DA_IsDebugQuest:SetHidden(not self.savedVariables.isDebug)
+                return self.savedVariables.isDebugQuest
+            end,
+            setFunc = function(value)
+                self.savedVariables.isDebugQuest = value
+            end,
+            width = "full",
+            default = true,
+            reference = "DA_IsDebugQuest",
+        },
+        {
+            type = "checkbox",
+            name = zo_strformat("<<1>>(<<2>>/<<3>>)", GetString(DA_DEBUG_LOG),
+                                                      GetString(SI_ITEMTYPE33),
+                                                      GetString(SI_ITEMTYPE58)),
+            getFunc = function()
+                DA_IsDebugSolvent:SetHidden(not self.savedVariables.isDebug)
+                return self.savedVariables.isDebugSolvent
+            end,
+            setFunc = function(value)
+                self.savedVariables.isDebugSolvent = value
+            end,
+            width = "full",
+            default = false,
+            reference = "DA_IsDebugSolvent",
+        },
+        {
+            type = "checkbox",
+            name = zo_strformat("<<1>>(<<2>>)", GetString(DA_DEBUG_LOG),
+                                                GetString(SI_MASTER_WRIT_DESCRIPTION_TRAIT)),
+            getFunc = function()
+                DA_IsDebugTrait:SetHidden(not self.savedVariables.isDebug)
+                return self.savedVariables.isDebugTrait
+            end,
+            setFunc = function(value)
+                self.savedVariables.isDebugTrait = value
+            end,
+            width = "full",
+            default = false,
+            reference = "DA_IsDebugTrait",
+        },
+        {
+            type = "checkbox",
+            name = zo_strformat("<<1>>(<<2>>)", GetString(DA_DEBUG_LOG),
+                                                GetString(SI_ITEMTYPE31)),
+            getFunc = function()
+                DA_IsDebugReagent:SetHidden(not self.savedVariables.isDebug)
+                return self.savedVariables.isDebugReagent
+            end,
+            setFunc = function(value)
+                self.savedVariables.isDebugReagent = value
+            end,
+            width = "full",
+            default = false,
+            reference = "DA_IsDebugReagent",
+        },
+        {
+            type = "checkbox",
+            name = zo_strformat("<<1>>(<<2>>)", GetString(DA_DEBUG_LOG),
+                                                GetString(DA_PRIORITY_HEADER)),
+            getFunc = function()
+                DA_IsDebugPriority:SetHidden(not self.savedVariables.isDebug)
+                return self.savedVariables.isDebugPriority
+            end,
+            setFunc = function(value)
+                self.savedVariables.isDebugPriority = value
+            end,
+            width = "full",
+            default = false,
+            reference = "DA_IsDebugPriority",
+        },
     }
 
     if FCOIS then
-        optionsTable[#optionsTable + 1] = {
-                type = "checkbox",
-                name = GetString(DA_ITEM_LOCK),
-                getFunc = function()
-                    return self.savedVariables.useItemLock
-                end,
-                setFunc = function(value)
-                    self.savedVariables.useItemLock = value
-                end,
-                width = "full",
-                default = true,
-            }
+        local tableRow = {
+            type = "checkbox",
+            name = GetString(DA_ITEM_LOCK),
+            getFunc = function()
+                return self.savedVariables.useItemLock
+            end,
+            setFunc = function(value)
+                self.savedVariables.useItemLock = value
+            end,
+            width = "full",
+            default = true,
+        }
+        table.insert(optionsTable, 8, tableRow)
     end
     LibAddonMenu2:RegisterOptionControls(self.displayName, optionsTable)
 
@@ -474,21 +597,33 @@ function DailyAlchemy:RefreshMenuForManual()
     local formatText = "|H0:item:<<1>>:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h"
     local itemIdList = self:GetMenuItemIdList()
     local list = {}
+    local itemLink
+    local icon
+    local txt
+    local price
     for i, itemId in ipairs(itemIdList) do
-        local itemLink = zo_strformat(formatText, itemId)
-        local icon = GetItemLinkIcon(itemLink)
-        local txt
+        itemLink = zo_strformat(formatText, itemId)
+        icon = GetItemLinkIcon(itemLink)
         if saveVer.showPriceMM or saveVer.showPriceTTC or saveVer.showPriceATT  then
-            local price = self:GetAvgPrice(itemLink)
+            price = self:GetAvgPrice(itemLink)
             txt = zo_iconFormat(icon, 18, 18) .. itemLink .. " " .. string.format('%.0f', price) .. goldIcon
+            list[#list + 1] = {itemId, txt, price}
         else
             txt = zo_iconFormat(icon, 18, 18) .. itemLink
+            list[#list + 1] = {itemId, txt}
         end
-        list[#list + 1] = {itemId, txt}
     end
-    table.sort(list, function(a, b)
-        return a[1] < b[1]
-    end)
+
+    if saveVer.showPriceMM or saveVer.showPriceTTC or saveVer.showPriceATT  then
+        table.sort(list, function(a, b)
+            return a[3] < b[3]
+        end)
+    else
+        table.sort(list, function(a, b)
+            return a[1] < b[1]
+        end)
+    end
+
     local displays = {}
     local values = {}
     for i, entry in ipairs(list) do

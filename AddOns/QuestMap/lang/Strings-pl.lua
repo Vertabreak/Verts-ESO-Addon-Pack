@@ -8,15 +8,18 @@ https://github.com/CaptainBlagbird
 
 local strings = {
     -- General
-    QUESTMAP_UNCOMPLETED            = "Nieukończone",
     QUESTMAP_COMPLETED              = "Ukończone",
+    QUESTMAP_UNCOMPLETED            = "Nieukończone",
     QUESTMAP_HIDDEN                 = "Ręcznie ukryte",
     QUESTMAP_STARTED                = "Rozpoczęte",
-    QUESTMAP_REPEATABLE             = "Powtarzalne",
+    QUESTMAP_GUILD                = "Guild",
     QUESTMAP_DAILY                  = "Dzienne",
-    QUESTMAP_CADWELL                = "Cadwell",
     QUESTMAP_SKILL                  = "Punkt umiejętności",
+    QUESTMAP_CADWELL                = "Cadwell",
+    QUESTMAP_DUNGEON              = "Dungeon",
     QUESTMAP_HOLIDAY              = "Holiday",
+    QUESTMAP_WEEKLY               = "Weekly",
+    QUESTMAP_ZONESTORY            = "Zone Story",
 
     QUESTMAP_HIDE                   = "Ukryj zadanie",
     QUESTMAP_UNHIDE                 = "Wyświetl zadanie",
@@ -95,12 +98,12 @@ local strings = {
     QUESTMAP_STARTED_TOOLTIP_COLOR  = "Kolor okna podpowiedzi do zadań rozpoczętych (ST)",
     QUESTMAP_STARTED_TOOLTIP_COLOR_DESC  = "Zmiana koloru okna podpowiedzi do zadań rozpoczętych (ST)",
 
-    -- Repeatable quest pin text
-    QUESTMAP_REPEATABLE_PIN_COLOR  = "Kolor znacznika zadań powtarzalnych (RP)",
-    QUESTMAP_REPEATABLE_PIN_COLOR_DESC  = "Zmiana koloru znacznika zadań powtarzalnych (RP)",
+    -- Guild quest pin text
+    QUESTMAP_GUILD_PIN_COLOR  = "Guild Quest Pin Color",
+    QUESTMAP_GUILD_PIN_COLOR_DESC  = "Change Guild Quest Pin Color",
 
-    QUESTMAP_REPEATABLE_TOOLTIP_COLOR  = "Kolor okna podpowiedzi do zadań powtarzalnych (RP)",
-    QUESTMAP_REPEATABLE_TOOLTIP_COLOR_DESC  = "Zmiana koloru okna podpowiedzi do zadań powtarzalnych (RP)",
+    QUESTMAP_GUILD_TOOLTIP_COLOR  = "Guild Quest Tooltip Color",
+    QUESTMAP_GUILD_TOOLTIP_COLOR_DESC  = "Change Guild Quest Tooltip Color",
 
     -- Daily quest pin text
     QUESTMAP_DAILY_PIN_COLOR  = "Kolor znacznika zadań dziennych (DA)",
@@ -108,6 +111,13 @@ local strings = {
 
     QUESTMAP_DAILY_TOOLTIP_COLOR  = "Kolor okna podpowiedzi do zadań dziennych (DA)",
     QUESTMAP_DAILY_TOOLTIP_COLOR_DESC  = "Zmiana koloru okna podpowiedzi do zadań dziennych (DA)",
+
+    -- Weekly Duration quest pin text
+    QUESTMAP_WEEKLY_PIN_COLOR  = "Weekly Quest Pin Color",
+    QUESTMAP_WEEKLY_PIN_COLOR_DESC  = "Change Weekly Quest Pin Color",
+
+    QUESTMAP_WEEKLY_TOOLTIP_COLOR  = "Weekly Quest Tooltip Color",
+    QUESTMAP_WEEKLY_TOOLTIP_COLOR_DESC  = "Change Weekly Quest Tooltip Color",
 
     -- Holiday quest pin text
     QUESTMAP_HOLIDAY_PIN_COLOR  = "Holiday Quest Pin Color",
@@ -136,6 +146,27 @@ local strings = {
 
     QUESTMAP_DUNGEON_TOOLTIP_COLOR  = "Kolor okna podpowiedzi do zadań w lochach (DN)",
     QUESTMAP_DUNGEON_TOOLTIP_COLOR_DESC  = "Zmiana koloru okna podpowiedzi do zadań w lochach (DN)",
+
+    -- Zonestory quest pin text
+    QUESTMAP_ZONESTORY_PIN_COLOR  = "Zonestory Quest Pin Color",
+    QUESTMAP_ZONESTORY_PIN_COLOR_DESC  = "Change Zonestory Quest Pin Color",
+
+    QUESTMAP_ZONESTORY_TOOLTIP_COLOR  = "Zonestory Quest Tooltip Color",
+    QUESTMAP_ZONESTORY_TOOLTIP_COLOR_DESC  = "Change Zonestory Quest Tooltip Color",
+
+    -- Prologue quest pin text
+    QUESTMAP_PROLOGUE_PIN_COLOR  = "Prologue Quest Pin Color",
+    QUESTMAP_PROLOGUE_PIN_COLOR_DESC  = "Change Prologue Quest Pin Color",
+
+    QUESTMAP_PROLOGUE_TOOLTIP_COLOR  = "Prologue Quest Tooltip Color",
+    QUESTMAP_PROLOGUE_TOOLTIP_COLOR_DESC  = "Change Prologue Quest Tooltip Color",
+
+    -- Pledges quest pin text
+    QUESTMAP_PLEDGES_PIN_COLOR  = "Pledges Quest Pin Color",
+    QUESTMAP_PLEDGES_PIN_COLOR_DESC  = "Change Pledges Quest Pin Color",
+
+    QUESTMAP_PLEDGES_TOOLTIP_COLOR  = "Pledges Quest Tooltip Color",
+    QUESTMAP_PLEDGES_TOOLTIP_COLOR_DESC  = "Change Pledges Quest Tooltip Color",
 
 }
 

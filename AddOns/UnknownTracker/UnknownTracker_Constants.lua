@@ -72,6 +72,9 @@ UT.defaultOpts =
   	unknownColour = "00FF00FF",
   	knownBySomeColour = "00FFFFFF",
   	knownByAllColour = "808080FF",
+  	displayTooltip=true,
+  	shortenTooltipNames=false,
+  	displayTooltipNameOnlyIfUnknown=false,
 }
 
 UT.defaultUTMasterList =

@@ -4,7 +4,7 @@ local localization =
     ATT_STR_SELLER                             = "Verkäufer",
     ATT_STR_GUILD                              = "Gilde",
     ATT_STR_ITEM                               = "Gegenstand",
-	ATT_STR_EAPRICE                            = "EP",
+	ATT_STR_UNIT_PRICE                         = "EP",
     ATT_STR_PRICE                              = "Preis",
     ATT_STR_TIME                               = "Zeit",
 
@@ -49,6 +49,9 @@ local localization =
     ATT_STR_ENABLE_TOOLTIP_EXTENSIONS          = "Erweiterte Tooltips aktivieren",
     ATT_STR_ENABLE_TOOLTIP_EXTENSIONS_GRAPH    = "Zeige Graphen",
     ATT_STR_ENABLE_TOOLTIP_EXTENSIONS_CRAFTING = "Zeige Handwerkskosten",
+    ATT_STR_ENABLE_TOOLTIP_EXTENSIONS_CRAFTING_TOOLTIP = "Only supported for a subset of master writs",
+    ATT_STR_ENABLE_INVENTORY_PRICES            = "Enable prices in inventories",
+    ATT_STR_ENABLE_INVENTORY_PRICES_WARNING    = "Can cause frame skips upon first open",
     ATT_STR_KEEP_SALES_FOR_DAYS                = "Behalte Verkäufe für x Tage",
 
     ATT_STR_BASE_PROFIT_MARGIN_CALC_ON         = "Gewinnspanne auf Basis von",
@@ -62,6 +65,9 @@ local localization =
     ATT_STR_DEAL_LEVEL_4                       = "Great",
     ATT_STR_DEAL_LEVEL_5                       = "Fantastic",
     ATT_STR_DEAL_LEVEL_6                       = "Mind-blowing!",
+
+    ATT_STR_ENABLE_TRADING_HOUSE_AUTO_PRICING  = 'Enable auto pricing for guild trader listings',
+    ATT_STR_ENABLE_TRADING_HOUSE_AUTO_PRICING_TOOLTIP  = 'Default UI only',
 
     ATT_STR_FILTER_TEXT_TOOLTIP                = "Textsuche nach User-, Gilden- oder Gegenstandsnamen, Gegenstandseigenschaft (z.B. präzise) oder Gegenstandsqualität (z. B. legendär)",
     ATT_STR_FILTER_SUBSTRING_TOOLTIP           = "Schalte zwischen Suche nach exaktem String oder Teilstring um. Groß- und Kleinschreibung wird in beiden Fällen ignoriert.",

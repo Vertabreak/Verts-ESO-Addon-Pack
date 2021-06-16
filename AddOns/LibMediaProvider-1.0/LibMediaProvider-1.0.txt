@@ -1,8 +1,8 @@
 ﻿## Title: LibMediaProvider-1.0
 ## Author: Seerah
-## Version: 1.0 r16
-## APIVersion: 100033
-## AddOnVersion: 16
+## Version: 1.0 r18
+## APIVersion: 100034 100035
+## AddOnVersion: 18
 ## IsLibrary: true
 ## OptionalDependsOn: LibStub
 ## Description: Facilitates shared media between addons.  Inspired by and borrowed from LibSharedMedia World of Warcraft.

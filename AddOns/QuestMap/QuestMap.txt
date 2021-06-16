@@ -1,17 +1,18 @@
-## Title: Quest Map v2.83
-## Version: 2.83
-## AddOnVersion: 283
+## Title: Quest Map v2.98
+## Version: 2.98
+## AddOnVersion: 298
 ## Author: CaptainBlagbird, Sharlikran
-## APIVersion: 100031 100033
+## APIVersion: 100033 100035
 ## Description: Displays quest givers on the world map
 ## SavedVariables: QuestMap_SavedVariables
-## DependsOn: LibMapPins-1.0>=10029 LibGPS>=37 LibQuestData>=197
-## OptionalDependsOn: LibAddonMenu-2.0>=31 LibMsgWin-1.0>=10 LibDebugLogger>=196 DebugLogViewer
+## DependsOn: LibMapPins-1.0>=10030 LibGPS>=65 LibQuestData>=223
+## OptionalDependsOn: LibAddonMenu-2.0>=32 LibMsgWin-1.0>=11 LibDebugLogger>=196 DebugLogViewer
 
 ; Resources
 Init.lua
 
 ; Languages
+lang/Strings-en.lua
 lang/Strings-$(language).lua
 
 ; Main files

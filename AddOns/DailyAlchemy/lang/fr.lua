@@ -29,6 +29,8 @@ ZO_CreateStringId("DA_PRIORITY_CHANGED",    "Le paramètre d'extension [<<1>>] a
 
 ZO_CreateStringId("DA_OTHER_HEADER",        "Autre")
 ZO_CreateStringId("DA_ACQUIRE_ITEM",        "Récupérer des articles de la banque")
+ZO_CreateStringId("DA_DELAY",               "Temps de retard(secondes)")
+ZO_CreateStringId("DA_DELAY_TOOLTIP",       "Délai de récupération de l'élément\nSi vous ne parvenez pas à bien sortir l'objet, augmentez-le.")
 ZO_CreateStringId("DA_AUTO_EXIT",           "Sortie automatique de la fenêtre d'artisanat")
 ZO_CreateStringId("DA_AUTO_EXIT_TOOLTIP",   "Sortie automatique de la fenêtre d'artisanat lorsque tout est terminé.")
 ZO_CreateStringId("DA_ITEM_LOCK",           "Ne pas utiliser d'objets verrouillés")
@@ -159,7 +161,8 @@ function DailyAlchemy:ConvertedJournalCondition(journalCondition)
         {" d’",                " de "},
         {"poison de Degats ",   "Poison de ravage "},
         {"poison de Drain ",    "Poison de drain "},
-        {" IX ",                " Ⅸ "},
+        {" IX%s?",              " Ⅸ"},
+        --{" IX ",                " Ⅸ "},
         {" VIII ",              " Ⅷ "},
         {" VII ",               " Ⅶ "},
         {" VI ",                " Ⅵ "},

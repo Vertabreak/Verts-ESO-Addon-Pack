@@ -2,82 +2,84 @@
 -- Polish localization for DailyAlchemy
 ------------------------------------------------
 
-ZO_CreateStringId("DA_CRAFTING_QUEST",      "Alchemist Writ")           -- [pl.lang.csv] "52420949","0","5415","xxxxxxxx"
-ZO_CreateStringId("DA_CRAFTING_MASTER",     "A Masterful Concoction")   -- [pl.lang.csv] "52420949","0","5980","xxxxxxxx"
-ZO_CreateStringId("DA_CRAFTING_WITCH",      "Witches Festival Writ")    -- [pl.lang.csv] "52420949","0","6427","xxxxxxxx"
+ZO_CreateStringId("DA_CRAFTING_QUEST",      "Zlecenie dla alchemika")           -- [pl.lang.csv] "52420949","0","5415","xxxxxxxx"
+ZO_CreateStringId("DA_CRAFTING_MASTER",     "Mistrzowska mikstura")             -- [pl.lang.csv] "52420949","0","5980","xxxxxxxx"
+ZO_CreateStringId("DA_CRAFTING_WITCH",      "Zlecenie Festiwalu Wiedźm")        -- [pl.lang.csv] "52420949","0","6427","xxxxxxxx"
 
-ZO_CreateStringId("DA_BULK_HEADER",         "Bulk Creation")
-ZO_CreateStringId("DA_BULK_FLG",            "Create all the requested items at once")
-ZO_CreateStringId("DA_BULK_FLG_TOOLTIP",    "It is used when you want to create a large number of requested items.")
-ZO_CreateStringId("DA_BULK_COUNT",          "Created quantity")
-ZO_CreateStringId("DA_BULK_COUNT_TOOLTIP",  "In fact it will be created more than this quantity.(Depends on alchemy skills)")
- 
-ZO_CreateStringId("DA_CRAFT_WRIT",          "Craft Sealed Writ")
-ZO_CreateStringId("DA_CRAFT_WRIT_MSG",      "When accessing the alchemy station, <<1>>")
-ZO_CreateStringId("DA_CANCEL_WRIT",         "Cancel Sealed Writ")
-ZO_CreateStringId("DA_CANCEL_WRIT_MSG",     "Canceled Sealed Writ")
- 
-ZO_CreateStringId("DA_PRIORITY_HEADER",     "Reagent priority")
-ZO_CreateStringId("DA_PRIORITY_BY",         "Priority of reagent to be used")
-ZO_CreateStringId("DA_PRIORITY_BY_STOCK",   "Many stocks")
-ZO_CreateStringId("DA_PRIORITY_BY_MM",      "Low price reagent at [MasterMerchant]")
-ZO_CreateStringId("DA_PRIORITY_BY_TTC",     "Low price reagent at [TamrielTradeCentre]")
-ZO_CreateStringId("DA_PRIORITY_BY_ATT",     "Low price reagent at [ArkadiusTradeTools]")
-ZO_CreateStringId("DA_PRIORITY_BY_MANUAL",  "Set manually")
-ZO_CreateStringId("DA_SHOW_PRICE_MANUAL",   "Show price[<<1>>]")
-ZO_CreateStringId("DA_PRIORITY_CHANGED",    "The add-on setting [<<1>>] has been changed because the <<2>> is turned off")
- 
-ZO_CreateStringId("DA_OTHER_HEADER",        "Other")
-ZO_CreateStringId("DA_ACQUIRE_ITEM",        "Retrieve items from bank")
-ZO_CreateStringId("DA_AUTO_EXIT",           "Auto exit")
-ZO_CreateStringId("DA_AUTO_EXIT_TOOLTIP",   "You will automatically leave the crafting table after completing the daily writ.")
-ZO_CreateStringId("DA_ITEM_LOCK",           "Do not use locked items")
-ZO_CreateStringId("DA_LOG",                 "Show log")
-ZO_CreateStringId("DA_DEBUG_LOG",           "Show debug log")
- 
-ZO_CreateStringId("DA_NOTHING_ITEM",        "No items in the backpack (<<1>>)")
-ZO_CreateStringId("DA_SHORT_OF",            "... Short of Materials(<<1>>)")
-ZO_CreateStringId("DA_MISMATCH_ITEM",       "... [Error]Name does not match (<<1>>)")
- 
-ZO_CreateStringId("DA_HEALTH",              "Przywrócenia zdrowia")             -- Restore Health        [pl.lang.csv] "156152165","0","1","xxxxxxxx"
-ZO_CreateStringId("DA_RVG_HEALTH",          "Wyniszczenia zdrowia")             -- Ravage Health         [pl.lang.csv] "156152165","0","2","xxxxxxxx"
-ZO_CreateStringId("DA_MAGICKA",             "Przywrócenia many")                -- Restore Magicka       [pl.lang.csv] "156152165","0","3","xxxxxxxx"
-ZO_CreateStringId("DA_RVG_MAGICKA",         "Wyniszczenia many")                -- Ravage Magicka        [pl.lang.csv] "156152165","0","4","xxxxxxxx"
-ZO_CreateStringId("DA_STAMINA",             "Przywrócenia kondycji")            -- Restore Stamina       [pl.lang.csv] "156152165","0","5","xxxxxxxx"
-ZO_CreateStringId("DA_RVG_STAMINA",         "Wyniszczenia kondycji")            -- Ravage Stamina        [pl.lang.csv] "156152165","0","6","xxxxxxxx"
-ZO_CreateStringId("DA_SPELL_RESIST",        "Wzrostu odp. na zaklęcia")         -- Increase Spell Resist [pl.lang.csv] "156152165","0","7","xxxxxxxx"
-ZO_CreateStringId("DA_BREACH",              "Przełamania")                      -- Breach                [pl.lang.csv] "156152165","0","8","xxxxxxxx"
-ZO_CreateStringId("DA_ARMOR",               "Wzrostu pancerza")                 -- Increase Armor        [pl.lang.csv] "156152165","0","9","xxxxxxxx"
-ZO_CreateStringId("DA_FRACTURE",            "Pęknięcia")                        -- Fracture              [pl.lang.csv] "156152165","0","10","xxxxxxxx"
-ZO_CreateStringId("DA_SPELL_POWER",         "Wzrostu mocy zaklęć")              -- Increase Spell Power  [pl.lang.csv] "156152165","0","11","xxxxxxxx"
-ZO_CreateStringId("DA_COWARDICE",           "Tchórzostwa")                      -- Cowardice             [pl.lang.csv] "156152165","0","12","xxxxxxxx"
-ZO_CreateStringId("DA_WEAPON_POWER",        "Wzrostu mocy broni")               -- Increase Weapon Power [pl.lang.csv] "156152165","0","13","xxxxxxxx"
-ZO_CreateStringId("DA_MAIM",                "Okaleczenia")                      -- Maim                  [pl.lang.csv] "156152165","0","14","xxxxxxxx"
+ZO_CreateStringId("DA_BULK_HEADER",         "Tworzenie masowe")
+ZO_CreateStringId("DA_BULK_FLG",            "Utwórz wszystkie żądane elementy za jednym razem")
+ZO_CreateStringId("DA_BULK_FLG_TOOLTIP",    "Jest on używany, gdy chcesz utworzyć dużą liczbę żądanych elementów.")
+ZO_CreateStringId("DA_BULK_COUNT",          "Ilość utworzona")
+ZO_CreateStringId("DA_BULK_COUNT_TOOLTIP",  "W rzeczywistości powstanie ich więcej niż ta ilość.(Zależy od umiejętności alchemicznych)")
+
+ZO_CreateStringId("DA_CRAFT_WRIT",          "Rzemiosło Zapieczętowane Pismo")
+ZO_CreateStringId("DA_CRAFT_WRIT_MSG",      "Przy dostępie do stacji alchemicznej, <<1>>")
+ZO_CreateStringId("DA_CANCEL_WRIT",         "Anulowanie zapieczętowanego pisma procesowego")
+ZO_CreateStringId("DA_CANCEL_WRIT_MSG",     "Anulowane, zapieczętowane pismo procesowe")
+
+ZO_CreateStringId("DA_PRIORITY_HEADER",     "Priorytet odczynnika")
+ZO_CreateStringId("DA_PRIORITY_BY",         "Priorytet odczynnika, który ma być użyty")
+ZO_CreateStringId("DA_PRIORITY_BY_STOCK",   "Wiele akcji")
+ZO_CreateStringId("DA_PRIORITY_BY_MM",      "Niska cena odczynnika w [MasterMerchant]")
+ZO_CreateStringId("DA_PRIORITY_BY_TTC",     "Niska cena odczynnika w [TamrielTradeCentre]")
+ZO_CreateStringId("DA_PRIORITY_BY_ATT",     "Niska cena odczynnika w [ArkadiusTradeTools]")
+ZO_CreateStringId("DA_PRIORITY_BY_MANUAL",  "Ustawić ręcznie")
+ZO_CreateStringId("DA_SHOW_PRICE_MANUAL",   "Pokaż cenę[<<1>>]")
+ZO_CreateStringId("DA_PRIORITY_CHANGED",    "Ustawienie dodatku [<<1>>] zostało zmienione, ponieważ <<2>> jest wyłączone.")
+
+ZO_CreateStringId("DA_OTHER_HEADER",        "Inne")
+ZO_CreateStringId("DA_ACQUIRE_ITEM",        "Pobieranie pozycji z banku")
+ZO_CreateStringId("DA_DELAY",               "Czas opóźnienia")
+ZO_CreateStringId("DA_DELAY_TOOLTIP",       "Czas opóźnienia w pobraniu elementu (sek)\nJeśli nie możesz dobrze wyjąć przedmiotu, zwiększ go.")
+ZO_CreateStringId("DA_AUTO_EXIT",           "Automatyczne wyjście")
+ZO_CreateStringId("DA_AUTO_EXIT_TOOLTIP",   "Po wykonaniu dziennego pisma automatycznie opuścisz stół do craftingu.")
+ZO_CreateStringId("DA_ITEM_LOCK",           "Nie używać zamkniętych przedmiotów")
+ZO_CreateStringId("DA_LOG",                 "Pokaż dziennik")
+ZO_CreateStringId("DA_DEBUG_LOG",           "Pokaż dziennik debugowania")
+
+ZO_CreateStringId("DA_NOTHING_ITEM",        "Brak przedmiotów w plecaku (<<1>>)")
+ZO_CreateStringId("DA_SHORT_OF",            "... Brak materiałów(<<1>>)")
+ZO_CreateStringId("DA_MISMATCH_ITEM",       "... [Błąd]Nazwa nie pasuje (<<1>>)")
+
+ZO_CreateStringId("DA_HEALTH",              "Przywrócenie zdrowia")             -- Restore Health        [pl.lang.csv] "156152165","0","1","xxxxxxxx"
+ZO_CreateStringId("DA_RVG_HEALTH",          "Wyniszczenie zdrowia")             -- Ravage Health         [pl.lang.csv] "156152165","0","2","xxxxxxxx"
+ZO_CreateStringId("DA_MAGICKA",             "Przywrócenie many")                -- Restore Magicka       [pl.lang.csv] "156152165","0","3","xxxxxxxx"
+ZO_CreateStringId("DA_RVG_MAGICKA",         "Wyniszczenie many")                -- Ravage Magicka        [pl.lang.csv] "156152165","0","4","xxxxxxxx"
+ZO_CreateStringId("DA_STAMINA",             "Przywrócenie kondycji")            -- Restore Stamina       [pl.lang.csv] "156152165","0","5","xxxxxxxx"
+ZO_CreateStringId("DA_RVG_STAMINA",         "Wyniszczenie kondycji")            -- Ravage Stamina        [pl.lang.csv] "156152165","0","6","xxxxxxxx"
+ZO_CreateStringId("DA_SPELL_RESIST",        "Wzrost odp. na zaklęcia")          -- Increase Spell Resist [pl.lang.csv] "156152165","0","7","xxxxxxxx"
+ZO_CreateStringId("DA_BREACH",              "Przełamanie")                      -- Breach                [pl.lang.csv] "156152165","0","8","xxxxxxxx"
+ZO_CreateStringId("DA_ARMOR",               "Wzrost pancerza")                  -- Increase Armor        [pl.lang.csv] "156152165","0","9","xxxxxxxx"
+ZO_CreateStringId("DA_FRACTURE",            "Pęknięcie")                        -- Fracture              [pl.lang.csv] "156152165","0","10","xxxxxxxx"
+ZO_CreateStringId("DA_SPELL_POWER",         "Wzrost mocy zaklęć")               -- Increase Spell Power  [pl.lang.csv] "156152165","0","11","xxxxxxxx"
+ZO_CreateStringId("DA_COWARDICE",           "Tchórzostwo")                      -- Cowardice             [pl.lang.csv] "156152165","0","12","xxxxxxxx"
+ZO_CreateStringId("DA_WEAPON_POWER",        "Wzrost mocy broni")                -- Increase Weapon Power [pl.lang.csv] "156152165","0","13","xxxxxxxx"
+ZO_CreateStringId("DA_MAIM",                "Okaleczenie")                      -- Maim                  [pl.lang.csv] "156152165","0","14","xxxxxxxx"
 ZO_CreateStringId("DA_SPELL_CRIT",          "Kryt. zaklęć")                     -- Spell Critical        [pl.lang.csv] "156152165","0","15","xxxxxxxx"
-ZO_CreateStringId("DA_UNCERTAINTY",         "Niepewności")                      -- Uncertainty           [pl.lang.csv] "156152165","0","16","xxxxxxxx"
+ZO_CreateStringId("DA_UNCERTAINTY",         "Niepewność")                       -- Uncertainty           [pl.lang.csv] "156152165","0","16","xxxxxxxx"
 ZO_CreateStringId("DA_WEAPON_CRIT",         "Kryt. broni")                      -- Weapon Critical       [pl.lang.csv] "156152165","0","17","xxxxxxxx"
-ZO_CreateStringId("DA_ENERVATE",            "Osłabienia")                       -- Enervation            [pl.lang.csv] "156152165","0","18","xxxxxxxx"
-ZO_CreateStringId("DA_UNSTOP",              "Niepohamowania")                   -- Unstoppable           [pl.lang.csv] "156152165","0","19","xxxxxxxx"
-ZO_CreateStringId("DA_ENTRAPMENT",          "Uwięzienia")                       -- Entrapment            [pl.lang.csv] "156152165","0","20","xxxxxxxx"
-ZO_CreateStringId("DA_DETECTION",           "Wykrycia")                         -- Detection             [pl.lang.csv] "156152165","0","21","xxxxxxxx"
-ZO_CreateStringId("DA_INVISIBLE",           "Niewidzialności")                  -- Invisible             [pl.lang.csv] "156152165","0","22","xxxxxxxx"
-ZO_CreateStringId("DA_SPEED",               "Prędkości")                        -- Speed                 [pl.lang.csv] "156152165","0","23","xxxxxxxx"
-ZO_CreateStringId("DA_HINDRANCE",           "Spowolnienia")                     -- Hindrance             [pl.lang.csv] "156152165","0","24","xxxxxxxx"
-ZO_CreateStringId("DA_PROTECTION",          "Ochrony")                          -- Protection            [pl.lang.csv] "156152165","0","25","xxxxxxxx"
-ZO_CreateStringId("DA_VULNERABILITY",       "Wrażliwości")                      -- Vulnerability         [pl.lang.csv] "156152165","0","26","xxxxxxxx"
-ZO_CreateStringId("DA_LGR_HEALTH",          "Stopniowej reg. zdrowia")          -- Lingering Health      [pl.lang.csv] "156152165","0","27","xxxxxxxx"
-ZO_CreateStringId("DA_GR_RVG_HEALTH",       "Stopniowego wyniszcz. zdrowia")    -- Gradual Ravage Health [pl.lang.csv] "156152165","0","28","xxxxxxxx"
-ZO_CreateStringId("DA_VITALITY",            "Witalności")                       -- Vitality              [pl.lang.csv] "156152165","0","29","xxxxxxxx"
-ZO_CreateStringId("DA_DEFILE",              "Splugawienia")                     -- Defile                [pl.lang.csv] "156152165","0","30","xxxxxxxx"
-ZO_CreateStringId("DA_HEROISM",             "Bohaterstwa")                      -- Heroism               [pl.lang.csv] "156152165","0","31","xxxxxxxx"
+ZO_CreateStringId("DA_ENERVATE",            "Osłabienie")                       -- Enervation            [pl.lang.csv] "156152165","0","18","xxxxxxxx"
+ZO_CreateStringId("DA_UNSTOP",              "Niepohamowanie")                   -- Unstoppable           [pl.lang.csv] "156152165","0","19","xxxxxxxx"
+ZO_CreateStringId("DA_ENTRAPMENT",          "Uwięzienie")                       -- Entrapment            [pl.lang.csv] "156152165","0","20","xxxxxxxx"
+ZO_CreateStringId("DA_DETECTION",           "Wykrycie")                         -- Detection             [pl.lang.csv] "156152165","0","21","xxxxxxxx"
+ZO_CreateStringId("DA_INVISIBLE",           "Niewidzialność")                   -- Invisible             [pl.lang.csv] "156152165","0","22","xxxxxxxx"
+ZO_CreateStringId("DA_SPEED",               "Prędkość")                         -- Speed                 [pl.lang.csv] "156152165","0","23","xxxxxxxx"
+ZO_CreateStringId("DA_HINDRANCE",           "Spowolnienie")                     -- Hindrance             [pl.lang.csv] "156152165","0","24","xxxxxxxx"
+ZO_CreateStringId("DA_PROTECTION",          "Ochrona")                          -- Protection            [pl.lang.csv] "156152165","0","25","xxxxxxxx"
+ZO_CreateStringId("DA_VULNERABILITY",       "Wrażliwość")                       -- Vulnerability         [pl.lang.csv] "156152165","0","26","xxxxxxxx"
+ZO_CreateStringId("DA_LGR_HEALTH",          "Stopniowa reg. zdrowia")           -- Lingering Health      [pl.lang.csv] "156152165","0","27","xxxxxxxx"
+ZO_CreateStringId("DA_GR_RVG_HEALTH",       "Stopniowe wyniszcz. zdrowia")      -- Gradual Ravage Health [pl.lang.csv] "156152165","0","28","xxxxxxxx"
+ZO_CreateStringId("DA_VITALITY",            "Witalność")                        -- Vitality              [pl.lang.csv] "156152165","0","29","xxxxxxxx"
+ZO_CreateStringId("DA_DEFILE",              "Splugawienie")                     -- Defile                [pl.lang.csv] "156152165","0","30","xxxxxxxx"
+ZO_CreateStringId("DA_HEROISM",             "Bohaterstwo")                      -- Heroism               [pl.lang.csv] "156152165","0","31","xxxxxxxx"
 
 
 
 
 function DailyAlchemy:AcquireConditions()
     local list = {
-        "Acquire%s(.*)",
         "Zdobądź%s(.*)", -- [23:43] 　　convertedTxt=Zdobądź Korzeń Nirnu
+        "Zdobadź%s(.*)",
     }
     return list
 end
@@ -94,9 +96,8 @@ function DailyAlchemy:ConvertedItemNames(itemName)
         {" III$",           " Ⅲ"},
         {" II$",            " Ⅱ"},
         {" I$",             " Ⅰ"},
-        {"panacea ",        "Panacea "},   -- Some users have string.lower() disabled?
-        {" health",         " Health"},    -- Some users have string.lower() disabled?
-        {" stamina",        " Stamina"},   -- Some users have string.lower() disabled?
+        {"ę",               "a"},
+        {"ą",               "a"},
     }
 
     local convertedItemName = itemName
@@ -107,6 +108,7 @@ function DailyAlchemy:ConvertedItemNames(itemName)
 end
  
 function DailyAlchemy:ConvertedJournalCondition(journalCondition)
+
     local list = {
         {" IX([:%s])",   " Ⅸ%1"},
         {" VIII([:%s])", " Ⅷ%1"},
@@ -117,17 +119,16 @@ function DailyAlchemy:ConvertedJournalCondition(journalCondition)
         {" III([:%s])",  " Ⅲ%1"},
         {" II([:%s])",   " Ⅱ%1"},
         {" I([:%s])",    " Ⅰ%1"},
-        {"panacea ",     "Panacea "},   -- Some users have string.lower() disabled?
-        {" health",      " Health"},    -- Some users have string.lower() disabled?
-        {" stamina",     " Stamina"},   -- Some users have string.lower() disabled?
-        {"(Craft.*)with.*Traits:%c•(.*)%c•(.*)%c•(.*)%c•.*",        "%1...%2, %3, %4"},
-        {"(Wytwórz.*)Z.*Właściwościami:%c•(.*)%c•(.*)%c•(.*)%c•.*", "%1...%2, %3, %4"},
-        {".*(Craft.*)with.*properties:(.*)",                        "%1...%2"},
-        {".*(Wytwórz.*)z następującymi właściwościami:(.*)",        "%1...%2"},
-        {"Wytwórz:",                                                "Wytwórz"},
-        {"Zdobądź:",                                                "Zdobądź"},
-        {"Lorkhan's Tears",                                         "Łzy Lorkhana"},
-        {":.*", ""},
+        {".+:.+Wytwórz: (.*) z następującymi właściwościami: (.*), (.*), (.*)",    "Wytwórz [%1]...%2, %3, %4"},
+        {"(Wytwórz.*)Z.*:%c•(.*)%c•(.*)%c•(.*)%c•.*",     "%1...%2, %3, %4"},
+        {".*(Wytwórz.*)z.*:%c•(.*)%c•(.*)%c•(.*)%c•.*", "%1...%2, %3, %4"},
+        {"ę",               "a"},
+        {"ą",               "a"},
+        {"Zdobadź:",        "Zdobadź"},
+        {"Wytwórz:",        "Wytwórz"},
+        {"Lorkhan's Tears", "Łzy Lorkhana"},
+        {"woda naturalna",  "Naturalna woda"},
+        {":.*",             ""},
     }
 
     local convertedCondition = journalCondition
@@ -147,7 +148,16 @@ function DailyAlchemy:CraftingConditions()
 end
 
 function DailyAlchemy:isPoison(conditionText)
-    return string.match(conditionText, "Poison")
+    local list = {
+        "trucizna",
+        "Trucizna",
+    }
+    for _, value in ipairs(list) do
+        if string.match(conditionText, value) then
+            return true
+        end
+    end
+    return false
 end
 
 function DailyAlchemy:isAlchemy(journalCondition)

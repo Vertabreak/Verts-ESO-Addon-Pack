@@ -1,4 +1,55 @@
-Version: 1.4.10 to 1.4.11 ---------------
+Version: 1.4.23 to 1.4.25 ---------------
+1.Add BR(Brazilian Portuguese) localization.
+
+
+Version: 1.4.22 ---------------
+1.Bug fix
+Supports [Corrupting Bloody Mara].
+
+
+Version: 1.4.21 ---------------
+1.Bug fix
+Update keyword
+
+
+Version: 1.4.20 ---------------
+1.Bug fix
+Update IsValidConditions(). -- Thanks @mightyjo!
+
+
+Version: 1.4.19 ---------------
+1.Bug fix
+Update keyword
+
+
+2.Bug fix
+Change the keyword check method.
+
+
+Version: 1.4.18 ---------------
+1.Bug fix (Russian localization)
+Update keyword
+
+
+2.Change information rules.
+
+
+Version: 1.4.14 to 1.4.17 ---------------
+1.Bug fix
+Supports changing the order of skill lines .
+
+2.Bug fix
+Edit matching keywords.
+
+3.Bug fix
+Fixed a bug where bulk creation did not work properly.
+
+
+Version: 1.4.13 ---------------
+1.APIVersion Up 100034
+
+
+Version: 1.4.10 to 1.4.12 ---------------
 1.Bug fix
 Fixed newlife request not being processed correctly.
 

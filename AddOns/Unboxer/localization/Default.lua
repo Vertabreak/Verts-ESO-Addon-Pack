@@ -139,4 +139,5 @@ UNBOXER_DEFAULT_STRINGS = {
     ["SI_UNBOXER_CHAMPION_LOWER"] =          "champion",
     ["SI_UNBOXER_FESTIVAL_LOWER"] =          "festival",
     ["SI_UNBOXER_TO_BE_INTRODUCED"] =        "to be introduced",
+    ["SI_UNBOXER_FOLIO_LOWER"] =             "folio",
 }

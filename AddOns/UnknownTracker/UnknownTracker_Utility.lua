@@ -42,12 +42,6 @@ function UT:isEmptyList(s)
   return next(s) == nil or s == {}
 end
 
-function UT:SetColour(text, colour)
-  colour = string.sub(colour, 1, 6) -- removes alpha if its included
-  local combineTable = {"|c", colour, tostring(text), "|r"}
-  return table.concat(combineTable)
-end
-
 function UT:GetSize(T)
   local count = 0
   for _ in pairs(T) do count = count + 1 end
@@ -88,6 +82,12 @@ function UT:ClearEmptyTables(t)
   end
 end
 
+function UT:SetColour(text, colour)
+  colour = string.sub(colour, 1, 6) -- removes alpha if its included
+  local combineTable = {"|c", colour, tostring(text), "|r"}
+  return table.concat(combineTable)
+end
+
 function UT:ConvertRGBAToHex(r, g, b, a)
   return string.format("%.2x%.2x%.2x%.2x", zo_floor(r * 255), zo_floor(g * 255), zo_floor(b * 255), zo_floor(a * 255))
 end
@@ -111,4 +111,10 @@ end
 function UT:ConvertHexToRGBAPacked(colourString)
   local r, g, b, a = self:ConvertHexToRGBA(colourString)
   return {r = r, g = g, b = b, a = a}
+end
+
+function UT:StringToColour(text)
+  local colour = "E" .. string.sub(HashString(text), 2, 6)   -- skipping @, consistent shades of red
+  local combineTable = {"|c", colour, tostring(text), "|r"}
+  return table.concat(combineTable)  
 end

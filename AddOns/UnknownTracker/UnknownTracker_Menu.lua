@@ -39,24 +39,30 @@ function UT:InitialiseAddonMenu()
   table.insert(optionsData, {
     type = "description",
     title = "   ",
-    text = "Unknown\nKnown (but Unknown for others)\nKnown By All",
+    text = "Unknown\nUnknown By Others\nKnown By All",
     width = "half",
+  })
+
+  table.insert(optionsData, {
+    type = "header",
+    name = "Collectible Gear Sets",
+    width = "full",
+  })
+
+  table.insert(optionsData, {
+    type = "checkbox",
+    name = "Learn/Trade Icons & Group Loot Messages",
+    default = self.defaultOpts.displayGear,
+    getFunc = function() return UTOpts.displayGear end,
+    setFunc = function(value) UTOpts.displayGear=value end,
+    width = "full",
   })
 
   table.insert(optionsData, {
     type = "header",
     name = "Inventory Icons",
     width = "full",
-  })
-
-  table.insert(optionsData, {
-    type = "checkbox",
-    name = "Stickerbook",
-    default = self.defaultOpts.displayGear,
-    getFunc = function() return UTOpts.displayGear end,
-    setFunc = function(value) UTOpts.displayGear=value end,
-    width = "full",
-  })
+  })  
 
   table.insert(optionsData, {
     type = "checkbox",
@@ -197,16 +203,16 @@ function UT:InitialiseAddonMenu()
 
   end
 
--- sub menu
-  local miscAdvancedData = {}
+  -- Icons Advanced
+  local iconsAdvancedData = {}
 
   table.insert(optionsData, {
     type = "submenu",
-    name = "Misc Advanced",
-    controls = miscAdvancedData,
+    name = "Icons Advanced",
+    controls = iconsAdvancedData,
   })
 
-  table.insert(miscAdvancedData, {
+  table.insert(iconsAdvancedData, {
     type = "checkbox",
     name = "Display Icon Only If Unknown",
     default = self.defaultOpts.displayOnlyIfUnknown,
@@ -215,7 +221,7 @@ function UT:InitialiseAddonMenu()
     width = "full",
   })
 
-  table.insert(miscAdvancedData, {
+  table.insert(iconsAdvancedData, {
     type = "slider",
     name = "Icon X axis Offset",
     getFunc = function() return UTOpts.iconXOffset end,
@@ -232,7 +238,7 @@ function UT:InitialiseAddonMenu()
     default = self.defaultOpts.iconXOffset,
   })
 
-  table.insert(miscAdvancedData, {
+  table.insert(iconsAdvancedData, {
     type = "slider",
     name = "Icon Y axis Offset",
     getFunc = function() return UTOpts.iconYOffset end,
@@ -249,7 +255,7 @@ function UT:InitialiseAddonMenu()
     default = self.defaultOpts.iconYOffset,
   })
 
-  table.insert(miscAdvancedData, {
+  table.insert(iconsAdvancedData, {
     type = "slider",
     name = "Icon Size",
     getFunc = function() return UTOpts.iconSize end,
@@ -266,7 +272,7 @@ function UT:InitialiseAddonMenu()
     default = self.defaultOpts.iconSize,
   })
 
-  table.insert(miscAdvancedData, {
+  table.insert(iconsAdvancedData, {
     type = "slider",
     name = "Icon On Top Level",
     getFunc = function() return UTOpts.iconDrawLevel end,
@@ -283,7 +289,7 @@ function UT:InitialiseAddonMenu()
     default = self.defaultOpts.iconDrawLevel,
   })
 
-  table.insert(miscAdvancedData, {
+  table.insert(iconsAdvancedData, {
     type = "colorpicker",
     name = "Unknown Colour",
     getFunc = function() return self:ConvertHexToRGBA(UTOpts.unknownColour) end,
@@ -291,7 +297,7 @@ function UT:InitialiseAddonMenu()
     default = self:ConvertHexToRGBAPacked(self.defaultOpts.unknownColour),
   })
 
-  table.insert(miscAdvancedData, {
+  table.insert(iconsAdvancedData, {
     type = "colorpicker",
     name = "Known By Some Colour",
     getFunc = function() return self:ConvertHexToRGBA(UTOpts.knownBySomeColour) end,
@@ -299,13 +305,49 @@ function UT:InitialiseAddonMenu()
     default = self:ConvertHexToRGBAPacked(self.defaultOpts.knownBySomeColour),
   })
 
-  table.insert(miscAdvancedData, {
+  table.insert(iconsAdvancedData, {
     type = "colorpicker",
     name = "Known Colour",
     getFunc = function() return self:ConvertHexToRGBA(UTOpts.knownByAllColour) end,
     setFunc = function(r, g, b, a) UTOpts.knownByAllColour = self:ConvertRGBAToHex(r, g, b, a) end,
     default = self:ConvertHexToRGBAPacked(self.defaultOpts.knownByAllColour),
   })
+
+  -- Tooltips Advanced
+  local tooltipsAdvancedData = {}
+
+  table.insert(optionsData, {
+    type = "submenu",
+    name = "Tooltips Advanced",
+    controls = tooltipsAdvancedData,
+  })
+
+  table.insert(tooltipsAdvancedData, {
+    type = "checkbox",
+    name = "Display Tooltips",
+    default = self.defaultOpts.displayTooltip,
+    getFunc = function() return UTOpts.displayTooltip end,
+    setFunc = function(value) UTOpts.displayTooltip=value end,
+    width = "full",
+  })
+
+  table.insert(tooltipsAdvancedData, {
+    type = "checkbox",
+    name = "Shorten Tooltip Names",
+    default = self.defaultOpts.shortenTooltipNames,
+    getFunc = function() return UTOpts.shortenTooltipNames end,
+    setFunc = function(value) UTOpts.shortenTooltipNames=value end,
+    width = "full",
+  })
+  
+  table.insert(tooltipsAdvancedData, {
+    type = "checkbox",
+    name = "Display Tooltip Name Only If Unknown",
+    default = self.defaultOpts.displayTooltipNameOnlyIfUnknown,
+    getFunc = function() return UTOpts.displayTooltipNameOnlyIfUnknown end,
+    setFunc = function(value) UTOpts.displayTooltipNameOnlyIfUnknown=value end,
+    width = "full",
+  })  
 
   table.insert(optionsData, {
     type = "button",

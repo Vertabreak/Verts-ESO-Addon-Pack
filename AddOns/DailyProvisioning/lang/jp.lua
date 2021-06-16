@@ -4,10 +4,11 @@
 
 ZO_CreateStringId("DP_CRAFTING_QUEST",      "調理師の依頼")     -- [jp.lang.csv] "52420949","0","5409","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_MASTER",     "優れた料理")       -- [jp.lang.csv] "52420949","0","5977","xxxxxxxx"
-ZO_CreateStringId("DP_CRAFTING_EVENT1",     "慈善への貢献")     -- [jp.lang.csv] "52420949","0","6327","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_WITCH",      "魔女祭りの依頼")   -- [jp.lang.csv] "52420949","0","6427","xxxxxxxx"
-
+ZO_CreateStringId("DP_CRAFTING_EVENT1",     "慈善への貢献")     -- [jp.lang.csv] "52420949","0","6327","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_EVENT1BOOK", "帝国慈善依頼")     -- [jp.lang.csv] "242841733","0","167169","xxxxxxxx"
+
+
 
 ZO_CreateStringId("DP_BULK_HEADER",         "一括作成")
 ZO_CreateStringId("DP_BULK_FLG",            "依頼品を一括作成する")
@@ -22,6 +23,8 @@ ZO_CreateStringId("DP_CANCEL_WRIT_MSG",     "依頼品の作成をキャンセ�
 
 ZO_CreateStringId("DP_OTHER_HEADER",        "その他")
 ZO_CreateStringId("DP_ACQUIRE_ITEM",        "銀行からアイテムを取り出す")
+ZO_CreateStringId("DP_DELAY",               "遅延時間(秒)")
+ZO_CreateStringId("DP_DELAY_TOOLTIP",       "アイテムを取り出す時の遅延時間\nアイテムをうまく取り出せない場合は増やして下さい。")
 ZO_CreateStringId("DP_AUTO_EXIT",           "生産メニューを自動退出する")
 ZO_CreateStringId("DP_AUTO_EXIT_TOOLTIP",   "自動作成が終わると生産メニューから退出します")
 ZO_CreateStringId("DP_DONT_KNOW",           "いずれかのレシピを知らない場合は自動作成しない")
@@ -46,19 +49,43 @@ function DailyProvisioning:ConvertedItemNames(itemName)
 end
 
 function DailyProvisioning:ConvertedJournalCondition(journalCondition)
-    return journalCondition:gsub("\n", "")
+
+    local list = {
+        {"\n",              ""},
+
+        -- Master Writ(Create from context menu)
+        {".+:(.*)を作成する",   "[%1]を生産する"},
+
+
+        -- Master Writ(in Journal)
+        {"%s?(.*)を作成する.*:", "[%1]を生産する"},
+
+        -- Dayly
+        {"(.*)を生産する:",     "[%1]を生産する"},
+    }
+
+    local convertedCondition = journalCondition
+    for _, value in ipairs(list) do
+        convertedCondition = string.gsub(convertedCondition, value[1], value[2])
+    end
+    return convertedCondition
 end
 
 function DailyProvisioning:CraftingConditions()
     local list = {
-        "を作る",
         "を生産する",
-        "を作成する",   -- SI_MASTER_WRIT_ITEM_PROVISIONING_FORMAT_STRING, "クエスト開始時に消費:\n<<1>>を作成する"
     }
     return list
 end
 
-function DailyProvisioning:isAlchemy(journalCondition)
-    return string.match(journalCondition, "次の特性の.*")
+function DailyProvisioning:isProvisioning(journalCondition)
+    local list = {
+        "次の特性の.*",                 -- SI_MASTER_WRIT_QUEST_ALCHEMY_FORMAT_STRING
+        "鍛冶商人がこの.*を売っている", -- [jp.lang.csv] "7949764","0","61966","xxxxxxxx"
+        "仕立商人がこの.*を売っている", -- [jp.lang.csv] "7949764","0","61968","xxxxxxxx"
+        "木工商人がこの.*を売っている", -- [jp.lang.csv] "7949764","0","61970","xxxxxxxx"
+        "木工師がこの.*を売っている",   -- [jp.lang.csv] "7949764","0","68075","xxxxxxxx"
+    }
+    return not self:Contains(journalCondition, list)
 end
 

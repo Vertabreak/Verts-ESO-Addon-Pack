@@ -104,4 +104,5 @@ UNBOXER_STRINGS = {
     ["SI_UNBOXER_CHAMPION_LOWER"] =          "победителя",
     ["SI_UNBOXER_FESTIVAL_LOWER"] =          "фестивал",
     ["SI_UNBOXER_TO_BE_INTRODUCED"] =        "которые появятся в игре",
+    ["SI_UNBOXER_FOLIO_LOWER"] =             "сборник чертежей",
 }

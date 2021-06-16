@@ -39,9 +39,15 @@ local strings = {
 	SI_ARC_LAM_OPTION_SHOW_REPAIR_KITS_LEFT_AT_VENDOR_TT= "Affiche les kits de réparation qui vous restent, si vous parlez à un vendeur, sous la forme d'une petite icône avec le nombre de kits de réparation restants à côté.",
 	SI_ARC_LAM_OPTION_USE_REPAIR_KITS_FOR_ITEM_LEVEL	= "Utilise un kit pour le niveau d'objet",
 	SI_ARC_LAM_OPTION_USE_REPAIR_KITS_FOR_ITEM_LEVEL_TT = "Si vous possédez plusieurs kits de réparation, celui approprié sera utilisé pour le niveau de l'objet (Ex. 'grand kit' pour articles CP 160)",
+	SI_ARC_LAM_OPTION_DO_NOT_USE_CROWN_STORE_REPAIR_KITS= "N'utilisez pas de kits de réparation à Couronne",
+	SI_ARC_LAM_OPTION_DO_NOT_USE_CROWN_STORE_REPAIR_KITS_TT = "Lorsque ce paramètre est activé, aucun kit de réparation de la boutique à Couronne ne sera utilisé pour les réparations automatiques..",
 
 	SI_ARC_LAM_OPTION_AUTO_RECHARGE_IN_COMBAT			= "Recharge en combat",
 	SI_ARC_LAM_OPTION_AUTO_RECHARGE_IN_COMBAT_TT		= "Rechargez automatiquement vos armes également pendant le combat",
+	SI_ARC_LAM_OPTION_AUTO_RECHARGE_ON_WEAPON_PAIR_CHANGE		= "Recharge lors du changement d'arme",
+	SI_ARC_LAM_OPTION_AUTO_RECHARGE_ON_WEAPON_PAIR_CHANGE_TT	= "Vérifier et recharger les armes lors d'un changement de paire d'armes .",
+	SI_ARC_LAM_OPTION_AUTO_RECHARGE_ON_WEAPON_PAIR_CHANGE_ONLY_IN_COMBAT = "Test de changement d'arme: uniquement en combat",
+	SI_ARC_LAM_OPTION_AUTO_RECHARGE_ON_WEAPON_PAIR_CHANGE_ONLY_IN_COMBAT_TT = "Ne faites le test de recharge lors du changement d'arme que si vous êtes en combat ",
 	SI_ARC_LAM_OPTION_AUTO_REPAIR_IN_COMBAT				= "Répare en combat",
 	SI_ARC_LAM_OPTION_AUTO_REPAIR_IN_COMBAT_TT		   	= "Réparez automatiquement votre armure également pendant le combat",
 

@@ -129,7 +129,7 @@ function addon:SetupOptions()
     
     local qualityChoices = {}
     local qualityChoicesValues = {}
-    for quality = ITEM_QUALITY_MIN_VALUE or ITEM_FUNCTIONAL_QUALITY_MIN_VALUE, ITEM_QUALITY_MAX_VALUE or ITEM_FUNCTIONAL_QUALITY_MAX_VALUE do
+    for quality = ITEM_FUNCTIONAL_QUALITY_MIN_VALUE, ITEM_FUNCTIONAL_QUALITY_MAX_VALUE do
         local qualityColor = GetItemQualityColor(quality)
         local qualityString = qualityColor:Colorize(GetString("SI_ITEMQUALITY", quality))
         table.insert(qualityChoicesValues, quality)

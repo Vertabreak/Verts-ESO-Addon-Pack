@@ -29,6 +29,8 @@ ZO_CreateStringId("DA_PRIORITY_CHANGED",    "Die Add-on-Einstellung [<<1>>] wurd
 
 ZO_CreateStringId("DA_OTHER_HEADER",        "Andere")
 ZO_CreateStringId("DA_ACQUIRE_ITEM",        "Gegenstände von der Bank abholen")
+ZO_CreateStringId("DA_DELAY",               "Verzögerungszeit(Sekunden)")
+ZO_CreateStringId("DA_DELAY_TOOLTIP",       "Verzögerungszeit zum Abrufen des Elements\nWenn Sie den Gegenstand nicht gut herausnehmen können, erhöhen Sie ihn.")
 ZO_CreateStringId("DA_AUTO_EXIT",           "Automatischer Austritt aus dem Crafting-Fenster")
 ZO_CreateStringId("DA_AUTO_EXIT_TOOLTIP",   "Automatischer Austritt aus dem Crafting-Fenster, wenn alles abgeschlossen ist.")
 ZO_CreateStringId("DA_ITEM_LOCK",           "Verwenden Sie keine gesperrten Elemente")

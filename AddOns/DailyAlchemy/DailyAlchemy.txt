@@ -1,8 +1,8 @@
 
 ## Title: |c3CB371Daily Alchemy|r
 ## Author: @Marify
-## APIVersion: 100033
-## Version: 1.4.12
+## APIVersion: 100034
+## Version: 1.4.17
 ## DependsOn: LibAddonMenu-2.0 LibCustomMenu LibMarify
 ## OptionalDependsOn: DolgubonsLazyWritCreator RuESO EsoPL FCOItemSaver MasterMerchant TamrielTradeCentre ArkadiusTradeTools
 ## SavedVariables: DailyAlchemyVariables

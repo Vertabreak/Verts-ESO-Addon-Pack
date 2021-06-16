@@ -91,7 +91,7 @@ UNBOXER_STRINGS = {
     ["SI_UNBOXER_TRANSMUTATION_LOWER"] =     "transmutation",
     ["SI_UNBOXER_TREASURE_MAP_LOWER"] =      "carte.* au trésor",
     ["SI_UNBOXER_RAW_MATERIAL_LOWER"] =      "matières premières",
-    ["SI_UNBOXER_FURNISHING_LOWER"] =        "plan de mobilier",
+    ["SI_UNBOXER_FURNISHING_LOWER"] =        "de mobilier",
     ["SI_UNBOXER_JOB_LOWER"] =               "contrat",
     ["SI_UNBOXER_STOLEN_LOWER"] =            "volée",
     ["SI_UNBOXER_LAUNDERED_LOWER"] =         "blanchi",
@@ -118,4 +118,5 @@ UNBOXER_STRINGS = {
     ["SI_UNBOXER_CHAMPION_LOWER"] =          "champion",
     ["SI_UNBOXER_FESTIVAL_LOWER"] =          "festival",
     ["SI_UNBOXER_TO_BE_INTRODUCED"] =        "introduits par",
+    ["SI_UNBOXER_FOLIO_LOWER"] =             "de mobilier",
 }

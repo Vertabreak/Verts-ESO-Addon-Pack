@@ -29,6 +29,8 @@ ZO_CreateStringId("DA_PRIORITY_CHANGED",    "Настройка аддона [<<
 
 ZO_CreateStringId("DA_OTHER_HEADER",        "Другое")
 ZO_CreateStringId("DA_ACQUIRE_ITEM",        "Забирать предметы из банка")
+ZO_CreateStringId("DA_DELAY",               "Время задержки")
+ZO_CreateStringId("DA_DELAY_TOOLTIP",       "Время задержки для получения предмета (секунды)\nЕсли не получается достать предмет, увеличьте его.")
 ZO_CreateStringId("DA_AUTO_EXIT",           "Автовыход из окна крафта")
 ZO_CreateStringId("DA_AUTO_EXIT_TOOLTIP",   "Автоматически закрывает окна крафта по выполнению задания")
 ZO_CreateStringId("DA_ITEM_LOCK",           "Не используйте заблокированные предметы")

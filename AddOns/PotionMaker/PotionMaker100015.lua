@@ -5,7 +5,7 @@
 
 PotMaker = {
 	name = "PotionMaker",
-	version = "5.8.3",
+	version = "5.8.4",
 	ResultControls = {},
 	PositiveTraitControls = {},
 	NegativeTraitControls = {},
@@ -1407,6 +1407,7 @@ do
 			if IsInGamepadPreferredMode() then
 				ALCHEMY:OnWorkbenchUpdated()
 			end
+			CRAFT_ADVISOR_MANAGER:FireCallbacks("SelectedQuestConditionsUpdated")
 		end
 	end
 end
@@ -2233,17 +2234,11 @@ do
 			if IsValidQuestIndex(questIndex) and GetJournalQuestType(questIndex) == QUEST_TYPE_CRAFTING then
 				for stepIndex = 1, GetJournalQuestNumSteps(questIndex) do
 					local numConditions = GetJournalQuestNumConditions(questIndex, stepIndex)
-					if numConditions == 0 then
-						if zo_plainstrfind(stepOverrideText, poisonWord) or zo_plainstrfind(stepOverrideText, poisonWordLower) then
-							return true
-						end
-					else
-						for conditionIndex = 1, numConditions do
-							conditionText = GetJournalQuestConditionInfo(questIndex, stepIndex, conditionIndex)
-							if conditionText ~= nil and conditionText ~= "" then
-								if zo_plainstrfind(conditionText, poisonWord) or zo_plainstrfind(conditionText, poisonWordLower) then
-									return true
-								end
+					for conditionIndex = 1, numConditions do
+						local conditionText = GetJournalQuestConditionInfo(questIndex, stepIndex, conditionIndex)
+						if conditionText ~= nil and conditionText ~= "" then
+							if zo_plainstrfind(conditionText, poisonWord) or zo_plainstrfind(conditionText, poisonWordLower) then
+								return true
 							end
 						end
 					end

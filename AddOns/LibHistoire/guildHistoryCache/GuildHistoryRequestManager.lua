@@ -44,7 +44,7 @@ function GuildHistoryRequestManager:Initialize(cache)
         ForEachGuildAndCategory(function(guildId, category)
             local categoryCache = self.cache:GetOrCreateCategoryCache(guildId, category)
             if not HasGuildHistoryCategoryEverBeenRequested(guildId, category) or categoryCache.lastIndex ~= GetNumGuildEvents(guildId, category) then
-                logger:Info("Detected reset of guild %s (%d) category %s (%d)", GetGuildName(self.guildId), self.guildId, GetString("SI_GUILDHISTORYCATEGORY", self.category), self.category)
+                logger:Info("Detected reset of guild %s (%d) category %s (%d)", GetGuildName(guildId), guildId, GetString("SI_GUILDHISTORYCATEGORY", category), category)
                 categoryCache:ResetUnlinkedEvents()
                 self:QueueRequest(categoryCache)
                 internal:FireCallbacks(internal.callback.HISTORY_RELOADED, guildId, category)
@@ -139,9 +139,8 @@ end
 
 function GuildHistoryRequestManager:SendNextRequest()
     local categoryCache = self.queue[1]
-    if not categoryCache then return end
+    if not categoryCache or categoryCache:IsOnRequestCooldown() then return end
     table.remove(self.queue, 1)
 
-    local guildId, category = categoryCache.guildId, categoryCache.category
-    local success = RequestMoreGuildHistoryCategoryEvents(categoryCache.guildId, categoryCache.category, true)
+    local success = categoryCache:SendRequest()
 end

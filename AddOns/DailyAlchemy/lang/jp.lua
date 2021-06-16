@@ -29,6 +29,8 @@ ZO_CreateStringId("DA_PRIORITY_CHANGED",    "<<2>>がオフになったため、
 
 ZO_CreateStringId("DA_OTHER_HEADER",        "その他")
 ZO_CreateStringId("DA_ACQUIRE_ITEM",        "銀行からアイテムを取り出す")
+ZO_CreateStringId("DA_DELAY",               "遅延時間(秒)")
+ZO_CreateStringId("DA_DELAY_TOOLTIP",       "アイテムを取り出す時の遅延時間\nアイテムをうまく取り出せない場合は増やして下さい。")
 ZO_CreateStringId("DA_AUTO_EXIT",           "生産メニューを自動退出する")
 ZO_CreateStringId("DA_AUTO_EXIT_TOOLTIP",   "自動作成が終わると生産メニューから退出します")
 ZO_CreateStringId("DA_ITEM_LOCK",           "ロック中のアイテムは使用しない")
@@ -78,7 +80,7 @@ ZO_CreateStringId("DA_TIMIDITY",            "萎縮")             -- Timidity   
 
 function DailyAlchemy:AcquireConditions()
     local list = {
-        "(.*)を手に入れる(.*)",
+        "(.*)を手に入れる(.*)", -- [jp.lang.csv] "7949764","0","44934","xxxxxxxx"
     }
     return list
 end
@@ -132,7 +134,7 @@ end
 function DailyAlchemy:CraftingConditions()
     local list = {
         "を作る",
-        "を生産する",
+        "を生産する",   
         "を作成する",
     }
     return list

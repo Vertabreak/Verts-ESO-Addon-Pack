@@ -58,10 +58,10 @@ BUI:JoinTables(player_buffs,healing_forces)
 BUI:JoinTables(player_buffs,buff_forces)
 BUI:JoinTables(player_buffs,class_forces)
 local PlayerBuffs,PlayerStats,TargetBuffs={},{},{}
-local StartTime,EndTime,LastSwap=0,0,0
-local BonusMax,BonusMin,BonusMaxUp=0,0,0
+local StartTime,EndTime=0,0
+local BonusMax,BonusMin,BonusCur,BonusMaxUp=0,0,0,0
 local mainpower="magicka"
-local crit_chance,crit_class_bonus,crit_mundus_bonus,blessed_bonus,healing_done,mundus_bonus,divines_bonus,base_stat,damage_power,crit_bonus,buff_bonus,testtime=0,0,0,0,0,0,0,0,0,0,0,0
+local crit_chance,crit_class_bonus,crit_mundus_bonus,crit_champ_bonus,blessed_bonus,healing_done,mundus_bonus,divines_bonus,base_stat,damage_power,crit_bonus,buff_bonus,testtime=0,0,0,0,0,0,0,0,0,0,0,0,0
 local total_heal,total_orbs,last_orb,last_heal=0,0,0,{}
 local isHeal={
 [85536]=3,[85862]=3,[85863]=3,--Enchanted Growth (Warden)
@@ -90,7 +90,7 @@ local isResource={
 local PERIOD=500
 local ORB_CD=20
 local ETALON_POWER=1700
-local MinMaxStep={
+local MinMaxStep={	--Stats tester
 [1]={10000,60000,1000},--base_stat
 [2]={1000,5000,100},	--damage_power
 [3]={0,3,.1},		--crit_bonus
@@ -99,6 +99,7 @@ local MinMaxStep={
 [6]={0,16},		--healing_done
 [7]={0,33},		--buff_bonus
 }
+
 Localization={
 ["en"]={
 	--Section 1
@@ -108,7 +109,7 @@ Localization={
 	Spd	="Spell Damage",
 	Wdm	="Weapon Damage",
 	CritBonus	="Crit bonus |cccccaa(chance*power)",
-	ChampionBonus	="Champion bonus (Blessed)",
+	ChampionBonus	="Champion bonus",
 	MundusBonus	="Mundus bonus (Ritual)",
 	HealingDone	="Healing done bonus",
 	MendingBonus	="Mending bonus",
@@ -146,7 +147,7 @@ Localization={
 	Spd	="Сила заклинаний",
 	Wdm	="Сила оружия",
 	CritBonus	="Бонус крита |cccccaa(шанс*сила)",
-	ChampionBonus	="Бонус чемпионки (Благословение)",
+	ChampionBonus	="Бонус чемпионки",
 	MundusBonus	="Бонус Мундуса (Ритуал)",
 	HealingDone	="Исходящее лечение",
 	MendingBonus	="Малое+Великое Исцеление",
@@ -182,137 +183,30 @@ local function Loc(var)
 	return Localization[BUI.language] and Localization[BUI.language][var] or BUI.Localization.en[var] or var
 end
 
-local function CustomUpdate()
-	local stat=BUI_Helper_Slider_1.value
-	local damage=BUI_Helper_Slider_2.value
-	local crit=BUI_Helper_Slider_3.value
-	local blessed=BUI_Helper_Slider_4.value
-	local mundus=BUI_Helper_Slider_5.value
-	local set=BUI_Helper_Slider_6.value
-	local buff=BUI_Helper_Slider_7.value
-	local power=math.floor((stat+damage*10.5)/100*crit*(1+(blessed+buff+mundus+set)/100))
-	BUI_Helper_Custom_Value:SetText(power)
-end
-
-local function CustomInit()
-	BUI_Helper_Slider_1:UpdateValue(math.floor(base_stat))
-	BUI_Helper_Slider_2:UpdateValue(math.floor(damage_power))
-	BUI_Helper_Slider_3:UpdateValue(crit_bonus)
-	BUI_Helper_Slider_4:UpdateValue(blessed_bonus)
-	BUI_Helper_Slider_5:UpdateValue(mundus_bonus)
-	BUI_Helper_Slider_6:UpdateValue(healing_done)
-	BUI_Helper_Slider_7:UpdateValue(buff_bonus)
-	CustomUpdate()
-end
-
-local function UI_Custom()
-	if BUI_Helper_Custom then
-		if BUI_Helper_Custom:IsHidden()==false then
-			BUI_Helper_Custom_sw:SetState(BSTATE_NORMAL)
-			BUI_Helper_Custom:SetHidden(true)
-		else
-			BUI_Helper_Custom:SetHidden(false)
-			BUI_Helper_Custom_sw:SetState(BSTATE_PRESSED)
-			CustomInit()
-		end
-		return
-	end
-	BUI_Helper_Custom_sw:SetState(BSTATE_PRESSED)
-	local fs,s=18,1
-	local w,h=220,fs*1.5*9+2
-	local space=5
-	local ui	=BUI.UI.Control(	"BUI_Helper_Custom",		BUI_Helper,	{w,h},		{TOPLEFT,TOPRIGHT,-2,28},	false)
-	ui.bg		=BUI.UI.Backdrop(	"BUI_Helper_Custom_Bg",		ui,		"inherit",		{TOPLEFT,TOPLEFT,0,0},		{0,0,0,0.7}, {.7,.7,.5,.3}, nil, false)
-	ui.header	=BUI.UI.Label(	"BUI_Helper_Custom_Header",	ui,		{w,fs*1.5},		{TOPLEFT,TOPLEFT,30,0},		BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, "Stats tester", false)
-	ui.bg1	=BUI.UI.Backdrop(	"BUI_Helper_Custom_Header_BG",ui.header,	{w-20,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0}, nil, false)
-	for i=1,7 do
-		BUI.UI.Slider(	"BUI_Helper_Slider_"..i,		ui,		{w-20,fs},		{TOPLEFT,TOPLEFT,10,fs*1.5*i},	false, function() CustomUpdate() end,MinMaxStep[i])
-	end
-	ui.value	=BUI.UI.Label(	"BUI_Helper_Custom_Value",	ui,		{50,fs*1.5},	{TOPRIGHT,TOPRIGHT,-10,fs*1.5*8},	BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "0"	, false)
-	CustomInit()
-end
-
-local function UI_Init()
-	local fs,s=18,1
-	local w,h=320,30+fs*1.5*(9+6+7+3+5)
-	local lh=h-30-fs*1.5
-	local ui		=BUI.UI.TopLevelWindow("BUI_Helper",		GuiRoot,	{w+20,h},		{TOPLEFT,TOPLEFT,220,50})
-	ui:SetMouseEnabled(true) ui:SetMovable(true)
-	ui.bg			=BUI.UI.Backdrop(	"BUI_Helper_Backdrop",		ui,		"inherit",		{CENTER,CENTER,0,0},		{0,0,0,0.7}, {0,0,0,0.9})
-	ui.header		=BUI.UI.Statusbar("BUI_Helper_Header",		ui,		{w+20,30},		{TOPLEFT,TOPLEFT,0,0},		{.5,.5,.5,.7})
-	ui.header:SetGradientColors(0.4,0.4,0.4,0.7,0,0,0,0)
-	ui.close		=BUI.UI.Button(	"BUI_Helper_Close",		ui,		{34,34},		{TOPRIGHT,TOPRIGHT,5*s,5*s},	BSTATE_NORMAL)
-	ui.close:SetNormalTexture('/esoui/art/buttons/closebutton_up.dds')
-	ui.close:SetMouseOverTexture('/esoui/art/buttons/closebutton_mouseover.dds')
-	ui.close:SetHandler("OnClicked", function() PlaySound("Click") BUI.Helper_Toggle() end)
---	ui.box		=BUI.UI.Backdrop(	"BUI_Helper_Box",			ui.header,	{20,20},		{LEFT,LEFT,5*s,0},		{0,0,0,0}, {.7,.7,.5,1})
-	ui.box		=BUI.UI.Button(	"BUI_Helper_Box",			ui,		{30,30},		{TOPLEFT,TOPLEFT,5*s,0},	BSTATE_NORMAL)
-	ui.box:SetNormalTexture('/esoui/art/lfg/lfg_healer_up.dds')
-	ui.box:SetMouseOverTexture('/esoui/art/lfg/lfg_healer_over.dds')
-	ui.title		=BUI.UI.Label(	"BUI_Helper_Title",		ui.header,	{w,30},		{LEFT,LEFT,40*s,0},		BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, "Healer helper")
-	ui.lock		=BUI.UI.Backdrop(	"BUI_Helper_Lock",		ui.header,	{55,lh},		{TOPRIGHT,BOTTOMRIGHT,-10,0},	{.4,.4,.4,.3}, {0,0,0,0}, nil, true)
-	ui.lockicon		=BUI.UI.Texture(	"BUI_Helper_LockIcon",		ui.lock,	{24,24},		{TOP,TOP,0,0},			'esoui/art/tooltips/icon_lock.dds')
-	--Section 1
-	ui.cont1		=BUI.UI.Backdrop(	"BUI_Helper_Border_1",		ui.header,	{w+20,fs*1.5*9+2},{TOPLEFT,BOTTOMLEFT,0,-2},	{0,0,0,0}, {.7,.7,.5,.3})
-	ui.S1			=BUI.UI.Label(	"BUI_Helper_Section_1",		ui.header,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,30,0},	BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, Loc("Stats"))
-	ui.bg1		=BUI.UI.Backdrop(	"BUI_Helper_BG_1",		ui.S1,	{w-60,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0})
-	--Custom
-	ui.custom		=BUI.UI.Button(	"BUI_Helper_Custom_sw",		ui.bg1,	{fs,fs},	{RIGHT,RIGHT,0,0},	BSTATE_NORMAL)
-	ui.custom:SetNormalTexture('/esoui/art/charactercreate/charactercreate_rightarrow_up.dds')
-	ui.custom:SetMouseOverTexture('/esoui/art/charactercreate/charactercreate_rightarrow_over.dds')
-	ui.custom:SetPressedTexture('/esoui/art/charactercreate/charactercreate_leftarrow_up.dds')
-	ui.custom:SetPressedMouseOverTexture('/esoui/art/charactercreate/charactercreate_leftarrow_over.dds')
-	ui.custom:SetHandler("OnClicked", UI_Custom)
-	for i=1,8 do
-		local label	=BUI.UI.Label(	"BUI_Helper_Label_1_"..i,	ui.header,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,10,fs*1.5*i},	BUI.UI.Font(i==8 and "esobold" or "standard",fs,true), {1,1,1,1}, {0,1}, "")
-				BUI.UI.Label(	"BUI_Helper_Value_1_"..i,	label,	{50,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font(i==8 and "esobold" or "standard",fs,true), {1,1,1,1}, {0,1}, "")
-	end
-	--Section 2
-	ui.cont2		=BUI.UI.Backdrop(	"BUI_Helper_Border_2",		ui.cont1,	{w+20,fs*1.5*6+2},{TOPLEFT,BOTTOMLEFT,0,-2},	{0,0,0,0}, {.7,.7,.5,.3})
-	ui.S2			=BUI.UI.Label(	"BUI_Helper_Section_2",		ui.cont1,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,30,0},	BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, Loc("Buffs"))
-	ui.bg2		=BUI.UI.Backdrop(	"BUI_Helper_BG_2",		ui.S2,	{w-60,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0})
-	for i=1,5 do
-		local label	=BUI.UI.Label(	"BUI_Helper_Label_2_"..i,	ui.cont1,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,10,fs*1.5*i},	BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
-				BUI.UI.Label(	"BUI_Helper_Value_2_"..i,	label,	{50,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
-	end
-	--Section 3
-	ui.cont3		=BUI.UI.Backdrop(	"BUI_Helper_Border_3",		ui.cont2,	{w+20,fs*1.5*7+2},{TOPLEFT,BOTTOMLEFT,0,-2},	{0,0,0,0}, {.7,.7,.5,.3})
-	ui.S3			=BUI.UI.Label(	"BUI_Helper_Section_3",		ui.cont2,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,30,0},	BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, Loc("Debuffs"))
-	ui.bg3		=BUI.UI.Backdrop(	"BUI_Helper_BG_3",		ui.S3,	{w-60,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0})
-	for i=1,6 do
-		local label	=BUI.UI.Label(	"BUI_Helper_Label_3_"..i,	ui.cont2,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,10,fs*1.5*i},	BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
-				BUI.UI.Label(	"BUI_Helper_Value_3_"..i,	label,	{50,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
-	end
-	--Section 4
-	ui.cont4		=BUI.UI.Backdrop(	"BUI_Helper_Border_4",		ui.cont3,	{w+20,fs*1.5*3+2},{TOPLEFT,BOTTOMLEFT,0,-2},	{0,0,0,0}, {.7,.7,.5,.3})
-	ui.S4			=BUI.UI.Label(	"BUI_Helper_Section_4",		ui.cont3,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,30,0},	BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, Loc("Abilitys"))
-	ui.bg4		=BUI.UI.Backdrop(	"BUI_Helper_BG_4",		ui.S4,	{w-60,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0})
-	for i=1,2 do
-		local label	=BUI.UI.Label(	"BUI_Helper_Label_4_"..i,	ui.cont3,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,10,fs*1.5*i},	BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
-				BUI.UI.Label(	"BUI_Helper_Value_4_"..i,	label,	{50,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
-	end
-	--Section 5
-	ui.cont5		=BUI.UI.Backdrop(	"BUI_Helper_Border_5",		ui.cont4,	{w+20,fs*1.5*4+2},{TOPLEFT,BOTTOMLEFT,0,-2},	{0,0,0,0}, {.7,.7,.5,.3})
-	ui.S5			=BUI.UI.Label(	"BUI_Helper_Section_5",		ui.cont4,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,30,0},	BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, Loc("Test"))
-	ui.bg5		=BUI.UI.Backdrop(	"BUI_Helper_BG_5",		ui.S5,	{w-60,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0})
-	--Help
-	BUI.UI.SimpleButton("BUI_Helper_Help", ui.bg5, {26,26}, {RIGHT,RIGHT,0,0}, "/esoui/art/miscellaneous/help_icon.dds", false, nil, BUI.Loc("HelperToolTip"))
-	for i=1,3 do
-		local label	=BUI.UI.Label(	"BUI_Helper_Label_5_"..i,	ui.cont4,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,10,fs*1.5*i},	BUI.UI.Font(i==3 and "esobold" or "standard",fs,true), {1,1,1,1}, {0,1}, "")
-				BUI.UI.Label(	"BUI_Helper_Value_5_"..i,	label,	{50,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font(i==3 and "esobold" or "standard",fs,true), {1,1,1,1}, {0,1}, "")
-	end
-	--Bottom
-	ui.cont6		=BUI.UI.Statusbar("BUI_Helper_Border_6",		ui,		{w+20,fs*1.5+2},	{BOTTOMLEFT,BOTTOMLEFT,0,0},	{.65,.65,.5,.2})
-	ui.S6			=BUI.UI.Label(	"BUI_Helper_Name",		ui.cont6,	{w,fs*1.5},		{LEFT,LEFT,10,0},			BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
-	ui.version		=BUI.UI.Label(	"BUI_Helper_Version",		ui.S6,	{140,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
+local function Reset()
+	StartTime=0
+	EndTime=0
+	PlayerBuffs={}
+	PlayerStats={dmg={},stat={}}
+	TargetBuffs={}
+	total_orbs=0
+	total_heal=0
+	testtime=1
+	healing_done=0
+	BonusMax=0
+	BonusMin=100
+	BonusCur=0
+	BonusMaxUp=0
+	BUI_Helper_Lock:SetHidden(true)
 end
 
 local function GetDivinesBonus()
-	local worn={0,2,3,6,8,9,16}
 	local bonus=0
-	for _,i in pairs(worn) do
-		local x, y=GetItemLinkTraitInfo(GetItemLink(BAG_WORN,i) )
-		if x==ITEM_TRAIT_TYPE_ARMOR_DIVINES then bonus=bonus+(tonumber(string.sub(y,string.find(y, "%d.%d"))) or 0) end
+	for _,i in pairs({0,2,3,6,8,9,16}) do
+		local itemLink=GetItemLink(BAG_WORN,i)
+		local trait=GetItemLinkTraitInfo(itemLink)
+		local quality=GetItemLinkFunctionalQuality(itemLink)
+		if trait==ITEM_TRAIT_TYPE_ARMOR_DIVINES then bonus=bonus+(quality>0 and quality+4.1 or 0) end
 	end
 	divines_bonus=bonus
 end
@@ -359,28 +253,209 @@ local function GetSetBonus()
 		end
 	end
 
-	if BonusMin==0 then
-		BonusMin=bonus
-	elseif BonusMin>bonus then
-		BonusMin=bonus
-	end
-	if BonusMax<bonus then
-		BonusMax=bonus
-	end
-	if BonusMax>bonus then
-		BonusMaxUp=BonusMaxUp+(now-LastSwap)/1000
-	end
-	LastSwap=now
-	healing_done=StartTime==0 and bonus or BonusMin+(BonusMax-BonusMin)*(BonusMaxUp/testtime)
+	if BonusMin>bonus then BonusMin=bonus end
+	if BonusMax<bonus then BonusMax=bonus end
+	BonusCur=bonus
 end
 --	/script local link=GetItemLink(BAG_WORN,EQUIP_SLOT_CHEST) local hasSet,setName,_,numEquipped,maxEquipped=GetItemLinkSetInfo(link) d(setName)
 --	/script d(GetItemLinkQuality("|H1:item:80312:364:50:0:0:0:1:0:0:0:0:0:0:0:1:35:0:1:0:410:0|h|h")==ITEM_TRAIT_TYPE_WEAPON_POWERED)
 local function GetMundusBonus()
 	for i=1, GetNumBuffs("player") do
 		local name,_,_,_,_,_,_,_,_,_,id=GetUnitBuffInfo("player",i)
-		if id==13980 then mundus_bonus=10*(1+divines_bonus/100) end
-		if id==13984 then crit_mundus_bonus=9*(1+divines_bonus/100) end
+		if id==13980 then mundus_bonus=8*(1+divines_bonus/100) end
+		if id==13984 then crit_mundus_bonus=11*(1+divines_bonus/100) end
 	end
+end
+
+local function Helper_Init()
+	local magicka,stamina=GetPlayerStat(STAT_MAGICKA_MAX),GetPlayerStat(STAT_STAMINA_MAX)
+	mainpower=(stamina>magicka) and "stamina" or "magicka"
+	crit_chance=mainpower=="magicka" and GetPlayerStat(STAT_SPELL_CRITICAL)/218 or GetPlayerStat(STAT_CRITICAL_STRIKE)/218
+	--Champion system
+	blessed_bonus=math.floor(GetNumPointsSpentOnChampionSkill(GetChampionSkillId(2,3))/10)
+	local healing_done_descr=tostring(blessed_bonus)
+	for i=5,8 do
+		local id=GetSlotBoundId(i,HOTBAR_CATEGORY_CHAMPION)
+		if id==24 or id==26 or id==28 then	--Tide,Renewal,Mending
+			local value=math.floor(GetNumPointsSpentOnChampionSkill(id)/10)*2
+			blessed_bonus=blessed_bonus+value/3
+			healing_done_descr=healing_done_descr..", "..tostring(value)
+		elseif id==12 then	--Finese
+			crit_champ_bonus=math.floor(GetNumPointsSpentOnChampionSkill(id)/10)*2
+		end
+	end
+	BUI.OnScreen.Message[9]=nil
+	Reset()
+	--Section 1
+	BUI_Helper_Label_1_1:SetText(mainpower=="magicka" and "|c5555ff"..Loc("Magicka").."|r" or "|c33bb33"..Loc("Stamina").."|r")
+	BUI_Helper_Label_1_2:SetText(mainpower=="magicka" and "|c5555ff"..Loc("Spd").."|r" or "|c33bb33"..Loc("Wdm").."|r")
+	BUI_Helper_Label_1_3:SetText((mainpower=="magicka" and "|c5555ff" or "|c33bb33")..Loc("CritBonus").."|r")
+	BUI_Helper_Label_1_4:SetText("|cccccaa"..Loc("ChampionBonus").."|r ("..healing_done_descr..")")
+	BUI_Helper_Label_1_5:SetText("|cccccaa"..Loc("MundusBonus").."|r")
+	BUI_Helper_Label_1_6:SetText("|cccccaa"..Loc("HealingDone").."|r")
+	BUI_Helper_Label_1_7:SetText("|cccccaa"..Loc("MendingBonus").."|r")
+	BUI_Helper_Label_1_8:SetText(Loc("TotalPower"))
+	--Section 2
+	BUI_Helper_Label_2_1:SetText("|cccccaa"..Loc("MajorCourage").."|r")
+	BUI_Helper_Label_2_2:SetText("|cccccaa"..Loc("Resolve").."|r")
+	BUI_Helper_Label_2_3:SetText("|cccccaa"..Loc("MinorBerserk").."|r")
+	BUI_Helper_Label_2_4:SetText("|cccccaa"..Loc("ClasBuff").."|r")
+	BUI_Helper_Label_2_5:SetText("|cccccaa"..Loc("Worm").."|r")
+	--Section 3
+	BUI_Helper_Label_3_1:SetText("|cccccaa"..Loc("Magickasteal").."|r")
+	BUI_Helper_Label_3_2:SetText("|cccccaa"..Loc("Lifesteal").."|r")
+--	BUI_Helper_Label_3_3:SetText("|cccccaaMinor Fracture/Breach|r")
+	BUI_Helper_Label_3_3:SetText("|cccccaa"..Loc("Vulnerability").."|r")
+	BUI_Helper_Label_3_4:SetText("|cccccaa"..Loc("Cowardice").."|r")
+	BUI_Helper_Label_3_5:SetText("|cccccaa"..Loc("Weakening").."|r")
+--	BUI_Helper_Label_3_6:SetText("|cccccaa"..Loc("OffBalance").."|r")
+	--Section 4
+	BUI_Helper_Label_4_1:SetText("|cccccaa"..Loc("Healing").."|r")
+	BUI_Helper_Label_4_2:SetText("|cccccaa"..Loc("Resource").."|r")
+	--Section 5
+	BUI_Helper_Label_5_1:SetText("|cccccaa"..Loc("TestTime").."|r")
+	BUI_Helper_Label_5_2:SetText("|cccccaa"..Loc("DPS").."|r")
+	BUI_Helper_Label_5_3:SetText(Loc("Score"))
+	local fs=18
+	local name="|t"..fs..":"..fs..":"..GetClassIcon(GetUnitClassId("player")).."|t"..BUI.Player.name.." ("..BUI.Player:GetColoredLevel("player")..")"
+	BUI_Helper_Name:SetText(name)
+	local date=GetDate() date=" "..string.sub(date,7,8).."."..string.sub(date,5,6).."."..string.sub(date,1,4)
+	BUI_Helper_Version:SetText(BUI.ESOVersion..date)
+
+	GetCritDamage()
+	GetSetBonus()
+	GetDivinesBonus()
+	GetMundusBonus()
+end
+
+local function CustomUpdate()
+	local stat=BUI_Helper_Slider_1.value
+	local damage=BUI_Helper_Slider_2.value
+	local crit=BUI_Helper_Slider_3.value
+	local blessed=BUI_Helper_Slider_4.value
+	local mundus=BUI_Helper_Slider_5.value
+	local set=BUI_Helper_Slider_6.value
+	local buff=BUI_Helper_Slider_7.value
+	local power=math.floor((stat+damage*10.5)/100*crit*(1+(blessed+buff+mundus+set)/100))
+	BUI_Helper_Custom_Value:SetText(power)
+end
+
+local function CustomInit()
+	BUI_Helper_Slider_1:UpdateValue(math.floor(base_stat))
+	BUI_Helper_Slider_2:UpdateValue(math.floor(damage_power))
+	BUI_Helper_Slider_3:UpdateValue(crit_bonus)
+	BUI_Helper_Slider_4:UpdateValue(blessed_bonus)
+	BUI_Helper_Slider_5:UpdateValue(mundus_bonus)
+	BUI_Helper_Slider_6:UpdateValue(healing_done)
+	BUI_Helper_Slider_7:UpdateValue(buff_bonus)
+	CustomUpdate()
+end
+
+local function UI_Custom()
+	if BUI_Helper_Custom then
+		if BUI_Helper_Custom:IsHidden()==false then
+			BUI_Helper_Custom_sw:SetState(BSTATE_NORMAL)
+			BUI_Helper_Custom:SetHidden(true)
+		else
+			BUI_Helper_Custom:SetHidden(false)
+			BUI_Helper_Custom_sw:SetState(BSTATE_PRESSED)
+			CustomInit()
+		end
+		return
+	end
+	BUI_Helper_Custom_sw:SetState(BSTATE_PRESSED)
+	local fs,s=18,1
+	local w,h=220,fs*1.5*9+2
+	local space=5
+	local ui	=BUI.UI.Control(	"BUI_Helper_Custom",		BUI_Helper,	{w,h},		{TOPLEFT,TOPRIGHT,-2,28},	false)
+	ui.bg		=BUI.UI.Backdrop(	"BUI_Helper_Custom_Bg",		ui,		"inherit",		{TOPLEFT,TOPLEFT,0,0},		{0,0,0,0.7}, {.7,.7,.5,.3}, nil, false)
+	ui.header	=BUI.UI.Label(	"BUI_Helper_Custom_Header",	ui,		{w,fs*1.5},		{TOPLEFT,TOPLEFT,30,0},		BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, "Stats tester", false)
+	ui.bg1	=BUI.UI.Backdrop(	"BUI_Helper_Custom_Header_BG",ui.header,	{w-20,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0}, nil, false)
+	for i=1,7 do
+		BUI.UI.Slider(	"BUI_Helper_Slider_"..i,		ui,		{w-20,fs},		{TOPLEFT,TOPLEFT,10,10+fs*1.5*i},	false, function() CustomUpdate() end,MinMaxStep[i])
+	end
+	ui.value	=BUI.UI.Label(	"BUI_Helper_Custom_Value",	ui,		{50,fs*1.5},	{BOTTOMRIGHT,BOTTOMRIGHT,-10,0},	BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "0"	, false)
+	CustomInit()
+end
+
+local function UI_Init()
+	local fs,s=18,1
+	local w,h=320,30+fs*1.5*(9+6+6+3+5)
+	local lh=h-30-fs*1.5
+	local ui		=BUI.UI.TopLevelWindow("BUI_Helper",		GuiRoot,	{w+20,h},		{TOPLEFT,TOPLEFT,220,50})
+	ui:SetMouseEnabled(true) ui:SetMovable(true)
+	ui.bg			=BUI.UI.Backdrop(	"BUI_Helper_Backdrop",		ui,		"inherit",		{CENTER,CENTER,0,0},		{0,0,0,0.7}, {0,0,0,0.9})
+	ui.header		=BUI.UI.Statusbar("BUI_Helper_Header",		ui,		{w+20,30},		{TOPLEFT,TOPLEFT,0,0},		{.5,.5,.5,.7})
+	ui.header:SetGradientColors(0.4,0.4,0.4,0.7,0,0,0,0)
+	ui.close		=BUI.UI.Button(	"BUI_Helper_Close",		ui,		{34,34},		{TOPRIGHT,TOPRIGHT,5*s,5*s},	BSTATE_NORMAL)
+	ui.close:SetNormalTexture('/esoui/art/buttons/closebutton_up.dds')
+	ui.close:SetMouseOverTexture('/esoui/art/buttons/closebutton_mouseover.dds')
+	ui.close:SetHandler("OnClicked", function() PlaySound("Click") BUI.Helper_Toggle() end)
+	--Reset
+	ui.reset		=BUI.UI.Button(	"BUI_Helper_Reset",		ui,		{34,34},		{TOPRIGHT,TOPRIGHT,5*s-34,-2*s},	BSTATE_NORMAL)
+	ui.reset:SetNormalTexture('/esoui/art/help/help_tabicon_feedback_up.dds')
+	ui.reset:SetMouseOverTexture('/esoui/art/help/help_tabicon_feedback_over.dds')
+	ui.reset:SetHandler("OnClicked", Helper_Init)
+--	ui.box		=BUI.UI.Backdrop(	"BUI_Helper_Box",			ui.header,	{20,20},		{LEFT,LEFT,5*s,0},		{0,0,0,0}, {.7,.7,.5,1})
+	ui.box		=BUI.UI.Button(	"BUI_Helper_Box",			ui,		{30,30},		{TOPLEFT,TOPLEFT,5*s,0},	BSTATE_NORMAL)
+	ui.box:SetNormalTexture('/esoui/art/lfg/lfg_healer_up.dds')
+	ui.box:SetMouseOverTexture('/esoui/art/lfg/lfg_healer_over.dds')
+	ui.title		=BUI.UI.Label(	"BUI_Helper_Title",		ui.header,	{w,30},		{LEFT,LEFT,40*s,0},		BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, "Healer helper")
+	ui.lock		=BUI.UI.Backdrop(	"BUI_Helper_Lock",		ui.header,	{55,lh},		{TOPRIGHT,BOTTOMRIGHT,-10,0},	{.4,.4,.4,.3}, {0,0,0,0}, nil, true)
+	ui.lockicon		=BUI.UI.Texture(	"BUI_Helper_LockIcon",		ui.lock,	{24,24},		{TOP,TOP,0,0},			'esoui/art/tooltips/icon_lock.dds')
+	--Section 1
+	ui.cont1		=BUI.UI.Backdrop(	"BUI_Helper_Border_1",		ui.header,	{w+20,fs*1.5*9+2},{TOPLEFT,BOTTOMLEFT,0,-2},	{0,0,0,0}, {.7,.7,.5,.3})
+	ui.S1			=BUI.UI.Label(	"BUI_Helper_Section_1",		ui.header,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,30,0},	BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, Loc("Stats"))
+	ui.bg1		=BUI.UI.Backdrop(	"BUI_Helper_BG_1",		ui.S1,	{w-60,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0})
+	--Custom
+	ui.custom		=BUI.UI.Button(	"BUI_Helper_Custom_sw",		ui.bg1,	{fs,fs},	{RIGHT,RIGHT,0,0},	BSTATE_NORMAL)
+	ui.custom:SetNormalTexture('/esoui/art/charactercreate/charactercreate_rightarrow_up.dds')
+	ui.custom:SetMouseOverTexture('/esoui/art/charactercreate/charactercreate_rightarrow_over.dds')
+	ui.custom:SetPressedTexture('/esoui/art/charactercreate/charactercreate_leftarrow_up.dds')
+	ui.custom:SetPressedMouseOverTexture('/esoui/art/charactercreate/charactercreate_leftarrow_over.dds')
+	ui.custom:SetHandler("OnClicked", UI_Custom)
+	for i=1,8 do
+		local label	=BUI.UI.Label(	"BUI_Helper_Label_1_"..i,	ui.header,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,10,fs*1.5*i},	BUI.UI.Font(i==8 and "esobold" or "standard",fs,true), {1,1,1,1}, {0,1}, "")
+				BUI.UI.Label(	"BUI_Helper_Value_1_"..i,	label,	{50,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font(i==8 and "esobold" or "standard",fs,true), {1,1,1,1}, {0,1}, "")
+	end
+	--Section 2
+	ui.cont2		=BUI.UI.Backdrop(	"BUI_Helper_Border_2",		ui.cont1,	{w+20,fs*1.5*6+2},{TOPLEFT,BOTTOMLEFT,0,-2},	{0,0,0,0}, {.7,.7,.5,.3})
+	ui.S2			=BUI.UI.Label(	"BUI_Helper_Section_2",		ui.cont1,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,30,0},	BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, Loc("Buffs"))
+	ui.bg2		=BUI.UI.Backdrop(	"BUI_Helper_BG_2",		ui.S2,	{w-60,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0})
+	for i=1,5 do
+		local label	=BUI.UI.Label(	"BUI_Helper_Label_2_"..i,	ui.cont1,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,10,fs*1.5*i},	BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
+				BUI.UI.Label(	"BUI_Helper_Value_2_"..i,	label,	{50,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
+	end
+	--Section 3
+	ui.cont3		=BUI.UI.Backdrop(	"BUI_Helper_Border_3",		ui.cont2,	{w+20,fs*1.5*6+2},{TOPLEFT,BOTTOMLEFT,0,-2},	{0,0,0,0}, {.7,.7,.5,.3})
+	ui.S3			=BUI.UI.Label(	"BUI_Helper_Section_3",		ui.cont2,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,30,0},	BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, Loc("Debuffs"))
+	ui.bg3		=BUI.UI.Backdrop(	"BUI_Helper_BG_3",		ui.S3,	{w-60,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0})
+	for i=1,5 do
+		local label	=BUI.UI.Label(	"BUI_Helper_Label_3_"..i,	ui.cont2,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,10,fs*1.5*i},	BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
+				BUI.UI.Label(	"BUI_Helper_Value_3_"..i,	label,	{50,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
+	end
+	--Section 4
+	ui.cont4		=BUI.UI.Backdrop(	"BUI_Helper_Border_4",		ui.cont3,	{w+20,fs*1.5*3+2},{TOPLEFT,BOTTOMLEFT,0,-2},	{0,0,0,0}, {.7,.7,.5,.3})
+	ui.S4			=BUI.UI.Label(	"BUI_Helper_Section_4",		ui.cont3,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,30,0},	BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, Loc("Abilitys"))
+	ui.bg4		=BUI.UI.Backdrop(	"BUI_Helper_BG_4",		ui.S4,	{w-60,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0})
+	for i=1,2 do
+		local label	=BUI.UI.Label(	"BUI_Helper_Label_4_"..i,	ui.cont3,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,10,fs*1.5*i},	BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
+				BUI.UI.Label(	"BUI_Helper_Value_4_"..i,	label,	{50,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
+	end
+	--Section 5
+	ui.cont5		=BUI.UI.Backdrop(	"BUI_Helper_Border_5",		ui.cont4,	{w+20,fs*1.5*4+2},{TOPLEFT,BOTTOMLEFT,0,-2},	{0,0,0,0}, {.7,.7,.5,.3})
+	ui.S5			=BUI.UI.Label(	"BUI_Helper_Section_5",		ui.cont4,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,30,0},	BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,1}, Loc("Test"))
+	ui.bg5		=BUI.UI.Backdrop(	"BUI_Helper_BG_5",		ui.S5,	{w-60,fs},		{LEFT,LEFT,-20,0},		{.4,.4,.4,.3}, {0,0,0,0})
+	--Help
+	BUI.UI.SimpleButton("BUI_Helper_Help", ui.bg5, {26,26}, {RIGHT,RIGHT,0,0}, "/esoui/art/miscellaneous/help_icon.dds", false, nil, BUI.Loc("HelperToolTip"))
+	for i=1,3 do
+		local label	=BUI.UI.Label(	"BUI_Helper_Label_5_"..i,	ui.cont4,	{w,fs*1.5},		{TOPLEFT,BOTTOMLEFT,10,fs*1.5*i},	BUI.UI.Font(i==3 and "esobold" or "standard",fs,true), {1,1,1,1}, {0,1}, "")
+				BUI.UI.Label(	"BUI_Helper_Value_5_"..i,	label,	{50,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font(i==3 and "esobold" or "standard",fs,true), {1,1,1,1}, {0,1}, "")
+	end
+	--Bottom
+	ui.cont6		=BUI.UI.Statusbar("BUI_Helper_Border_6",		ui,		{w+20,fs*1.5+2},	{BOTTOMLEFT,BOTTOMLEFT,0,0},	{.65,.65,.5,.2})
+	ui.S6			=BUI.UI.Label(	"BUI_Helper_Name",		ui.cont6,	{w,fs*1.5},		{LEFT,LEFT,10,0},			BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
+	ui.version		=BUI.UI.Label(	"BUI_Helper_Version",		ui.S6,	{140,fs*1.5},	{RIGHT,RIGHT,0,0},		BUI.UI.Font("standard",fs,true), {1,1,1,1}, {0,1}, "")
 end
 
 local function GetBuffsPlayer()
@@ -424,7 +499,7 @@ local function Helper_Update()
 			EndTime=StartTime+60000
 			EVENT_MANAGER:UnregisterForUpdate("BUI_Helper")
 			EVENT_MANAGER:UnregisterForEvent("BUI_Helper", EVENT_ACTION_SLOT_ABILITY_USED)
-			EVENT_MANAGER:UnregisterForEvent("BUI_Helper", EVENT_ACTIVE_WEAPON_PAIR_CHANGED)
+--			EVENT_MANAGER:UnregisterForEvent("BUI_Helper", EVENT_ACTIVE_WEAPON_PAIR_CHANGED)
 			BUI_Helper_Value_5_1:SetText("60|cccccaas|r")
 			BUI_Helper_Lock:SetHidden(false)
 			return
@@ -445,7 +520,7 @@ local function Helper_Update()
 	local class_buff_name=""
 	local worm_buff=0
 	local lifesteal=0
-	local off_balance=0
+--	local off_balance=0
 	local weakening=0
 	local berserk=0
 	for name,duration in pairs(PlayerBuffs) do
@@ -468,7 +543,12 @@ local function Helper_Update()
 	base_stat=0
 	for value,duration in pairs(PlayerStats.stat) do base_stat=base_stat+value*math.min(math.max(duration,1)/testtime,1) end
 
-	crit_bonus=1+(1+(crit_class_bonus+crit_buff_bonus+crit_mundus_bonus)/100)*crit_chance/100
+
+	if BonusCur==BonusMax then BonusMaxUp=BonusMaxUp+PERIOD/1000 end
+	healing_done=StartTime==0 and BonusCur or BonusMin+(BonusMax-BonusMin)*(BonusMaxUp/testtime)
+--	if StartTime>0 then d(BonusMax.." - "..BonusMin.." * ".. BonusMaxUp.." / "..math.floor(testtime).." = "..math.floor(healing_done*100)/100 .." ("..BonusCur..") ") end
+
+	crit_bonus=1+(1+(crit_class_bonus+crit_buff_bonus+crit_mundus_bonus+crit_champ_bonus)/100)*crit_chance/100
 	local healing_power=math.floor((base_stat+damage_power*10.5)/100*crit_bonus*(1+(blessed_bonus+buff_bonus+mundus_bonus+healing_done)/100))
 
 	--Target buffs
@@ -483,7 +563,7 @@ local function Helper_Update()
 --		elseif name=="Minor Breach" or name=="Малый прорыв" then minor_penetr=pct
 		elseif name=="Minor Lifesteal" or name=="Малое похищение жизни" then lifesteal=pct
 		elseif name=="Minor Cowardice" or name=="Малая трусость" then minor_cowardice=pct
-		elseif name=="Off Balance" or name=="Off-Balance" or name=="Потеря равновесия" then off_balance=pct
+--		elseif name=="Off Balance" or name=="Off-Balance" or name=="Потеря равновесия" then off_balance=pct
 		elseif name=="Weakening" or name=="Слабость" then weakening=pct
 		end
 	end
@@ -492,11 +572,11 @@ local function Helper_Update()
 	--Section 1
 	BUI_Helper_Value_1_1:SetText(math.floor(base_stat))
 	BUI_Helper_Value_1_2:SetText(math.floor(damage_power))
-	BUI_Helper_Value_1_3:SetText(math.floor(crit_bonus*100)/100 .."|cccccaa%|r")
-	BUI_Helper_Value_1_4:SetText(blessed_bonus .."|cccccaa%|r")
-	BUI_Helper_Value_1_5:SetText(mundus_bonus .."|cccccaa%|r")
-	BUI_Helper_Value_1_6:SetText(math.floor(healing_done*100)/100 .."|cccccaa%|r")
-	BUI_Helper_Value_1_7:SetText(math.floor(buff_bonus*100)/100 .."|cccccaa%|r")
+	BUI_Helper_Value_1_3:SetText("|cccccaax|r"..math.floor(crit_bonus*100)/100)
+	BUI_Helper_Value_1_4:SetText(math.floor(blessed_bonus*10)/10 .."|cccccaa%|r")
+	BUI_Helper_Value_1_5:SetText(math.floor(mundus_bonus*10)/10 .."|cccccaa%|r")
+	BUI_Helper_Value_1_6:SetText(math.floor(healing_done*10)/10 .."|cccccaa%|r")
+	BUI_Helper_Value_1_7:SetText(math.floor(buff_bonus*10)/10 .."|cccccaa%|r")
 	BUI_Helper_Value_1_8:SetText("|cffff55"..healing_power.."|r")
 	--Section 2
 	BUI_Helper_Value_2_1:SetText(math.floor(major_courage*100) .."|cccccaa%|r")
@@ -511,7 +591,7 @@ local function Helper_Update()
 	BUI_Helper_Value_3_3:SetText(math.floor(vulnerability*100) .."|cccccaa%|r")
 	BUI_Helper_Value_3_4:SetText(math.floor(minor_cowardice*100) .."|cccccaa%|r")
 	BUI_Helper_Value_3_5:SetText(math.floor(weakening*100) .."|cccccaa%|r")
-	BUI_Helper_Value_3_6:SetText(math.floor(off_balance*100) .."|cccccaa%|r")
+--	BUI_Helper_Value_3_6:SetText(math.floor(off_balance*100) .."|cccccaa%|r")
 	--Section 4
 	local springs=math.min(math.floor(total_heal/testtime*100),200)
 	local orbs=math.min(math.floor(total_orbs/testtime*100),200)
@@ -536,75 +616,10 @@ local function Helper_Update()
 --		+minor_penetr*88
 		+lifesteal*62
 		+minor_cowardice*88
-		+off_balance*88
+--		+off_balance*88
 		+weakening*62
 		,1000)
 	BUI_Helper_Value_5_3:SetText("|cffff55"..math.floor(score).."|r")
-end
-
-local function Reset()
-	PlayerBuffs={}
-	PlayerStats={dmg={},stat={}}
-	TargetBuffs={}
-	total_orbs=0
-	total_heal=0
-	testtime=1
-	healing_done=0
-	LastSwap=GetGameTimeMilliseconds()
-	BonusMax=0
-	BonusMin=0
-	BonusMaxUp=0
-	BUI_Helper_Lock:SetHidden(true)
-end
-
-local function Helper_Init()
-	local magicka,stamina=GetPlayerStat(STAT_MAGICKA_MAX),GetPlayerStat(STAT_STAMINA_MAX)
-	mainpower=(stamina>magicka) and "stamina" or "magicka"
-	crit_chance=mainpower=="magicka" and GetPlayerStat(STAT_SPELL_CRITICAL)/218 or GetPlayerStat(STAT_CRITICAL_STRIKE)/218
-	blessed_bonus=GetNumPointsSpentOnChampionSkill(7,4)*0.01 blessed_bonus=math.floor(0.15*blessed_bonus*(2-blessed_bonus)*100)
-	StartTime=0
-	EndTime=0
-	Reset()
-	--Section 1
-	BUI_Helper_Label_1_1:SetText(mainpower=="magicka" and "|c5555ff"..Loc("Magicka").."|r" or "|c33bb33"..Loc("Stamina").."|r")
-	BUI_Helper_Label_1_2:SetText(mainpower=="magicka" and "|c5555ff"..Loc("Spd").."|r" or "|c33bb33"..Loc("Wdm").."|r")
-	BUI_Helper_Label_1_3:SetText((mainpower=="magicka" and "|c5555ff" or "|c33bb33")..Loc("CritBonus").."|r")
-	BUI_Helper_Label_1_4:SetText("|cccccaa"..Loc("ChampionBonus").."|r")
-	BUI_Helper_Label_1_5:SetText("|cccccaa"..Loc("MundusBonus").."|r")
-	BUI_Helper_Label_1_6:SetText("|cccccaa"..Loc("HealingDone").."|r")
-	BUI_Helper_Label_1_7:SetText("|cccccaa"..Loc("MendingBonus").."|r")
-	BUI_Helper_Label_1_8:SetText(Loc("TotalPower"))
-	--Section 2
-	BUI_Helper_Label_2_1:SetText("|cccccaa"..Loc("MajorCourage").."|r")
-	BUI_Helper_Label_2_2:SetText("|cccccaa"..Loc("Resolve").."|r")
-	BUI_Helper_Label_2_3:SetText("|cccccaa"..Loc("MinorBerserk").."|r")
-	BUI_Helper_Label_2_4:SetText("|cccccaa"..Loc("ClasBuff").."|r")
-	BUI_Helper_Label_2_5:SetText("|cccccaa"..Loc("Worm").."|r")
-	--Section 3
-	BUI_Helper_Label_3_1:SetText("|cccccaa"..Loc("Magickasteal").."|r")
-	BUI_Helper_Label_3_2:SetText("|cccccaa"..Loc("Lifesteal").."|r")
---	BUI_Helper_Label_3_3:SetText("|cccccaaMinor Fracture/Breach|r")
-	BUI_Helper_Label_3_3:SetText("|cccccaa"..Loc("Vulnerability").."|r")
-	BUI_Helper_Label_3_4:SetText("|cccccaa"..Loc("Cowardice").."|r")
-	BUI_Helper_Label_3_5:SetText("|cccccaa"..Loc("Weakening").."|r")
-	BUI_Helper_Label_3_6:SetText("|cccccaa"..Loc("OffBalance").."|r")
-	--Section 4
-	BUI_Helper_Label_4_1:SetText("|cccccaa"..Loc("Healing").."|r")
-	BUI_Helper_Label_4_2:SetText("|cccccaa"..Loc("Resource").."|r")
-	--Section 5
-	BUI_Helper_Label_5_1:SetText("|cccccaa"..Loc("TestTime").."|r")
-	BUI_Helper_Label_5_2:SetText("|cccccaa"..Loc("DPS").."|r")
-	BUI_Helper_Label_5_3:SetText(Loc("Score"))
-	local fs=18
-	local name="|t"..fs..":"..fs..":"..GetClassIcon(GetUnitClassId("player")).."|t"..BUI.Player.name.." ("..BUI.Player:GetColoredLevel("player")..")"
-	BUI_Helper_Name:SetText(name)
-	local date=GetDate() date=" "..string.sub(date,7,8).."."..string.sub(date,5,6).."."..string.sub(date,1,4)
-	BUI_Helper_Version:SetText(BUI.ESOVersion..date)
-
-	GetCritDamage()
-	GetSetBonus(nil)
-	GetDivinesBonus()
-	GetMundusBonus()
 end
 
 local function OnSlotAbilityUsed(_,slot)
@@ -625,8 +640,9 @@ end
 
 local function OnCombatState(_,inCombat)
 	if inCombat and (StartTime==0 or EndTime-StartTime==60000) then
-		StartTime=GetGameTimeMilliseconds()
 		Reset()
+		GetSetBonus()
+		StartTime=GetGameTimeMilliseconds()
 		EVENT_MANAGER:RegisterForUpdate("BUI_Helper", PERIOD, Helper_Update)
 		EVENT_MANAGER:RegisterForEvent("BUI_Helper", EVENT_ACTION_SLOT_ABILITY_USED,OnSlotAbilityUsed)
 		BUI.OnScreen.Notification(9,"Healer attestation","Duel_Start",60000)

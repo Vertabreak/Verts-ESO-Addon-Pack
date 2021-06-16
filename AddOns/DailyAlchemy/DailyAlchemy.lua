@@ -2,7 +2,7 @@ DailyAlchemy = {
     displayName = "|c3CB371" .. "Daily Alchemy" .. "|r",
     shortName = "DA",
     name = "DailyAlchemy",
-    version = "1.4.12",
+    version = "1.4.17",
 
     DA_PRIORITY_BY_STOCK = 1,
     DA_PRIORITY_BY_MM = 2,
@@ -20,7 +20,8 @@ DailyAlchemy = {
 
     acquiredItemId = nil,
     acquiredItemCurrent = nil,
-    isSilent = false,
+    isStationInteract = false,  -- need Debug!
+    isAcquire = false,
 }
 
 
@@ -31,50 +32,65 @@ function DailyAlchemy:CraftCompleted(eventCode, craftSkill)
     if craftSkill ~= CRAFTING_TYPE_ALCHEMY then
         return
     end
+    self:Debug("[CraftCompleted]")
 
 
     local result = self:Crafting(eventCode, craftSkill)
-
-
-    -- AutoExit check
-    if (not self.savedVariables.isAutoExit) then
-        return
-    end
     if (not result) then
+        self:Debug("　　> return(not result)")
         return
     end
+
 
     local isEmpty = true
-    for _, value in pairs(self.checkedJournal) do
+    for key, value in pairs(self.checkedJournal) do
+        self:Debug("　　<<1>>=<<2>>", key, tostring(value))
         if (not value) then
+           self:Debug("　　> return(not value)")
            return
         end
         isEmpty = false
     end
     if isEmpty then
+        self:Debug("　　> return(isEmpty)")
         return
     end
-    EndInteraction(INTERACTION_CRAFT)
+
+
+    if self.savedVariables.isAutoExit then
+        self:Debug("　　> EndInteraction")
+        EndInteraction(INTERACTION_CRAFT)
+    else
+        self:Debug("　　> not AutoExit")
+    end
 end
 
 
 
 
-function DailyAlchemy:Crafting(eventCode, craftSkill)
+function DailyAlchemy:Crafting(craftSkill)
 
-    self:Debug("[Pre Crafting]")
+    self:Debug("[Crafting]", self.checkColor)
+
+    if self.isAcquire then
+        zo_callLater(function()
+            self:Crafting(craftSkill)
+        end, 1000)
+    end
+
+
     self.infos = self.infos or self:GetQuestInfos()
     if self.infos == nil or #self.infos == 0 then
-        self:Debug("　　No Quest")
+        self:Debug("　　>No Quest")
         return true
     end
 
 
-    self:Debug("[Crafting]")
+    local parameter
     for _, info in pairs(self.infos) do
+        self:Debug("　　--------")
         if self:IsValidConditions(info) then
-            local parameter = self:CreateParameter(info)
-
+            parameter = self:CreateParameter(info)
             if parameter then
                 self:SetStation(parameter)
                 CraftAlchemyItem(parameter.solvent.bagId,   parameter.solvent.slotIndex,
@@ -85,10 +101,17 @@ function DailyAlchemy:Crafting(eventCode, craftSkill)
                 local amount = self:GetAmountToMake(parameter.itemType)
                 if self.savedVariables.bulkQuantity then
                     info.current = math.min(info.current + amount, info.max)
-                    self:Message(parameter.resultLink .. " x " .. info.current .. "/" .. info.max
-                                                      .. " [" .. GetString(DA_BULK_HEADER) .. "]")
+                    local msg = zo_strformat("<<1>><<2>> x <<3>>/<<4>> [<<5>>]", parameter.icon,
+                                                                                 parameter.resultLink,
+                                                                                 info.current,
+                                                                                 info.max,
+                                                                                 GetString(DA_BULK_HEADER))
+                    self:Message(msg)
                 else
-                    self:Message(parameter.resultLink .. " x " .. (info.max - info.current))
+                    local msg = zo_strformat("<<1>><<2>> x <<3>>", parameter.icon,
+                                                                   parameter.resultLink,
+                                                                   (info.max - info.current))
+                    self:Message(msg)
                     info.current = math.min(info.current + amount, info.max)
                 end
                 self.checkedJournal[info.key] = true
@@ -106,8 +129,11 @@ function DailyAlchemy:Crafting(eventCode, craftSkill)
             local msg, msg2 = self:Contains(info.convertedTxt, self:AcquireConditions())
             if msg then
                 if self.checkedJournal[info.key] == nil then
+                    local isLogTmp = self.savedVariables.isLog
+                    self.savedVariables.isLog = true
                     msg = msg .. (msg2 or "")
                     self:Message(zo_strformat(GetString(DA_NOTHING_ITEM), msg))
+                    self.savedVariables.isLog = isLogTmp
                 end
                 self.checkedJournal[info.key] = false
             end
@@ -158,6 +184,7 @@ function DailyAlchemy:CreateParameter(info)
 
 
     if result then
+        self:Debug("　　　　>create!")
         if ConfirmMasterWrit and info.uniqueId then
             local reservation = self.savedVariables.reservations[info.uniqueId]
             local masterWrit = reservation.masterWrit
@@ -177,44 +204,10 @@ function DailyAlchemy:CreateParameter(info)
                 ConfirmMasterWrit.alchemyItemList = nil
             end
         end
+    else
+        self:Debug("　　　　>parameter is nil")
     end
 
-
-    if self:IsDebug() then
-        if result then
-            local mark = "|cffff66"
-            local addInfo1 = ""
-            local addInfo2 = ""
-            local addInfo3 = ""
-            if self.savedVariables.priorityBy == self.DA_PRIORITY_BY_STOCK then
-                addInfo1 = "x" .. (result.reagent1.stack or 0)
-                addInfo2 = "x" .. (result.reagent2.stack or 0)
-                addInfo3 = "x" .. (result.reagent3.stack or 0)
-            elseif self:ContainsNumber(self.savedVariables.priorityBy, self.DA_PRIORITY_BY_MM,
-                                                                       self.DA_PRIORITY_BY_TTC,
-                                                                       self.DA_PRIORITY_BY_ATT) then
-                -- Pass
-            elseif self.savedVariables.priorityBy == self.DA_PRIORITY_BY_MANUAL then
-                local icon = zo_iconFormat("esoui/art/skillsadvisor/advisor_tabicon_settings_down.dds", 18, 18)
-                addInfo1 = " " .. result.reagent1.priority .. icon
-                addInfo2 = " " .. result.reagent2.priority .. icon
-                addInfo3 = " " .. result.reagent3.priority .. icon
-            end
-
-            local reagent3info = ""
-            if result.reagent3.itemLink then
-                reagent3info = ", " .. tostring(result.reagent3.itemLink) .. addInfo3
-            end
-            self:Debug("　　　　parameter ="
-                              .. result.resultLink
-                              .. " [" .. result.solvent.itemLink .. ", "
-                              .. tostring(result.reagent1.itemLink) .. addInfo1 .. ", "
-                              .. tostring(result.reagent2.itemLink) .. addInfo2
-                              .. reagent3info .. " ]" )
-        else
-            self:Debug("　　　　parameter is nil")
-        end
-    end
     return result
 end
 
@@ -232,7 +225,7 @@ function DailyAlchemy:Finalize()
     self.stackList = {}
     self.houseStackList = {}
     self.lockedList = {}
-    self.isSilent = false
+    self.isStationInteract = false
 end
 
 
@@ -386,7 +379,13 @@ end
 
 function DailyAlchemy:GetQuestInfos()
 
+    local toHide = self:IsDebug() and (not self.savedVariables.isDebugQuest)
+    if toHide then
+        self.savedVariables.isDebug = false
+    end
+
     self:Debug("　　[GetQuestInfos]")
+
     self.acquiredItemId = nil
     self.acquiredItemCurrent = nil
     local list = {}
@@ -453,32 +452,11 @@ function DailyAlchemy:GetQuestInfos()
         end
         slotIndex = ZO_GetNextBagSlotIndex(BAG_BACKPACK, slotIndex)
     end
+
+    if toHide then
+        self.savedVariables.isDebug = true
+    end
     return list
-end
-
-
-
-
-function DailyAlchemy:GetSkillRank()
-
-    local skillType, skillIndex = GetCraftingSkillLineIndices(CRAFTING_TYPE_ALCHEMY)
-    local abilityIndex = 1
-    local abilityName, _, _, _, _, purchased, _, rankIndex = GetSkillAbilityInfo(skillType, skillIndex, abilityIndex)
-    if (not purchased) then
-        rankIndex = 0
-    end
-    return rankIndex
-end
-
-
-
-function DailyAlchemy:IsLocked(itemLink)
-
-    if self.savedVariables.useItemLock and FCOIS then
-        return self.lockedList[itemLink]
-    end
-
-    return false
 end
 
 
@@ -501,17 +479,17 @@ function DailyAlchemy:IsValidConditions(info)
 
     if info.isCrafting then
         if info.current < info.max then
-            self:Debug(zo_strformat("　　journal(O):<<1>> (<<2>>/<<3>>)<<4>>)", info.convertedTxt,
-                                                                                info.current,
-                                                                                info.max,
-                                                                                info.bulkMark))
+            self:Debug("　　journal(O):<<1>> (<<2>>/<<3>>)<<4>>)", info.convertedTxt,
+                                                                   info.current,
+                                                                   info.max,
+                                                                   info.bulkMark)
             return true
         end
     end
 
-    self:Debug(zo_strformat("|c5c5c5c　　journal(X):<<1>> (<<2>>/<<3>>)|r", info.convertedTxt,
-                                                                            info.current,
-                                                                            info.max))
+    self:Debug("|c5c5c5c　　journal(X):<<1>> (<<2>>/<<3>>)|r", info.convertedTxt,
+                                                               info.current,
+                                                               info.max)
     return false
 end
 
@@ -531,10 +509,10 @@ function DailyAlchemy:IsValidJournal(isVisible, info)
                 info.bulkMark = "※bulk"
                 info.max = math.max(self.savedVariables.bulkQuantity, info.max)
             end
-            self:Debug(zo_strformat("　　　　journal(O):<<1>> (<<2>>/<<3>>)<<4>>", info.convertedTxt,
-                                                                                   info.current,
-                                                                                   info.max,
-                                                                                   info.bulkMark))
+            self:Debug("　　　　journal(O):<<1>> (<<2>>/<<3>>)<<4>>", info.convertedTxt,
+                                                                      info.current,
+                                                                      info.max,
+                                                                      info.bulkMark)
             return true, false
         end
 
@@ -555,16 +533,17 @@ function DailyAlchemy:IsValidJournal(isVisible, info)
             end
 
             if info.current < info.max then
-                self:Debug(zo_strformat("　　　　journal(O):<<1>> (<<2>>/<<3>>)<<4>>", info.convertedTxt,
-                                                                                       info.current,
-                                                                                       info.max))
+                self:Debug("　　　　journal(O):<<1>> (<<2>>/<<3>>)", info.convertedTxt,
+                                                                     info.current,
+                                                                     info.max)
                 return false, true
             end
         end
     end
-    self:Debug(zo_strformat("|c5c5c5c　　　　journal(X):<<1>> (<<2>>/<<3>>)|r", info.convertedTxt,
-                                                                                info.current,
-                                                                                info.max))
+    self:Debug("　　　　journal(X):<<1>> (<<2>>/<<3>>)", info.convertedTxt,
+                                                         info.current,
+                                                         info.max,
+                                                         self.disabledColor)
     return false, false
 end
 
@@ -670,11 +649,11 @@ function DailyAlchemy:IsValidQuest(questIdx, questName)
                         end
                     end
                 end
-                self:Debug("　　|c5c5c5c" .. "questName(X):" .. tostring(questName) .. "|r")
+                self:Debug("　　questName(X):" .. tostring(questName), self.disabledColor)
                 return false
             end
         end
-        self:Debug("　　|c5c5c5c" .. "questName(X):" .. tostring(questName) .. "|r")
+        self:Debug("　　questName(X):" .. tostring(questName), self.disabledColor)
     end
     return false
 end
@@ -684,10 +663,10 @@ end
 
 function DailyAlchemy:OnAddOnLoaded(event, addonName)
 
-    if addonName ~= DailyAlchemy.name then
+    if addonName ~= self.name then
         return
     end
-    EVENT_MANAGER:UnregisterForEvent(DailyAlchemy.name, EVENT_ADD_ON_LOADED)
+    EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_ADD_ON_LOADED)
     setmetatable(DailyAlchemy, {__index = LibMarify})
 
     SLASH_COMMANDS["/langen"] = function() SetCVar("language.2", "en") end
@@ -706,13 +685,13 @@ function DailyAlchemy:OnAddOnLoaded(event, addonName)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_CRAFT_COMPLETED,               function(...) self:CraftCompleted(...) end)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_END_CRAFTING_STATION_INTERACT, function(...) self:Finalize(...) end)
 
-    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_PLAYER_ACTIVATED,              function(...) self:Camehome(...) end)
-    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_OPEN_BANK,                     function(...) self:Acquire(...) end)
+    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_PLAYER_ACTIVATED,              function(...) self:Camehome() end)
+    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_OPEN_BANK,                     function(...) self:OnOpenBank() end)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_CLOSE_BANK,                    function(...) self:Finalize(...) end)
 
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_QUEST_ADDED,                   function(...) self:QuestReceived(...) end)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_QUEST_COMPLETE,                function(...) self:QuestComplete(...) end)
-    self:PostHook(ZO_PlayerInventoryBackpack.dataTypes[1], "setupCallback",        function(obj, ...) self:UpdateInventory(obj) end)
+    self:PostHook(ZO_PlayerInventoryBackpack.dataTypes[1], "setupCallback",        function(...) self:UpdateInventory(...) end)
     LibCustomMenu:RegisterContextMenu(function(...) self:ShowContextMenu(...) end, LibCustomMenu.CATEGORY_LATE)
 end
 
@@ -756,39 +735,35 @@ end
 
 function DailyAlchemy:SetStation(parameter)
 
-    self:Debug("[SetStation]")
+    self:Debug("　　[SetStation]")
     if ALCHEMY:HasSelections() then
-        self:Debug("　　ClearSelections")
+        self:Debug("　　　　ClearSelections")
         ALCHEMY:ClearSelections()
     end
 
 
-    self:Debug(zo_strformat("　　SetSolventItem[<<1>>, <<2>>] <<3>>",
-                            parameter.solvent.bagId,
-                            parameter.solvent.slotIndex,
-                            GetItemLink(parameter.solvent.bagId, parameter.solvent.slotIndex)))
-    ALCHEMY:SetSolventItem(parameter.solvent.bagId,     parameter.solvent.slotIndex) 
+    self:Debug("　　　　SetSolventItem[<<1>>, <<2>>] <<3>>", parameter.solvent.bagId,
+                                                         parameter.solvent.slotIndex,
+                                                         GetItemLink(parameter.solvent.bagId, parameter.solvent.slotIndex))
+    ALCHEMY:SetSolventItem(parameter.solvent.bagId, parameter.solvent.slotIndex) 
 
 
-    self:Debug(zo_strformat("　　SetReagentItem1[<<1>>, <<2>>] <<3>>",
-                            parameter.reagent1.bagId,
-                            parameter.reagent1.slotIndex,
-                            GetItemLink(parameter.reagent1.bagId, parameter.reagent1.slotIndex)))
+    self:Debug("　　　　SetReagentItem1[<<1>>, <<2>>] <<3>>", parameter.reagent1.bagId,
+                                                          parameter.reagent1.slotIndex,
+                                                          GetItemLink(parameter.reagent1.bagId, parameter.reagent1.slotIndex))
     ALCHEMY:SetReagentItem(1, parameter.reagent1.bagId, parameter.reagent1.slotIndex)
 
 
-    self:Debug(zo_strformat("　　SetReagentItem2[<<1>>, <<2>>] <<3>>",
-                            parameter.reagent2.bagId,
-                            parameter.reagent2.slotIndex,
-                            GetItemLink(parameter.reagent2.bagId, parameter.reagent2.slotIndex)))
+    self:Debug("　　　　SetReagentItem2[<<1>>, <<2>>] <<3>>", parameter.reagent2.bagId,
+                                                          parameter.reagent2.slotIndex,
+                                                          GetItemLink(parameter.reagent2.bagId, parameter.reagent2.slotIndex))
     ALCHEMY:SetReagentItem(2, parameter.reagent2.bagId, parameter.reagent2.slotIndex)
 
 
     if parameter.reagent3.bagId then
-        self:Debug(zo_strformat("　　SetReagentItem3[<<1>>, <<2>>] <<3>>",
-                                parameter.reagent3.bagId,
-                                parameter.reagent3.slotIndex,
-                                GetItemLink(parameter.reagent3.bagId, parameter.reagent3.slotIndex)))
+        self:Debug("　　　　SetReagentItem3[<<1>>, <<2>>] <<3>>", parameter.reagent3.bagId,
+                                                              parameter.reagent3.slotIndex,
+                                                              GetItemLink(parameter.reagent3.bagId, parameter.reagent3.slotIndex))
         ALCHEMY:SetReagentItem(3, parameter.reagent3.bagId, parameter.reagent3.slotIndex)
     end
 end
@@ -832,13 +807,19 @@ function DailyAlchemy:ShowContextMenu(inventorySlot, slotActions)
     end
 
     if reservations[uniqueId] then
-        AddCustomMenuItem(GetString(DA_CANCEL_WRIT), function()
+        local label = (self.savedVariables.isDebug or GetDisplayName() == "@Marify")
+                        and zo_strformat("|cE4007F<<1>>|r", GetString(DA_CANCEL_WRIT))
+                        or GetString(DA_CANCEL_WRIT)
+        AddCustomMenuItem(label, function()
             reservations[uniqueId] = nil
             self:Message(GetString(DA_CANCEL_WRIT_MSG))
             PLAYER_INVENTORY:RefreshAllInventorySlots(INVENTORY_BACKPACK)
         end, MENU_ADD_OPTION_LABEL)
     else
-        AddCustomMenuItem(GetString(DA_CRAFT_WRIT), function()
+        local label = (self.savedVariables.isDebug or GetDisplayName() == "@Marify")
+                        and zo_strformat("|c3CB371<<1>>|r", GetString(DA_CRAFT_WRIT))
+                        or GetString(DA_CRAFT_WRIT)
+        AddCustomMenuItem(label, function()
             local reservation = {}
             reservation.masterWrit = itemLink
             reservation.txt = txt
@@ -860,8 +841,26 @@ function DailyAlchemy:StationInteract(eventCode, craftSkill, sameStation)
         return
     end
 
+    self.isStationInteract = true
     self.savedVariables.debugLog = {}
-    self:Crafting(eventCode, craftSkill)
+    self:Debug("[StationInteract]")
+    if self:IsDebug() and self.savedVariables.isDebugSettings then
+        self:Debug("　　savedVariables.bulkQuantity=" .. tostring(self.savedVariables.bulkQuantity))
+        self:Debug("　　savedVariables.isAcquireItem=" .. tostring(self.savedVariables.isAcquireItem))
+        self:Debug("　　savedVariables.acquireDelay=" .. tostring(self.savedVariables.acquireDelay))
+        self:Debug("　　savedVariables.isAutoExit=" .. tostring(self.savedVariables.isAutoExit))
+        self:Debug("　　savedVariables.isLog=" .. tostring(self.savedVariables.isLog))
+        self:Debug("　　savedVariables.isDebug=" .. tostring(self.savedVariables.isDebug))
+        self:Debug("　　savedVariables.isDebugSettings=" .. tostring(self.savedVariables.isDebugSettings))
+        self:Debug("　　savedVariables.isDebugQuest=" .. tostring(self.savedVariables.isDebugQuest))
+        self:Debug("　　savedVariables.isDebugSolvent=" .. tostring(self.savedVariables.isDebugSolvent))
+        self:Debug("　　savedVariables.isDebugTrait=" .. tostring(self.savedVariables.isDebugTrait))
+        self:Debug("　　savedVariables.isDebugReagent=" .. tostring(self.savedVariables.isDebugReagent))
+        self:Debug("　　savedVariables.isDebugPriority=" .. tostring(self.savedVariables.isDebugPriority))
+        self:Debug("　　FCOIS=" .. (FCOIS and "Exists") or "nil")
+        self:Debug("　　self.savedVariables.useItemLock=" .. tostring(self.savedVariables.useItemLock))
+    end
+    self:Crafting(craftSkill)
 end
 
 

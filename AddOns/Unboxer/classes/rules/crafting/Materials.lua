@@ -26,7 +26,7 @@ end
 
 function class.Materials:Match(data)
     
-    if data.bindType ~= BIND_TYPE_ON_PICKUP or data.quality > (ITEM_QUALITY_ARCANE or ITEM_FUNCTIONAL_QUALITY_ARCANE) then
+    if data.bindType ~= BIND_TYPE_ON_PICKUP or data.quality > ITEM_FUNCTIONAL_QUALITY_ARCANE then
         return
     end
     

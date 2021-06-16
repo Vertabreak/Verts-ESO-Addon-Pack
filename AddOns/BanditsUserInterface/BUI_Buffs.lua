@@ -5,10 +5,11 @@ local Passives={
 	[40359]=true,--Fed on ally
 	[40525]=true,--Bit an ally
 	[43752]=true,--Soul Summons
-	[89683]=true,[66776]=true,[64210]=true,[84364]=true,[84365]=true,[99463]=true,[99462]=true,[85502]=true,[85503]=true,[91369]=true,[118985]=true,[136348]=true,--EXP Buff
+	[89683]=true,[66776]=true,[64210]=true,[77123]=true,[84364]=true,[84365]=true,[99463]=true,[99462]=true,[85502]=true,[85503]=true,[91369]=true,[118985]=true,[136348]=true,[152514]=true,--EXP Buff
 	[96118]=true,--Witchmother's Boon
 	[21676]=true,--Recall cooldown
 	[147687]=true,--Alliance Skill Gain Boost
+	[21798]=true,--Bounty timer
 	}
 local buffFood={
 	[72822]={Health=true},[17407]={Health=true},[66551]={Health=true},[61259]={Health=true},[66124]={Health=true},[66125]={Health=true},[72816]={Health=true},[72824]={Health=true},[72957]={Health=true},[72960]={Health=true},[72962]={Health=true},[72819]={Health=true},[89971]={Health=true},
@@ -1026,7 +1027,7 @@ local function BuffsPlayer()		--PlayerBuffs
 				if widgetId then
 					local data=BUI.Vars["BUI_Widget_"..string.gsub(widgetId," ","_")] or {}
 					if stackCount==0 and BUI.Widgets[widgetId] then
-						stackCount=BUI.Widgets[widgetId].Count
+						stackCount=BUI.Widgets[widgetId].Count or 0
 					end
 					BUI.Widgets[widgetId]={
 						id		=abilityId,
@@ -1089,8 +1090,8 @@ local function BuffsPlayer()		--PlayerBuffs
 		end
 		if BUI.NeedToEat then
 			CALLBACK_MANAGER:FireCallbacks("BUI_Food",false)
+			BUI.NeedToEat=false
 		end
-		BUI.NeedToEat=false
 	elseif not BUI.NeedToEat then
 		BUI.NeedToEat=true
 		CALLBACK_MANAGER:FireCallbacks("BUI_Food",true)
@@ -1268,11 +1269,11 @@ end
 
 function BUI.Buffs.ShowTooltip(control)
 	local data=control.passives and BUI.PassiveBuffs[control.index] or (control.custom and BUI.CustomBuffs[control.index] or (control.widget and BUI.Widgets[control.index] or BUI.PlayerBuffs[control.index]))
-	if not data then return end
+	if not data or data.Blank then return end
 	if data.Target then for name in pairs(data) do if name~="Target" then data=data[name] break end end end
 	InitializeTooltip(InformationTooltip, control, BOTTOM, 0, -16)
 	InformationTooltip:AddLine(zo_strformat("<<C:1>>",data.Name),'$(BOLD_FONT)'..'|22',1,1,1)
-	local desc=type(data.id)=="numer" and GetAbilityDescription(data.id) or ""
+	local desc=type(data.id)=="number" and GetAbilityDescription(data.id) or ""
 	local text=	'|t300:8:/EsoUI/Art/Miscellaneous/horizontalDivider.dds|t\n'
 		..	'ID: |cFFFFFF'..data.id..'|r\n'
 		..	'Duration: |cFFFFFF'..(data.Duration and math.floor(data.Duration) or GetAbilityDuration(data.id)/1000)..' seconds|r\n'

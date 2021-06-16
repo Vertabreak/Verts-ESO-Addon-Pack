@@ -102,7 +102,7 @@ end
 
 -- Return commafied integer number "123,456", or "?" if nil.
 function Util.ToMoney(x)
-    if not x then return "?" end
+    if (not x) or x == -1 then return "?" end
     return ZO_CurrencyControl_FormatCurrency(Util.round(x), false)
 end
 
@@ -150,7 +150,185 @@ function WritWorthy.LibSets()
     return WritWorthy.lib_sets
 end
 
+-- Window position -----------------------------------------------------------
+
+function WritWorthy.Util.RestorePos(top_level_control, saved_var_key_name)
+    local pos = WritWorthy.default[saved_var_key_name]
+    if      WritWorthy
+        and WritWorthy.savedVariables
+        and WritWorthy.savedVariables[saved_var_key_name] then
+        pos = WritWorthy.savedVariables[saved_var_key_name]
+    end
+    if not pos then
+        WritWorthy.Log.Debug( "RestorePos: no saved pos for key:'%s'"
+                 , saved_var_key_name )
+        return
+    end
+
+    if not top_level_control then
+                        -- Common crash that occurs when I've messed up
+                        -- the XML somehow. Force it to crash here in this
+                        -- if block rather than mysteriously on the
+                        -- proper SetAnchor() line later.
+        d("Your XML probably did not load. Fix it.")
+        local _ = top_level_control.SetAnchor
+    end
+    top_level_control:ClearAnchors()
+    top_level_control:SetAnchor(
+              TOPLEFT
+            , GuiRoot
+            , TOPLEFT
+            , pos[1]
+            , pos[2]
+            )
+
+    if pos[3] and pos[4] then
+        top_level_control:SetWidth( pos[3] - pos[1])
+        top_level_control:SetHeight(pos[4] - pos[2])
+    end
+end
+
+
+function WritWorthy.Util.SavePos(top_level_control, saved_var_key_name)
+    local l = top_level_control:GetLeft()
+    local t = top_level_control:GetTop()
+    local r = top_level_control:GetRight()
+    local b = top_level_control:GetBottom()
+    -- d("SavePos ltrb=".. l .. " " .. t .. " " .. r .. " " .. b)
+    local pos = { l, t, r, b }
+    WritWorthy.savedVariables[saved_var_key_name] = pos
+end
+
+function WritWorthy.Util.OnMoveStop(top_level_control, saved_var_key_name)
+    WritWorthy.Util.SavePos(top_level_control, saved_var_key_name)
+end
+
+function WritWorthy.Util.OnResizeStop( top_level_control
+                                     , list
+                                     , singleton
+                                     , saved_var_key_name )
+    list:UpdateAllCellWidths()
+    WritWorthy.Util.SavePos(top_level_control, saved_var_key_name)
+
+                        -- Update vertical scrollbar and extents to
+                        -- match new scrollpane height.
+    if      singleton
+        and singleton.list then
+        local scroll_list = singleton.list
+        ZO_ScrollList_Commit(scroll_list)
+    end
+end
+
+-- Delayed refresh -----------------------------------------------------------
+--
+-- Don't hammer the CPU refreshing UI over and over while the user types
+-- into a filter field. Delays call to refres (or `func` here) until after
+-- 400ms or so have passed between keystrokes (or calls to `CallSoon()` here).
+function WritWorthy.Util.CallSoon(key, func)
+    WritWorthy.Log.Debug("CallSoon     k:%s %d", key, WritWorthy[key] or -1)
+    if not WritWorthy[key] then
+        zo_callLater( function()
+                        WritWorthy.Util.CallSoonPoll(key, func)
+                      end
+                    , 250 )
+    end
+    WritWorthy[key] = GetFrameTimeMilliseconds() + 400
+end
+
+function WritWorthy.Util.CallSoonPoll(key, func)
+    WritWorthy.Log.Debug("CallSoonPoll k:%s %d", key, WritWorthy[key] or -1)
+    if not WritWorthy[key] then return end
+    local now = GetFrameTimeMilliseconds() or 0
+    if now <= WritWorthy[key] then
+        WritWorthy.Log.Debug("CallSoonPoll k:%s fire", key)
+        WritWorthy[key] = nil
+        func()
+    else
+        zo_callLater( function()
+                        WritWorthy.Util.CallSoonPoll(key, func)
+                      end
+                    , 250 )
+    end
+end
+
 function Util.MatHaveCt(item_link)
     local bag_ct, bank_ct, craft_bag_ct = GetItemLinkStacks(item_link)
     return bag_ct + bank_ct + craft_bag_ct
 end
+
+-- ZO_ScrollList -------------------------------------------------------------
+
+function Util.SetCellToHeaderAlign(
+          cell_control
+        , header_control
+        , fallback_header_control )
+    local header_name_control = header_control:GetNamedChild("Name")
+
+                        -- Surprise! Headers:GetNamedChild() returns a control
+                        -- instance that lacks a "Name" sub-control, or whose
+                        -- "Name" subcontrol is not a label with
+                        -- GetHorizontalAlignment(). We need that horizontal
+                        -- alignment. Fall back to the control we passed to
+                        -- ZO_SortHeader_Initialize().
+    if not ( header_name_control
+             and header_name_control.GetHorizontalAlignment ) then
+        -- WritWorthy.Log.Debug("no horiz %d %-20s falling back", i, cell_name)
+        header_name_control = nil
+    end
+    if (not header_name_control) and fallback_header_control then
+        -- WritWorthy.Log.Debug("no hnc, fallback to list_header_controls['%s']", cell_name)
+        header_name_control = fallback_header_control:GetNamedChild("Name")
+    end
+
+    local horiz_align = TEXT_ALIGN_LEFT
+    if header_name_control then
+        horiz_align = header_name_control:GetHorizontalAlignment()
+    end
+    cell_control:SetHorizontalAlignment(horiz_align)
+
+                    -- Align all cells to top so that long/multiline
+                    -- text still look acceptable. But hopefully we'll
+                    -- never need this because TEXT_WRAP_MODE_ELLIPSIS
+                    -- above should prevent multiline text.
+    cell_control:SetVerticalAlignment(TEXT_ALIGN_TOP)
+end
+
+function Util.StretchBGWidth(row_control)
+                        -- I don't always have a background, but when I do,
+                        -- I want it to stretch all the way across this row.
+    local background_control = GetControl(row_control, "BG")
+    if background_control then
+        background_control:SetWidth(row_control:GetWidth())
+    end
+end
+
+function Util.SetAnchorCellLeft(
+          row_control
+        , cell_control
+        , header_cell_control
+        , is_leftmost_cell
+        , y_offset
+        , rel_to_left )
+    if not y_offset then
+        y_offset = 0
+    end
+
+    if is_leftmost_cell then
+                    -- Leftmost column is flush up against
+                    -- the left of the container
+        cell_control:SetAnchor( LEFT                -- point
+                              , row_control         -- relativeTo
+                              , LEFT                -- relativePoint
+                              , 0                   -- offsetX
+                              , y_offset )          -- offsetY
+    else
+        local offsetX = header_cell_control:GetLeft()
+                      - rel_to_left
+        cell_control:SetAnchor( LEFT                -- point
+                              , row_control         -- relativeTo
+                              , LEFT                -- relativePoint
+                              , offsetX             -- offsetX
+                              , y_offset )          -- offsetY
+    end
+end
+

@@ -121,15 +121,13 @@ function TradingHouseWrapper:Initialize(saveData)
         -- TODO: remove once we have our own history feature
         originalUpdateFragments(tradingHouse)
         SCENE_MANAGER:RemoveFragment(TRADING_HOUSE_SEARCH_HISTORY_KEYBOARD_FRAGMENT)
-    end)
 
-    ZO_PreHook(ITEM_PREVIEW_KEYBOARD, "PreviewTradingHouseSearchResultAsFurniture", function(self, tradingHouseIndex)
-        local item = itemDatabase:TryGetItemDataInCurrentGuildByUniqueId(tradingHouseIndex)
-        if(item) then
-            ITEM_PREVIEW_KEYBOARD:PreviewTradingHouseSearchResultItemLinkAsFurniture(item.itemLink)
-            return true
+        if TRADING_HOUSE_SCENE:IsShowing() and tradingHouse:IsInSellMode() then
+            sellTab:UpdateFragments()
         end
     end)
+
+    self.previewHelper = AGS.class.ItemPreviewHelper:New(itemDatabase)
 
     RegisterForEvent(EVENT_CLOSE_TRADING_HOUSE, function()
         self:HideLoadingIndicator()
@@ -137,7 +135,9 @@ function TradingHouseWrapper:Initialize(saveData)
         if currentTab then
             currentTab:OnClose(self)
         end
-        tradingHouse:ClearPendingPost()
+        if GetNumGuilds() > 0 then
+            tradingHouse:ClearPendingPost()
+        end
     end)
 
     local INTERACT_WINDOW_SHOWN = "Shown"

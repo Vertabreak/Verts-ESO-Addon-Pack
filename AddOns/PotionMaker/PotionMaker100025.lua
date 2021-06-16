@@ -41,7 +41,7 @@ end
 local GetJournalQuestInfo, GetJournalQuestNumSteps, GetJournalQuestConditionInfo = GetJournalQuestInfo, GetJournalQuestNumSteps, GetJournalQuestConditionInfo
 local function ParseSteps(quests, questIndex, numSteps)
 	for stepIndex = 1, numSteps do
-		numConditions = GetJournalQuestNumConditions(questIndex, stepIndex)
+		local numConditions = GetJournalQuestNumConditions(questIndex, stepIndex)
 		if numConditions > 0 then
 			for conditionIndex = 1, numConditions do
 				quests[#quests + 1] = { questIndex, stepIndex, conditionIndex, true }

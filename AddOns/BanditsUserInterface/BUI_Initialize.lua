@@ -81,6 +81,11 @@ end
 
 local function VersionCheck()
 	local changed=false
+	if BUI.API>100033 then
+		BUI.Vars.ReticleResist=3
+		BUI.Vars.ChampionHelper=nil
+		BUI.Vars.PlayerStatSection=nil
+	end
 	if BUI.Vars.LastVersion*1000<=2177 then
 		BUI.Vars.ZoomZone			=BUI.MiniMap.Defaults.ZoomZone
 		BUI.Vars.ZoomSubZone		=BUI.MiniMap.Defaults.ZoomSubZone
@@ -162,7 +167,7 @@ local function Initialize(eventCode, addOnName)
 	--Initialize UI
 	UI_Initialize()
 	BUI.Player:Initialize()
-	BUI.Player.StatSection()
+--	BUI.Player.StatSection()
 	BUI.Reticle.Initialize()
 	BUI.Target:Initialize()
 	BUI.Damage.Initialize()
@@ -180,7 +185,7 @@ local function Initialize(eventCode, addOnName)
 	BUI.Menu.Init()
 	BUI.Menu.Initialize()
 	BUI.Automation_Init()
-	BUI.Champion_Init()
+--	BUI.Champion_Init()
 	BUI.Panel_Init()
 	BUI.CustomBar_Init()
 	--Register Event Handlers

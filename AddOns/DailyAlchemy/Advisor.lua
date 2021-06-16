@@ -375,13 +375,14 @@ function DailyAlchemy:Advice(conditionText, current, max, isMaster)
     local isPoison = self:isPoison(conditionText)
     local craftItemList
     if isPoison then
+        self:Debug("　　　　　　type=Poison")
         craftItemList = {
             {"76845", ENTRAPMENT, 20},      -- [xx.lang.csv] "242841733","0","76845","xxxxxxxx"
             {"76827", RVG_HEALTH, 2},       -- [xx.lang.csv] "242841733","0","76827","xxxxxxxx"
             {"76829", RVG_MAGICKA, 4},      -- [xx.lang.csv] "242841733","0","76829","xxxxxxxx"
             {"76831", RVG_STAMINA, 6},      -- [xx.lang.csv] "242841733","0","76831","xxxxxxxx"
             {"76849", HINDRANCE, 24},       -- [xx.lang.csv] "242841733","0","76849","xxxxxxxx"
-            {"76844", UNSTOP, 24},          -- [xx.lang.csv] "242841733","0","76844","xxxxxxxx"
+            {"76844", UNSTOP, 19},          -- [xx.lang.csv] "242841733","0","76844","xxxxxxxx"
             {"76846", DETECTION, 21},       -- [xx.lang.csv] "242841733","0","76846","xxxxxxxx"
             {"76847", INVISIBLE, 22},       -- [xx.lang.csv] "242841733","0","76847","xxxxxxxx"
             {"76837", COWARDICE, 12},       -- [xx.lang.csv] "242841733","0","76837","xxxxxxxx"
@@ -412,41 +413,42 @@ function DailyAlchemy:Advice(conditionText, current, max, isMaster)
             {"158309", TIMIDITY, 32},       -- [xx.lang.csv] "242841733","0","158309","xxxxxxxx"
         }
     else
+        self:Debug("　　　　　　type=Potion")
         craftItemList = {
-            {"54333", ENTRAPMENT},          -- [xx.lang.csv] "242841733","0","54333","xxxxxxxx"
-            {"44812", RVG_HEALTH},          -- [xx.lang.csv] "242841733","0","44812","xxxxxxxx"
-            {"44815", RVG_MAGICKA},         -- [xx.lang.csv] "242841733","0","44815","xxxxxxxx"
-            {"44809", RVG_STAMINA},         -- [xx.lang.csv] "242841733","0","44809","xxxxxxxx"
-            {"54335", HINDRANCE},           -- [xx.lang.csv] "242841733","0","54335","xxxxxxxx"
-            {"27039", UNSTOP},              -- [xx.lang.csv] "242841733","0","27039","xxxxxxxx"
-            {"30142", DETECTION},           -- [xx.lang.csv] "242841733","0","30142","xxxxxxxx"
-            {"44715", INVISIBLE},           -- [xx.lang.csv] "242841733","0","44715","xxxxxxxx"
-            {"44813", COWARDICE},           -- [xx.lang.csv] "242841733","0","44813","xxxxxxxx"
-            {"44810", MAIM},                -- [xx.lang.csv] "242841733","0","44810","xxxxxxxx"
-            {"54336", UNCERTAINTY},         -- [xx.lang.csv] "242841733","0","54336","xxxxxxxx"
-            {"27041", SPEED},               -- [xx.lang.csv] "242841733","0","27041","xxxxxxxx"
-            {"77598", VULNERABILITY},       -- [xx.lang.csv] "242841733","0","77598","xxxxxxxx"
-            {"30145", SPELL_POWER},         -- [xx.lang.csv] "242841733","0","30145","xxxxxxxx"
-            {"44714", WEAPON_POWER},        -- [xx.lang.csv] "242841733","0","44714","xxxxxxxx"
-            {"30141", SPELL_CRIT},          -- [xx.lang.csv] "242841733","0","30141","xxxxxxxx"
-            {"30146", WEAPON_CRIT},         -- [xx.lang.csv] "242841733","0","30146","xxxxxxxx"
-            {"54339", HEALTH},              -- [xx.lang.csv] "242841733","0","54339","xxxxxxxx"
-            {"54340", MAGICKA},             -- [xx.lang.csv] "242841733","0","54340","xxxxxxxx"
-            {"54341", STAMINA},             -- [xx.lang.csv] "242841733","0","54341","xxxxxxxx"
-            {"44814", SPELL_RESIST},        -- [xx.lang.csv] "242841733","0","44814","xxxxxxxx"
-            {"27042", ARMOR},               -- [xx.lang.csv] "242841733","0","27042","xxxxxxxx"
-            {"44821", BREACH},              -- [xx.lang.csv] "242841733","0","44821","xxxxxxxx"
-            {"27040", FRACTURE},            -- [xx.lang.csv] "242841733","0","27040","xxxxxxxx"
-            {"54337", ENERVATE},            -- [xx.lang.csv] "242841733","0","54337","xxxxxxxx"
-            {"77592", LGR_HEALTH},          -- [xx.lang.csv] "242841733","0","77592","xxxxxxxx"
-            {"77600", VITALITY},            -- [xx.lang.csv] "242841733","0","77600","xxxxxxxx"
-            {"77594", GR_RVG_HEALTH},       -- [xx.lang.csv] "242841733","0","77594","xxxxxxxx"
-            {"77596", PROTECTION},          -- [xx.lang.csv] "242841733","0","77596","xxxxxxxx"
-            {"77602", DEFILE},              -- [xx.lang.csv] "242841733","0","77602","xxxxxxxx"
+            {"54333", ENTRAPMENT, 20},      -- [xx.lang.csv] "242841733","0","54333","xxxxxxxx"
+            {"44812", RVG_HEALTH, 2},       -- [xx.lang.csv] "242841733","0","44812","xxxxxxxx"
+            {"44815", RVG_MAGICKA, 4},      -- [xx.lang.csv] "242841733","0","44815","xxxxxxxx"
+            {"44809", RVG_STAMINA, 6},      -- [xx.lang.csv] "242841733","0","44809","xxxxxxxx"
+            {"54335", HINDRANCE, 24},       -- [xx.lang.csv] "242841733","0","54335","xxxxxxxx"
+            {"27039", UNSTOP, 19},          -- [xx.lang.csv] "242841733","0","27039","xxxxxxxx"
+            {"30142", DETECTION, 21},       -- [xx.lang.csv] "242841733","0","30142","xxxxxxxx"
+            {"44715", INVISIBLE, 22},       -- [xx.lang.csv] "242841733","0","44715","xxxxxxxx"
+            {"44813", COWARDICE, 12},       -- [xx.lang.csv] "242841733","0","44813","xxxxxxxx"
+            {"44810", MAIM, 14},            -- [xx.lang.csv] "242841733","0","44810","xxxxxxxx"
+            {"54336", UNCERTAINTY, 16},     -- [xx.lang.csv] "242841733","0","54336","xxxxxxxx"
+            {"27041", SPEED, 23},           -- [xx.lang.csv] "242841733","0","27041","xxxxxxxx"
+            {"77598", VULNERABILITY, 26},   -- [xx.lang.csv] "242841733","0","77598","xxxxxxxx"
+            {"30145", SPELL_POWER, 11},     -- [xx.lang.csv] "242841733","0","30145","xxxxxxxx"
+            {"44714", WEAPON_POWER, 13},    -- [xx.lang.csv] "242841733","0","44714","xxxxxxxx"
+            {"30141", SPELL_CRIT, 15},      -- [xx.lang.csv] "242841733","0","30141","xxxxxxxx"
+            {"30146", WEAPON_CRIT, 17},     -- [xx.lang.csv] "242841733","0","30146","xxxxxxxx"
+            {"54339", HEALTH, 1},           -- [xx.lang.csv] "242841733","0","54339","xxxxxxxx"
+            {"54340", MAGICKA, 3},          -- [xx.lang.csv] "242841733","0","54340","xxxxxxxx"
+            {"54341", STAMINA, 5},          -- [xx.lang.csv] "242841733","0","54341","xxxxxxxx"
+            {"44814", SPELL_RESIST, 7},     -- [xx.lang.csv] "242841733","0","44814","xxxxxxxx"
+            {"27042", ARMOR, 9},            -- [xx.lang.csv] "242841733","0","27042","xxxxxxxx"
+            {"44821", BREACH, 8},           -- [xx.lang.csv] "242841733","0","44821","xxxxxxxx"
+            {"27040", FRACTURE, 10},        -- [xx.lang.csv] "242841733","0","27040","xxxxxxxx"
+            {"54337", ENERVATE, 18},        -- [xx.lang.csv] "242841733","0","54337","xxxxxxxx"
+            {"77592", LGR_HEALTH, 27},      -- [xx.lang.csv] "242841733","0","77592","xxxxxxxx"
+            {"77600", VITALITY, 29},        -- [xx.lang.csv] "242841733","0","77600","xxxxxxxx"
+            {"77594", GR_RVG_HEALTH, 28},   -- [xx.lang.csv] "242841733","0","77594","xxxxxxxx"
+            {"77596", PROTECTION, 25},      -- [xx.lang.csv] "242841733","0","77596","xxxxxxxx"
+            {"77602", DEFILE, 30},          -- [xx.lang.csv] "242841733","0","77602","xxxxxxxx"
             -- Add:Elsweyr
-            {"151969", HEROISM},            -- [xx.lang.csv] "242841733","0","151969","xxxxxxxx"
+            {"151969", HEROISM, 31},        -- [xx.lang.csv] "242841733","0","151969","xxxxxxxx"
             -- Add:Greymoor
-            {"158308", TIMIDITY},           -- [xx.lang.csv] "242841733","0","158308","xxxxxxxx"
+            {"158308", TIMIDITY, 32},       -- [xx.lang.csv] "242841733","0","158308","xxxxxxxx"
         }
     end
     local traitPiorityList = {}
@@ -460,10 +462,17 @@ function DailyAlchemy:Advice(conditionText, current, max, isMaster)
     if (not self.houseStackList) or (#self.houseStackList == 0) then
         self.houseStackList = self:GetHouseStackList()
     end
-    local itemLink, solventItemLink, includeTraits = self:GetSolventAndTraits(conditionText, craftItemList, isPoison, isMaster)
+    local itemLink, solventItemLink, includeTraits = self:GetSolvent(conditionText, craftItemList, isPoison, isMaster)
     if (not itemLink) then
         return {}
     end
+    if isMaster then
+        includeTraits = self:GetTraits(conditionText, craftItemList)
+    end
+    if (not includeTraits) or (#includeTraits == 0)then
+        return {}
+    end
+
 
     local reagentInfoList = {
         {30148,  {RVG_MAGICKA, MAGICKA},     {COWARDICE, SPELL_POWER},     {HEALTH, RVG_HEALTH},         {INVISIBLE, DETECTION}},
@@ -505,13 +514,16 @@ function DailyAlchemy:Advice(conditionText, current, max, isMaster)
         {150670, {TIMIDITY, HEROISM},        {RVG_HEALTH, HEALTH},         {MAGICKA, RVG_MAGICKA},       {PROTECTION, VULNERABILITY}},  -- Vile Coagulant
         {150672, {TIMIDITY, HEROISM},        {SPELL_CRIT, UNCERTAINTY},    {GR_RVG_HEALTH, LGR_HEALTH},  {HEALTH, RVG_HEALTH}},         -- Crimson Nirnroot
     }
-    local reagentList = self:CreatePatternReagentList(reagentInfoList, includeTraits, traitPiorityList)
+    local reagentList = self:CreateReagentList(reagentInfoList, includeTraits, traitPiorityList)
     local patternList = self:CreatePatternList(reagentList, includeTraits)
 
 
+    local icon = zo_iconFormat(GetItemLinkIcon(itemLink), 20, 20)
     local shortList = {}
     local journalQuantity = (max - current)
-    self:Debug("　　　　　　" .. tostring(itemLink) .. "(" .. journalQuantity .. ")")
+    self:Debug("　　　　　　item=<<1>><<2>>(<<3>>)", icon,
+                                                     tostring(itemLink),
+                                                     journalQuantity)
     local itemType = self:Choice(isPoison, ITEMTYPE_POISON, ITEMTYPE_POTION)
     local materialQuantity = math.ceil(journalQuantity / self:GetAmountToMake(itemType))
 
@@ -519,9 +531,11 @@ function DailyAlchemy:Advice(conditionText, current, max, isMaster)
     local solventStack = self.stackList[solventItemId] or 0
     local solventQuantity = materialQuantity - math.min(materialQuantity, solventStack)
     local solventName = GetItemLinkName(solventItemLink):gsub("(\|)[%a%s%p]*", ""):gsub("(\^)%a*", "")
-    local solventIcon = zo_iconFormat(GetItemLinkIcon(solventItemLink), 18, 18)
-    self:Debug("　　　　　　solvent=" .. tostring(solventItemLink)
-                            .. "(" .. solventStack .. "/" .. materialQuantity .. ")")
+    local solventIcon = zo_iconFormat(GetItemLinkIcon(solventItemLink), 20, 20)
+    self:Debug("　　　　　　solvent=<<1>><<2>>(<<3>>/<<4>>)", solventIcon,
+                                                              tostring(solventItemLink),
+                                                              solventStack,
+                                                              materialQuantity)
     if (solventQuantity > 0) then
         shortList[#shortList + 1] = solventIcon .. solventName .. " x" .. solventQuantity
     end
@@ -531,63 +545,99 @@ function DailyAlchemy:Advice(conditionText, current, max, isMaster)
     for i, reagent in ipairs({pattern[3], pattern[4], pattern[5]}) do
         if reagent.itemId ~= 0 then
             local reagentQuantity = materialQuantity - math.min(materialQuantity, reagent.stack)
-            self:Debug("　　　　　　reagent" .. i .. "=" .. reagent.itemName
-                                    .. "(" .. reagent.stack .. "/" .. materialQuantity .. ")")
+            self:Debug("　　　　　　reagent<<1>>=<<2>><<3>>(<<4>>/<<5>>)", i,
+                                                                           reagent.icon,
+                                                                           reagent.itemName,
+                                                                           reagent.stack,
+                                                                           materialQuantity)
             if reagentQuantity > 0 then
-                shortList[#shortList + 1] = zo_iconFormat(GetItemLinkIcon(reagent.itemLink), 18, 18)
-                                            .. reagent.itemName
-                                            .. " x" .. reagentQuantity
-                                            .. self:GetLockIcon(reagent.itemLink, true)
+                shortList[#shortList + 1] = zo_strformat("<<1>><<2>> x<<3>><<4>>", reagent.icon,
+                                                                                   reagent.itemName,
+                                                                                   reagentQuantity,
+                                                                                   self:GetLockIcon(reagent.itemLink, true))
             end
         end
     end
 
 
     if GetInteractionType() == INTERACTION_CRAFT and #shortList > 0 then
+        local isLogTmp = self.savedVariables.isLog
+        self.savedVariables.isLog = true
         local msg = itemLink .. zo_strformat(GetString(DA_SHORT_OF), table.concat(shortList, ", "))
         self:Message(msg)
-        self:Debug("　　　　　　return 0 advice")
+        self.savedVariables.isLog = isLogTmp
+        self:Debug("　　　　　　return 0 advice(ShortOf)")
         return {}
+
+    elseif GetInteractionType() == INTERACTION_CRAFT and pattern[5].itemId ~= 0 then
+        local canBe, abilityIcon, abilityName = self:CanBe3Mixed()
+        if not canBe then
+            local msg = itemLink .. zo_strformat("... <<1>> [<<2>><<3>>]", GetString(SI_ABILITYPROGRESSIONRESULT1),
+                                                                           abilityIcon,
+                                                                           abilityName)
+            self:Message(msg)
+            self:Debug("　　　　　　return 0 advice(not CanBe3Mixed)")
+            return {}
+        end
     end
 
 
     local adviceList = {}
     for _, pattern in ipairs(patternList) do
         local advice = {}
-        advice.resultLink = itemLink
-        advice.itemId     = GetItemLinkItemId(itemLink)
-        advice.itemType   = GetItemLinkItemType(itemLink)
-        advice.stack      = journalQuantity
-        advice.solvent = {}
-        advice.solvent.itemId = solventItemId
-        advice.solvent.itemLink = solventItemLink
-        advice.solvent.itemName = solventName
-        advice.solvent.stack    = solventStack
-        advice.solvent.quantity = materialQuantity
-        advice.reagent1 = pattern[3]
+        advice.resultLink        = itemLink
+        advice.icon              = icon
+        advice.itemId            = GetItemLinkItemId(itemLink)
+        advice.itemType          = GetItemLinkItemType(itemLink)
+        advice.stack             = journalQuantity
+        advice.solvent           = {}
+        advice.solvent.itemId    = solventItemId
+        advice.solvent.itemLink  = solventItemLink
+        advice.solvent.itemName  = solventName
+        advice.solvent.icon      = solventIcon
+        advice.solvent.stack     = solventStack
+        advice.solvent.quantity  = materialQuantity
+        advice.reagent1          = pattern[3]
         advice.reagent1.quantity = materialQuantity
-        advice.reagent2 = pattern[4]
+        advice.reagent2          = pattern[4]
         advice.reagent2.quantity = materialQuantity
-        advice.reagent3 = pattern[5]
+        advice.reagent3          = pattern[5]
         advice.reagent3.quantity = materialQuantity
         adviceList[#adviceList + 1] = advice
     end
-    self:Debug("　　　　　　return " .. #adviceList .. " advice")
+    self:Debug("　　　　　　return <<1>> advice", #adviceList)
     return adviceList
 end
 
 
 
 
-function DailyAlchemy:CreatePatternReagentList(reagentInfoList, includeTraits, traitPiorityList)
+function DailyAlchemy:CanBe3Mixed()
 
-    self:Debug("　　　　　[PatternReagent]")
+    self:Debug("　　　　　　[CanBe3Mixed]")
+    local skillType, skillIndex = GetCraftingSkillLineIndices(CRAFTING_TYPE_ALCHEMY)
+    local abilityIndex = 5
+    local abilityName, icon, _, _, _, purchased = GetSkillAbilityInfo(skillType, skillIndex, abilityIndex)
+    if purchased then
+        return true, nil, nil
+    end
+    return false, zo_iconFormat(icon, 18, 18), abilityName
+end
+
+
+
+
+function DailyAlchemy:CreateReagentList(reagentInfoList, includeTraits, traitPiorityList)
+
+    local toHide = self:IsDebug() and (not self.savedVariables.isDebugReagent)
+    if toHide then
+        self.savedVariables.isDebug = false
+    end
+
+    self:Debug("　　　　　　[CreateReagentList]")
     local formatText = "|H0:item:<<1>>:31:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h"
     local reagentList = {}
     for _, reagentInfo in ipairs(reagentInfoList) do
-        local itemId = tonumber(reagentInfo[1])
-        local itemLink = zo_strformat(formatText, itemId)
-        local itemName = GetItemLinkName(itemLink):gsub("(\|).*", ""):gsub("(\^)%a*", "")
 
         -- [PositiveCheck]
         local traits = {reagentInfo[2][1], reagentInfo[3][1], reagentInfo[4][1], reagentInfo[5][1]}
@@ -598,9 +648,10 @@ function DailyAlchemy:CreatePatternReagentList(reagentInfoList, includeTraits, t
         for _, traitName in ipairs(traits) do
             if self:Equal(traitName, includeTraits) then
                 isTarget = true
-                debugLine[#debugLine + 1] = "　　　　　　　(O)" .. tostring(traitName)
-            --else
-            --    debugLine[#debugLine + 1] = "　　　　　　　( )" .. tostring(traitName)
+                debugLine[#debugLine + 1] = "　　　　　　　　　　(O)" .. tostring(traitName)
+            else
+                debugLine[#debugLine + 1] = zo_strformat("　　　　　　　　　　|c<<1>>(X)<<2>>|r", self.disabledColor,
+                                                                                                  tostring(traitName))
             end
             traitPrioritys[#traitPrioritys + 1] = traitPiorityList[traitName]
         end
@@ -612,32 +663,38 @@ function DailyAlchemy:CreatePatternReagentList(reagentInfoList, includeTraits, t
             for _, cancelTraitName in ipairs(cancelTraits) do
                 if self:Equal(cancelTraitName, includeTraits) then
                     isTarget = false
-                    debugLine[#debugLine + 1] = "　　　　　　　|cffb6c1(X)" .. tostring(cancelTraitName) .. "|r"
+                    debugLine[#debugLine + 1] = zo_strformat("　　　　　　　　　　|c<<1>>(X)<<2>>|r", self.disabledColor,
+                                                                                                      tostring(cancelTraitName))
                 end
             end
         end
 
         if isTarget then
-            --if self:IsDebug() then
-            --    self:Debug("　　　　　　" .. itemId .. ":" .. itemLink
-            --                              .. ":" .. GetItemLinkName(itemLink))
-            --    for _, debugLine in ipairs(debugLine) do
-            --        self:Debug(tostring(debugLine))
-            --    end
-            --end
-
             local reagent = {}
-            reagent.itemId         = itemId
-            reagent.itemName       = itemName
-            reagent.itemLink       = itemLink
+            reagent.itemId         = tonumber(reagentInfo[1])
+            reagent.itemLink       = zo_strformat(formatText, reagent.itemId)
+            reagent.itemName       = GetItemLinkName(reagent.itemLink):gsub("(\|).*", ""):gsub("(\^)%a*", "")
+            reagent.icon           = zo_iconFormat(GetItemLinkIcon(reagent.itemLink), 20, 20)
             reagent.traits         = traits
             reagent.traitPrioritys = traitPrioritys
-            reagent.totalStack     = (self.stackList[itemId] or 0) + (self.houseStackList[itemId] or 0)
-            reagent.stack          = self.stackList[itemId] or 0
-            reagent.price          = self:GetAvgPrice(itemLink)
-            reagent.priority       = self:GetPriority(itemId)
+            reagent.totalStack     = (self.stackList[reagent.itemId] or 0) + (self.houseStackList[reagent.itemId] or 0)
+            reagent.stack          = self.stackList[reagent.itemId] or 0
+            reagent.price          = self:GetAvgPrice(reagent.itemLink)
+            reagent.priority       = self:GetPriority(reagent.itemId)
             reagentList[#reagentList + 1] = reagent
+
+            self:Debug("　　　　　　　　<<1>>:<<2>>:<<3>>", reagent.itemId,
+                                                            reagent.itemLink,
+                                                            reagent.itemName)
+            for _, debugLine in ipairs(debugLine) do
+                self:Debug(tostring(debugLine))
+            end
+
         end
+    end
+
+    if toHide then
+        self.savedVariables.isDebug = true
     end
     return reagentList
 end
@@ -705,7 +762,12 @@ end
 
 function DailyAlchemy:CreatePatternList(reagentList, includeTraits)
 
-    self:Debug("　　　　　[Pattern]" .. table.concat(includeTraits, ", "))
+    local toHide = self:IsDebug() and (not self.savedVariables.isDebugPriority)
+    if toHide then
+        self.savedVariables.isDebug = false
+    end
+
+    self:Debug("　　　　　　[CreatePatternList]" .. table.concat(includeTraits, ", "))
     local pattern
     local patternList = {}
     --local patternNgList = {}
@@ -735,6 +797,7 @@ function DailyAlchemy:CreatePatternList(reagentList, includeTraits)
                     local reagent3 = {}
                     reagent3.itemId     = 0
                     reagent3.itemLink   = nil
+                    reagent3.icon       = nil
                     reagent3.stack      = 0
                     reagent3.totalStack = 0
                     reagent3.price      = 0
@@ -754,17 +817,20 @@ function DailyAlchemy:CreatePatternList(reagentList, includeTraits)
             end
         end
     end
-    self:SortPattern(patternList)
-    --self:SortPattern(patternNgList)
+    self:SortPriority(patternList)
+    --self:SortPriority(patternNgList)
 
 
     if self:IsDebug() then
-        local icon = zo_iconFormat("EsoUI/Art/currency/currency_gold.dds", 16, 16)
         local isChecked = false
+        local mark
+        local color
         for i, pattern in ipairs(patternList) do
-            local mark = "|c5c5c5c(X)"
+            mark = "(X)"
+            color = self.disabledColor
             if (not isChecked) and (pattern[1] == includeTraits[1]) then
-                mark = "|cffff66(O)"
+                mark = "(O)"
+                color = nil
                 isChecked = true
             end
 
@@ -805,19 +871,15 @@ function DailyAlchemy:CreatePatternList(reagentList, includeTraits)
 
             local itemInfo = {}
             if reagent1.itemId ~= 0 and reagent1.itemLink then
-                table.insert(itemInfo, zo_iconFormat(GetItemLinkIcon(reagent1.itemLink), 20, 20) .. reagent1.itemLink .. tostring(addInfo1))
+                table.insert(itemInfo, reagent1.icon .. reagent1.itemLink .. tostring(addInfo1))
             end
             if reagent2.itemId ~= 0 and reagent2.itemLink then
-                table.insert(itemInfo, zo_iconFormat(GetItemLinkIcon(reagent2.itemLink), 20, 20) .. reagent2.itemLink .. tostring(addInfo2))
+                table.insert(itemInfo, reagent2.icon .. reagent2.itemLink .. tostring(addInfo2))
             end
             if reagent3.itemId ~= 0 and reagent3.itemLink then
-                table.insert(itemInfo, zo_iconFormat(GetItemLinkIcon(reagent3.itemLink), 20, 20) .. reagent3.itemLink .. tostring(addInfo3))
+                table.insert(itemInfo, reagent3.icon .. reagent3.itemLink .. tostring(addInfo3))
             end
-            self:Debug("　　　　　　"
-                       .. tostring(mark)
-                       .. tostring(i) .. ":"
-                       .. tostring(pattern[1])
-                       .. " [" .. table.concat(itemInfo, ",") .. "]|r")
+            self:Debug("　　　　　　　　<<1>><<2>>:<<3>> [<<4>>]", mark, i, tostring(pattern[1]), table.concat(itemInfo, ","), color)
         end
         --self:Debug("　　　　　　|c5c5c5c------------------------|r")
         --for i, pattern in ipairs(patternNgList) do
@@ -851,7 +913,7 @@ function DailyAlchemy:CreatePatternList(reagentList, includeTraits)
         --        minStack = math.min(reagent1.stack, reagent2.stack, reagent3.stack)
         --        item3Info = ", " .. reagent3.itemLink .. addInfo3
         --    end
-        --    self:Debug("　　　　　　" .. mark .. (i + #patternList) .. ":"
+        --    self:Debug("　　　　　　　　" .. mark .. (i + #patternList) .. ":"
         --                              .. pattern[1] .. "x" .. minStack
         --                              .. " [" .. reagent1.itemLink .. addInfo1
         --                              .. ", " .. reagent2.itemLink .. addInfo2
@@ -859,15 +921,39 @@ function DailyAlchemy:CreatePatternList(reagentList, includeTraits)
         --end
     end
 
+    if toHide then
+        self.savedVariables.isDebug = true
+    end
     return patternList
 end
 
 
 
 
-function DailyAlchemy:GetSolventAndTraits(conditionText, craftItemList, isPoison, isMaster)
+function DailyAlchemy:GetSkillRank()
 
-    self:Debug("　　　　　[SolventAndTraits]")
+    local skillType, skillIndex = GetCraftingSkillLineIndices(CRAFTING_TYPE_ALCHEMY)
+    local abilityIndex = 1
+    local abilityName, _, _, _, _, purchased, _, rankIndex = GetSkillAbilityInfo(skillType,
+                                                                                 skillIndex,
+                                                                                 abilityIndex)
+    if (not purchased) then
+        rankIndex = 0
+    end
+    return rankIndex
+end
+
+
+
+
+function DailyAlchemy:GetSolvent(conditionText, craftItemList, isPoison, isMaster)
+
+    local toHide = self:IsDebug() and (not self.savedVariables.isDebugSolvent)
+    if toHide then
+        self.savedVariables.isDebug = false
+    end
+
+    self:Debug("　　　　　　[GetSolvent]")
     local CP150 = "308:50"
     local CP100 = "134:50"
     local CP50  = "129:50"--
@@ -878,8 +964,6 @@ function DailyAlchemy:GetSolventAndTraits(conditionText, craftItemList, isPoison
     local LV10  = "30:10"
     local LV3   = "30:3"
     local itemFormat = "|H0:item:<<1>>:<<2>>:0:0:0:0:0:0:0:0:0:0:0:0:<<3>>:0:0:0:0:0|h|h"
-
-
     local skillRank
     local rankList
     if isMaster then
@@ -888,9 +972,9 @@ function DailyAlchemy:GetSolventAndTraits(conditionText, craftItemList, isPoison
     else
         skillRank = self.savedCharVariables.rankWhenReceived or self:GetSkillRank()
         rankList = {select(9 - skillRank, CP150, CP100, CP50, CP10, LV40, LV30, LV20, LV10, LV3)}
-        self:Debug("　　　　　　rankWhenReceived=" .. tostring(self.savedCharVariables.rankWhenReceived))
-        self:Debug("　　　　　　GetSkillRank=" .. tostring(self:GetSkillRank()))
-        self:Debug("　　　　　　rankList=" .. table.concat(rankList, ", "))
+        self:Debug("　　　　　　　　rankWhenReceived=" .. tostring(self.savedCharVariables.rankWhenReceived))
+        self:Debug("　　　　　　　　skillRank=" .. tostring(self:GetSkillRank()))
+        self:Debug("　　　　　　　　rankList=" .. table.concat(rankList, ", "))
     end
 
     local solventList
@@ -902,59 +986,108 @@ function DailyAlchemy:GetSolventAndTraits(conditionText, craftItemList, isPoison
 
 
     local itemLink
+    local itemId
     local convertedItemNames
     local solventItemLink
     local includeTraits
     for i, rank in ipairs(rankList) do
-        self:Debug("　　　　　　rank=" .. tostring(rank))
+        self:Debug("　　　　　　　　rank=" .. tostring(rank))
         for _, craftItem in ipairs(craftItemList) do
 
             itemLink = zo_strformat(itemFormat, craftItem[1], rank, "36")
+            itemId = GetItemLinkItemId(itemLink)
             convertedItemNames = self:ConvertedItemNames(GetItemLinkName(itemLink))
             if self:Contains(conditionText, convertedItemNames) then
                 solventItemLink = zo_strformat(itemFormat, solventList[i], rank, "0")
                 includeTraits = {craftItem[2]}
-                self:Debug("　　　　　　|cffff66(O)" .. table.concat(convertedItemNames, ",") .. "|r")
+                self:Debug("　　　　　　　　(O)<<1>>:<<2>>", itemId, table.concat(convertedItemNames, ","))
                 break
             else
-                self:Debug("　　　　　　|c5c5c5c(X)" .. table.concat(convertedItemNames, ",") .. "|r")
+                self:Debug("　　　　　　　　(X)<<1>>:<<2>>", itemId, table.concat(convertedItemNames, ","), self.disabledColor)
             end
         end
-        if includeTraits then
+        if solventItemLink then
             break
         end
     end
-    if (not solventItemLink) then
+
+    if solventItemLink then
+        self:Debug("　　　　　　　　> <<1>> [<<2>>]", itemLink, solventItemLink)
+    else
+        local isLogTmp = self.savedVariables.isLog
+        self.savedVariables.isLog = true
         local msg = zo_strformat(GetString(DA_MISMATCH_ITEM), conditionText)
-        self:Message(msg, "ff0000")
-        return nil, nil, nil
-    end
-    if (not isMaster) then
-        self:Debug("　　　　　　target=" .. itemLink
-                   .. " [" .. solventItemLink .. ", " .. table.concat(includeTraits, ", ") .. "]")
-        return itemLink, solventItemLink, includeTraits
+        self:Message(msg, self.failedColor)
+        self.savedVariables.isLog = isLogTmp
+        itemLink = nil
     end
 
 
-    --self:Debug("　　　　　　[Traits]")
+    if toHide then
+        self.savedVariables.isDebug = true
+    end
+    return itemLink, solventItemLink, includeTraits
+end
+
+
+
+
+function DailyAlchemy:GetTraits(conditionText, craftItemList)
+
+    local toHide = self:IsDebug() and (not self.savedVariables.isDebugTrait)
+    if toHide then
+        self.savedVariables.isDebug = false
+    end
+
+    self:Debug("　　　　　　[GetTraits]")
+
+
     local convertedTraitNames
     includeTraits = {}
     for i, craftItem in ipairs(craftItemList) do
         convertedTraitNames = self:ConvertedItemNames(craftItem[2])
         if self:Contains(conditionText, convertedTraitNames) then
             includeTraits[#includeTraits + 1] = craftItem[2]
-            --self:Debug("　　　　　　　|cffff66(O)" .. table.concat(convertedTraitNames, ",") .. "|r")
+            self:Debug("　　　　　　　　(O)<<1>>:<<2>>", craftItem[3], table.concat(convertedTraitNames, ","))
         else
-            --self:Debug("　　　　　　　|c5c5c5c(X)" .. table.concat(convertedTraitNames, ",") .. "|r")
+            self:Debug("　　　　　　　　(X)<<1>>:<<2>>", craftItem[3], table.concat(convertedTraitNames, ","), self.disabledColor)
         end
     end
-    if #includeTraits < 3 then
-        self:Debug("　　　　　　|cFF0000 #includeTraits < 3 !!! |r")
-        return nil, nil, nil
+
+
+    local needCount = 3
+    if #includeTraits < needCount then
+        self:Debug("　　　　　　　　Short of Traits !!! (<<1>>/<<2>>)", tostring(#includeTraits),
+                                                                        needCount,
+                                                                        self.failedColor)
+        includeTraits = nil
+
+    elseif #includeTraits > needCount then
+        self:Debug("　　　　　　　　Too much Traits !!! (<<1>>/<<2>>)", tostring(#includeTraits),
+                                                                        needCount,
+                                                                        self.failedColor)
+        includeTraits = nil
+
+    else
+        self:Debug("　　　　　　　　> [<<1>>]", table.concat(includeTraits, ", "))
     end
-    self:Debug("　　　　　　target=" .. itemLink
-               .. " [" .. solventItemLink .. ", " .. table.concat(includeTraits, ", ") .. "]")
-    return itemLink, solventItemLink, includeTraits
+
+    if toHide then
+        self.savedVariables.isDebug = true
+    end
+    return includeTraits
+end
+
+
+
+
+function DailyAlchemy:IsLocked(itemLink)
+
+    if self.savedVariables.useItemLock and FCOIS then
+        return self.lockedList[itemLink]
+    end
+
+    return false
 end
 
 
@@ -981,7 +1114,7 @@ end
 
 
 
-function DailyAlchemy:SortPattern(list)
+function DailyAlchemy:SortPriority(list)
 
     local sortFunctions = {
         [self.DA_PRIORITY_BY_STOCK] = PatternSortByStock,

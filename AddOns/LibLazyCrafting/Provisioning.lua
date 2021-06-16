@@ -90,7 +90,7 @@ local function LLC_CraftProvisioningItemByRecipeId(self, recipeId, timesToMake, 
         ["timesToMake"] = timesToMake or 1
     }
     )
-
+    LibLazyCrafting.AddHomeMarker(nil, CRAFTING_TYPE_PROVISIONING)
     --sortCraftQueue()
     if GetCraftingInteractionType()==CRAFTING_TYPE_PROVISIONING then
         LibLazyCrafting.craftInteract(event, CRAFTING_TYPE_PROVISIONING)
@@ -117,8 +117,8 @@ local function LLC_ProvisioningCraftInteraction(station, earliest, addon , posit
     currentCraftAttempt.prevSlots = LibLazyCrafting.backpackInventory()
 end
 
-local function LLC_ProvisioningCraftingComplete(event, station, lastCheck)
-    LibLazyCrafting.stackableCraftingComplete(event, station, lastCheck, CRAFTING_TYPE_PROVISIONING, currentCraftAttempt)
+local function LLC_ProvisioningCraftingComplete(station, lastCheck)
+    LibLazyCrafting.stackableCraftingComplete(station, lastCheck, CRAFTING_TYPE_PROVISIONING, currentCraftAttempt)
 end
 
 local function LLC_ProvisioningIsItemCraftable(self, station, request)

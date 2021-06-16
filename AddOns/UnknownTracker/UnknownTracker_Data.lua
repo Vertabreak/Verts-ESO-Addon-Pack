@@ -64,7 +64,9 @@ local function FindStylepageOrRunebox(itemLink, itemType, linkName)
   -- [Style Page: Prophet's Hood]         147301 normal drops
   -- [Bound Style Page: Prophet's Hood]   147333 from the impressario event merchant
   -- [Event Style Page: Prophet's Hood]   147435
-  if itemType == ITEMTYPE_CONTAINER then
+  
+  -- Update 7.0 Blackwood: Collectible = stylepage, Container = runebox
+  if itemType == ITEMTYPE_CONTAINER or itemType == ITEMTYPE_COLLECTIBLE then
     local linkIcon = GetItemLinkIcon(itemLink)
 
     if linkIcon == UT.STYLEPAGE_ICON_PATH1 or linkIcon == UT.STYLEPAGE_ICON_PATH2 then
@@ -165,7 +167,7 @@ function UT:BuildDataDump()
   elseif UTOpts.AddOnVersion ~= self.version then
     d("UnknownTracker: v0." .. tostring(self.version) .. "... Updating")
   else
-    d("UnknownTracker: Force Rescan...")
+    d("Unknown Tracker v0." .. tostring(self.version) .. " [API " .. tostring(GetAPIVersion()) .. "]: Force Rescan...")
   end
 
   currentItemId = ITEMID_START

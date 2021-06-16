@@ -3,8 +3,9 @@ LibMarify = {
     displayName = "|c3CB371" .. "Lib Marify" .. "|r",
     shortName = "LM",
     name = "LibMarify",
-    version = "1.2.6",
+    version = "1.2.11",
 
+    indent         = 0, 
     hookColor      = "FFAC00",
     checkColor     = "55FF00",
     overwriteColor = "4682b4",
@@ -98,18 +99,45 @@ end
 
 
 
-function LibMarify:Debug(text, color)
+function LibMarify:Debug(text, ...)
     if self.isSilent then
         return
     end
     if self.savedVariables and self.savedVariables.isDebug then
-        if color then
-            d("|c" .. color .. (self.shortName or self.name) .. ":" .. text .. "|r")
+
+        local color
+        if string.match(text, "<<1>>") then
+            if ... ~= nil then
+                local options = {...}
+                color = options[#options]
+                if (type(color) == "string")
+                    and (string.len(color) == 6)
+                    and (string.match(color, "^[0-9a-fA-F]*$")) then
+
+                    table.remove(options, #options)
+                else
+                    color = nil
+                end
+                text = zo_strformat(text, unpack(options))
+            end
         else
-            d((self.shortName or self.name) .. ":" .. text)
+            color = ...
         end
 
-        local log = tostring(text):gsub("　", "  "):gsub("|c5c5c5c", ""):gsub("|cffff66", ""):gsub("|r", "")
+
+        local indentTxt = ""
+        if self.indent > 0 then
+            indentTxt = string.rep("　", self.indent * 2)
+        end
+
+
+        if color then
+            d("|c" .. color .. (self.shortName or self.name) .. ":" .. indentTxt .. text .. "|r")
+        else
+            d((self.shortName or self.name) .. ":" .. indentTxt .. text)
+        end
+
+        local log = tostring(indentTxt .. text):gsub("　", "  "):gsub("|c5c5c5c", ""):gsub("|cffff66", ""):gsub("|r", "")
         if self.savedVariables.debugLog == nil then
             self.savedVariables.debugLog = {}
         end
@@ -139,18 +167,46 @@ end
 
 
 
-function LibMarify:DebugIfMarify(text, color)
+function LibMarify:DebugIfMarify(text, ...)
 
-    if GetDisplayName() == "@Marify" then
-        if self.isSilent then
-            return
-        end
-        if color then
-            d("|c" .. color .. (self.shortName or self.name) .. ":" .. text .. "|r")
-        else
-            d((self.shortName or self.name) .. ":" .. text)
-        end
+    if self.isSilent then
+        return
+    end
+    if GetDisplayName() ~= "@Marify" then
+        return
+    end
 
+
+    local color
+    if string.match(text, "<<1>>") then
+        if ... ~= nil then
+            local options = {...}
+            color = options[#options]
+            if (type(color) == "string")
+                and (string.len(color) == 6)
+                and (string.match(color, "^[0-9a-fA-F]*$")) then
+
+                table.remove(options, #options)
+            else
+                color = nil
+            end
+            text = zo_strformat(text, unpack(options))
+        end
+    else
+        color = ...
+    end
+
+
+    local indentTxt = ""
+    if self.indent > 0 then
+        indentTxt = string.rep("　", self.indent * 2)
+    end
+
+
+    if color then
+        d("|c" .. color .. (self.shortName or self.name) .. ":" .. indentTxt  .. text .. "|r")
+    else
+        d((self.shortName or self.name) .. ":" .. indentTxt  .. text)
     end
 end
 
@@ -189,6 +245,16 @@ function LibMarify:Equal(text, ...)
         end
     end
     return nil
+end
+
+
+
+
+function LibMarify:GetBankIdList(isAll)
+
+    local list = self:GetHouseBankIdList(isAll)
+    table.insert(list, 1, BAG_BANK)
+    return list
 end
 
 
@@ -304,25 +370,42 @@ end
 
 
 
-function LibMarify:GetHouseBankIdList()
+function LibMarify:GetHouseBankIdList(isAll)
 
-    local houseBankBagId = GetBankingBag()
-    if GetInteractionType() == INTERACTION_BANK
+    if (not isAll)
         and IsOwnerOfCurrentHouse()
-        and IsHouseBankBag(houseBankBagId) then
-        return {houseBankBagId}
+        and GetInteractionType() == INTERACTION_BANK then
 
-    elseif IsOwnerOfCurrentHouse() then
-        return {BAG_HOUSE_BANK_ONE,
-                BAG_HOUSE_BANK_TWO,
-                BAG_HOUSE_BANK_THREE,
-                BAG_HOUSE_BANK_FOUR,
-                BAG_HOUSE_BANK_FIVE,
-                BAG_HOUSE_BANK_SIX,
-                BAG_HOUSE_BANK_SEVEN,
-                BAG_HOUSE_BANK_EIGHT,
-                BAG_HOUSE_BANK_NINE,
-                BAG_HOUSE_BANK_TEN}
+        local bagId = GetBankingBag()
+        if IsHouseBankBag(bagId) then
+            return {bagId}
+        else
+            return {}
+        end
+
+    elseif isAll or IsOwnerOfCurrentHouse() then
+        local bagIdList = {
+            BAG_HOUSE_BANK_ONE,
+            BAG_HOUSE_BANK_TWO,
+            BAG_HOUSE_BANK_THREE,
+            BAG_HOUSE_BANK_FOUR,
+            BAG_HOUSE_BANK_FIVE,
+            BAG_HOUSE_BANK_SIX,
+            BAG_HOUSE_BANK_SEVEN,
+            BAG_HOUSE_BANK_EIGHT,
+            BAG_HOUSE_BANK_NINE,
+            BAG_HOUSE_BANK_TEN}
+        local list = {}
+        local collectibleId
+        local unlockState
+        for _, bagId in pairs(bagIdList) do
+            collectibleId = GetCollectibleForHouseBankBag(bagId)
+            unlockState = GetCollectibleUnlockStateById(collectibleId)
+            if collectibleId ~= 0 and unlockState ~= COLLECTIBLE_UNLOCK_STATE_LOCKED then
+                list[#list + 1] = bagId
+            end
+        end
+        return list
     end
     return {}
 end
@@ -330,32 +413,34 @@ end
 
 
 
-function LibMarify:GetItemBagList()
+function LibMarify:GetItemBagList(isAll)
 
-    if IsOwnerOfCurrentHouse() and GetInteractionType() == INTERACTION_BANK then
-        local bagId = GetBankingBag()
-        if IsHouseBankBag(bagId) then
-            return {bagId, BAG_BANK, BAG_SUBSCRIBER_BANK}
-        else
-            return {BAG_BANK, BAG_SUBSCRIBER_BANK}
-        end
+    local list = self:GetHouseBankIdList(isAll)
+    if isAll then
+        table.insert(list, 1, BAG_BACKPACK)
+        table.insert(list, 1, BAG_SUBSCRIBER_BANK)
+        table.insert(list, 1, BAG_BANK)
 
-    elseif IsOwnerOfCurrentHouse() then
-        return {BAG_HOUSE_BANK_ONE,
-                BAG_HOUSE_BANK_TWO,
-                BAG_HOUSE_BANK_THREE,
-                BAG_HOUSE_BANK_FOUR,
-                BAG_HOUSE_BANK_FIVE,
-                BAG_HOUSE_BANK_SIX,
-                BAG_HOUSE_BANK_SEVEN,
-                BAG_HOUSE_BANK_EIGHT,
-                BAG_HOUSE_BANK_NINE,
-                BAG_HOUSE_BANK_TEN,
-                BAG_SUBSCRIBER_BANK}
+    elseif IsOwnerOfCurrentHouse() and GetInteractionType() == INTERACTION_BANK then
+        table.insert(list, 1, BAG_SUBSCRIBER_BANK)
+        table.insert(list, 1, BAG_BANK)
 
-    else
-        return {BAG_BANK, BAG_SUBSCRIBER_BANK}
     end
+    return list
+end
+
+
+
+
+function LibMarify:IndentClear()
+    self.indent = 0
+end
+
+
+
+
+function LibMarify:Indent()
+    self.indent = self.indent + 1
 end
 
 
@@ -426,18 +511,22 @@ function LibMarify:OnAddOnLoaded(event, addonName)
     if addonName ~= LibMarify.name then
         return
     end
-    SLASH_COMMANDS["/langtest"] = function() d("Test") end
     SLASH_COMMANDS["/langen"] = function() SetCVar("language.2", "en") end
     SLASH_COMMANDS["/langjp"] = function() SetCVar("language.2", "jp") end
     SLASH_COMMANDS["/langde"] = function() SetCVar("language.2", "de") end
     SLASH_COMMANDS["/langfr"] = function() SetCVar("language.2", "fr") end
-    if RuESO then
-        SLASH_COMMANDS["/langru"] = function() SetCVar("language.2", "ru") end
-    end
+    SLASH_COMMANDS["/langru"] = function() SetCVar("language.2", "ru") end
     if EsoPL then
         SLASH_COMMANDS["/langpl"] = function() SetCVar("language.2", "pl") end
     end
 
+end
+
+
+
+
+function LibMarify:Outdent(outdent)
+    self.indent = math.max(self.indent - (outdent or 1), 0)
 end
 
 

@@ -1,7 +1,7 @@
 ﻿LBE = {
 name = "LibBinaryEncode",
 author = "Rhyono",
-version = 30}
+version = 32}
 
 local LibBinaryEncode = LBE
 LibBinaryEncode.logger = false

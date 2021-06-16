@@ -522,6 +522,17 @@ local KioskIDNPCsTable = {
 	[97] = {
 		GetString(TTC_NPC_MORBORGOL),
 	},
+	[98] = {
+		GetString(TTC_NPC_AMIRUDDA),
+		GetString(TTC_NPC_DANDRASOMAYN),
+		GetString(TTC_NPC_LHOTAHIR),
+		GetString(TTC_NPC_PRAXEDESVESTALIS),
+		GetString(TTC_NPC_SHURUTHIKH),
+		GetString(TTC_NPC_SIHRIMAYA),
+	},
+	[99] = {
+		GetString(TTC_NPC_DIONHASSILDOR),
+	},
 }
 
 function TamrielTradeCentre:NPCNameToKioskID(npcNameString, isExact)
@@ -653,6 +664,24 @@ function TamrielTradeCentre_ItemInfo:TraitTypeToTraitID(traitType)
 		return 6
 	elseif (traitType == ITEM_TRAIT_TYPE_WEAPON_DECISIVE) then
 		return 7
+	elseif (traitType == ITEM_TRAIT_TYPE_ARMOR_AGGRESSIVE or traitType == ITEM_TRAIT_TYPE_JEWELRY_AGGRESSIVE or traitType == ITEM_TRAIT_TYPE_WEAPON_AGGRESSIVE) then
+		return 26
+	elseif (traitType == ITEM_TRAIT_TYPE_ARMOR_AUGMENTED or traitType == ITEM_TRAIT_TYPE_JEWELRY_AUGMENTED or traitType == ITEM_TRAIT_TYPE_WEAPON_AUGMENTED) then
+		return 27
+	elseif (traitType == ITEM_TRAIT_TYPE_ARMOR_BOLSTERED or traitType == ITEM_TRAIT_TYPE_JEWELRY_BOLSTERED or traitType == ITEM_TRAIT_TYPE_WEAPON_BOLSTERED) then
+		return 28
+	elseif (traitType == ITEM_TRAIT_TYPE_ARMOR_FOCUSED or traitType == ITEM_TRAIT_TYPE_JEWELRY_FOCUSED or traitType == ITEM_TRAIT_TYPE_WEAPON_FOCUSED) then
+		return 29
+	elseif (traitType == ITEM_TRAIT_TYPE_ARMOR_PROLIFIC or traitType == ITEM_TRAIT_TYPE_JEWELRY_PROLIFIC or traitType == ITEM_TRAIT_TYPE_WEAPON_PROLIFIC) then
+		return 30
+	elseif (traitType == ITEM_TRAIT_TYPE_ARMOR_QUICKENED or traitType == ITEM_TRAIT_TYPE_JEWELRY_QUICKENED or traitType == ITEM_TRAIT_TYPE_WEAPON_QUICKENED) then
+		return 31
+	elseif (traitType == ITEM_TRAIT_TYPE_ARMOR_SHATTERING or traitType == ITEM_TRAIT_TYPE_JEWELRY_SHATTERING or traitType == ITEM_TRAIT_TYPE_WEAPON_SHATTERING) then
+		return 32
+	elseif (traitType == ITEM_TRAIT_TYPE_ARMOR_SOOTHING or traitType == ITEM_TRAIT_TYPE_JEWELRY_SOOTHING or traitType == ITEM_TRAIT_TYPE_WEAPON_SOOTHING) then
+		return 33
+	elseif (traitType == ITEM_TRAIT_TYPE_ARMOR_VIGOROUS or traitType == ITEM_TRAIT_TYPE_JEWELRY_VIGOROUS or traitType == ITEM_TRAIT_TYPE_WEAPON_VIGOROUS) then
+		return 34
 	end
 
 	return nil

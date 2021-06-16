@@ -241,7 +241,7 @@ function DolgubonSetCrafter.initializeFunctions.setupUI()
 
 	--DolgubonSetCrafter.debugFunctions()
 	DolgubonSetCrafter.initializeWindowPosition()
-	DolgubonSetCrafterToggle:SetHidden(not DolgubonSetCrafter.savedvars.showToggle )
+	DolgubonSetCrafterToggle:SetHidden(not DolgubonSetCrafter:GetSettings().showToggle )
 	DolgubonSetCrafterWindowComboboxes:anchoruiElements(DolgubonSetCrafterWindowInput,1 )
 	DolgubonSetCrafter.manager:RefreshData() -- Show the scroll
 	DolgubonSetCrafter.materialManager:RefreshData()
@@ -265,6 +265,12 @@ function DolgubonSetCrafter.resetChoices()
 	end
 	DolgubonSetCrafterWindowInputInputBox:SetText("")
 	DolgubonSetCrafterWindowMultiplierInputInputBox:SetText("1")
+end
+
+function DolgubonSetCrafter.resetPatterns()
+	for i = 1, #DolgubonSetCrafter.patternButtons do
+		DolgubonSetCrafter.patternButtons[i]:toggleOff()
+	end
 end
 
 function DolgubonSetCrafter.onWindowMove(window)

@@ -838,6 +838,7 @@ lct:RT(3656526464,false,2139,{en="Dungeon Master",})lct:RT(3656526464,1322900160
 lct:RT(440683284,false,2136,{en="|c581845Shadow|r",})lct:RT(440683284,870783540,1330,{en="|cD700FFI|r |cFF00B3love|r tea",})
 lct:RT(1995776321,false,92,{en="The Flame Wizard",})lct:RT(1995776321,2166985212,92,{en="The Flame Wizard",})
 lct:RT(2674310511,false,628,{en="Mixer Streamer",})lct:RT(2674310511,3371648988,92,{en="Mixer Partner",})
+lct:RT(3137050379,false,92,{en="|cFF9FFECrybaby|r",fr="Pleurnichard",de="Heulsuse",})
 lct:RT(1325419224,731831251,92,{en="Bastion of Light",fr="Bastion de Lumière",de="Bastion des Lichts",})
 lct:RT(4126195960,false,92,{en="Arbiter of Truth",fr="Arbitre de la Vérité",de="Schiedsrichter der Wahrheit",})lct:RT(4126195960,1862223832,628,{en="Daedric Lord",})
 lct:RT(4156038031,1058936854,92,{en="Master Healer",fr="Maître Guérisseur",de="Meisterheiler",})

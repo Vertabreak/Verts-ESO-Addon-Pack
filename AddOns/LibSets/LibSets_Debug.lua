@@ -15,6 +15,20 @@ local LoadSavedVariables = lib.LoadSavedVariables
 local debugOutputStartLine = "==============================\n"
 local newSetIdsFound = {}
 
+local function MyCombineNonContiguousTables(dest, ...)
+    for sourceTableIndex = 1, select("#", ...) do
+        local sourceTable = select(sourceTableIndex, ...)
+        for key, data in pairs(sourceTable) do
+            --assert(dest[key] == nil, "Cannot combine tables that share keys")
+            if dest[key] == nil then
+                dest[key] = data
+            --else
+                --d(string.format(">Couldn't combine key \'%s\' as it it duplicate", tostring(key)))
+            end
+        end
+    end
+end
+
 local function GetAllZoneInfo()
     local lang = GetCVar("language.2")
     d(debugOutputStartLine.."[".. MAJOR .. " v" .. tostring(MINOR).."]GetAllZoneInfo, language: " ..tostring(lang))
@@ -128,44 +142,112 @@ local function GetMapNames(lang)
     local mapNames = {}
     for zoneId, zoneNameLocalized in pairs(zoneIdsLocalized) do
         local mapIndex = GetMapIndexByZoneId(zoneId)
+        local mapId = GetMapIdByIndex(mapIndex)
         --d(">zoneId: " ..tostring(zoneId) .. ", mapIndex: " ..tostring(mapIndex))
         if mapIndex ~= nil then
             local mapName = ZO_CachedStrFormat("<<C:1>>", GetMapNameByIndex(mapIndex))
             if mapName ~= nil then
-                mapNames[mapIndex] = tostring(mapIndex) .. "|" .. mapName .. "|" .. tostring(zoneId) .. "|" .. zoneNameLocalized
+                mapNames[mapIndex] = tostring(mapId) .. "|" .. tostring(mapIndex) .. "|" .. mapName .. "|" .. tostring(zoneId) .. "|" .. zoneNameLocalized
             end
         end
     end
     return mapNames
 end
 
-local function checkForNewSetIds(setIdTable, funcToCallForEachSetId)
+local function checkForNewSetIds(setIdTable, funcToCallForEachSetId, combineFromSV)
     if not setIdTable then return end
+    combineFromSV = combineFromSV or false
+    local blub = funcToCallForEachSetId ~= nil and type(funcToCallForEachSetId) == "function"
+--d(string.format(">checkForNewSetIds - funcToCallForEachSetId given: %s, combineFromSavedVariables: %s", tostring(blub), tostring(combineFromSV)))
     local runFuncForEachSetId = (funcToCallForEachSetId ~= nil and type(funcToCallForEachSetId) == "function") or false
     newSetIdsFound = {}
     local setsOfNewerAPIVersion = lib.setsOfNewerAPIVersion
-    for setId, setItemIds in pairs(setIdTable) do
+    local blacklistedSetIds = lib.blacklistedSetIds
+    local svLoadedAlready = false
+
+    --Combine the preloaded setItemIds with new ones from the SV?
+    local tableToProcess = {}
+    if combineFromSV == true then
+        --setIdTable -> lib.setDataPreloaded[LIBSETS_TABLEKEY_SETITEMIDS]
+        --SV table of all new itemIds scanned: lib.svData[LIBSETS_TABLEKEY_SETITEMIDS]
+        LoadSavedVariables()
+        svLoadedAlready = true
+        local loadedCompressedSetItemIdsFromSV = lib.svData[LIBSETS_TABLEKEY_SETITEMIDS_COMPRESSED]
+--lib._loadedCompressedSetItemIdsFromSV = loadedCompressedSetItemIdsFromSV
+        MyCombineNonContiguousTables(tableToProcess, setIdTable, loadedCompressedSetItemIdsFromSV)
+    else
+        tableToProcess = setIdTable
+    end
+--lib._tableToProcess = tableToProcess
+
+    for setId, setItemIds in pairs(tableToProcess) do
         local doAddAsNew = false
-        if setItemIds ~= nil then
-            if lib.setInfo then
-                if lib.setInfo[setId] == nil then
-                    doAddAsNew = true
-                else
-                    if setsOfNewerAPIVersion ~= nil then
-                        for _, setIdOfNewerAPIVersion in ipairs(setsOfNewerAPIVersion) do
-                            if setId == setIdOfNewerAPIVersion then
-                                doAddAsNew = true
-                                break -- exit the loop
+        if not blacklistedSetIds[setId] then
+            if setItemIds ~= nil then
+                if lib.setInfo then
+                    if lib.setInfo[setId] == nil then
+                        doAddAsNew = true
+                    else
+                        if setsOfNewerAPIVersion ~= nil then
+                            for _, setIdOfNewerAPIVersion in ipairs(setsOfNewerAPIVersion) do
+                                if setId == setIdOfNewerAPIVersion then
+                                    doAddAsNew = true
+                                    break -- exit the loop
+                                end
                             end
                         end
                     end
+                    if doAddAsNew == true then
+                        table.insert(newSetIdsFound, setId)
+                    end
                 end
-                if doAddAsNew == true then
-                    table.insert(newSetIdsFound, setId)
+                if runFuncForEachSetId == true then
+                    funcToCallForEachSetId(setId)
                 end
             end
-            if runFuncForEachSetId == true then
-                funcToCallForEachSetId(setId)
+        --else
+            --d(">Skipped blacklisted setId: " ..tostring(setId))
+        end
+    end
+
+    if combineFromSV == true then
+        if not svLoadedAlready then
+            LoadSavedVariables()
+        end
+        local worldName = GetWorldName()
+        local apiVersion = GetAPIVersion()
+        local newSetIdsFromSV = lib.svData and lib.svData[LIBSETS_TABLEKEY_NEWSETIDS]
+                                    and lib.svData[LIBSETS_TABLEKEY_NEWSETIDS][worldName] and lib.svData[LIBSETS_TABLEKEY_NEWSETIDS][worldName][apiVersion]
+        if newSetIdsFromSV ~= nil and NonContiguousCount(newSetIdsFromSV) > 0 then
+            d(string.format(">>found newSetData in the SavedVariables - WorldName: %s, APIVersion: %s", tostring(worldName), tostring(apiVersion)))
+            for idx, newSetIdToCheck in pairs(newSetIdsFromSV) do
+                if type(idx) == "number" then
+                    local addNow = true
+                    --local newSetIdToCheck
+                    --A line [idx] = newSetData looks like this: [1] = "209|Rüstung des Kodex|N/a",
+                    --local newSetIdToCheckStr = string.sub(newSetData, 1, string.find(newSetData, "|"))
+                    --if newSetIdToCheckStr ~= nil and newSetIdToCheckStr ~= "" then
+                    --    newSetIdToCheck = tonumber(newSetIdToCheckStr)
+                    if newSetIdToCheck ~= nil then
+                        for idx2, newSetIdLoadedBefore in pairs(newSetIdsFound) do
+                            if type(idx2) == "number" then
+--d(">>>newSetIdToCheck: " ..tostring(newSetIdToCheck) .. ", newSetIdLoadedBefore: " ..tostring(newSetIdLoadedBefore))
+                                if newSetIdToCheck == newSetIdLoadedBefore then
+                                    addNow = false
+                                    break
+                                end
+                            end
+                        end
+                    end
+                    --end
+                    if addNow == true and newSetIdToCheck ~= nil then
+--d(">>added new setId now: " ..tostring(newSetIdToCheck))
+                        newSetIdsFound[idx] = newSetIdToCheck
+                        if runFuncForEachSetId == true then
+                            funcToCallForEachSetId(newSetIdToCheck)
+                        end
+                    end
+                end
             end
         end
     end
@@ -174,7 +256,7 @@ end
 
 --Return all the setId's itemIds as table, from file LibSets_Data_All.lua, table lib.setDataPreloaded[LIBSETS_TABLEKEY_SETITEMIDS]
 local function getAllSetItemIds()
-    checkForNewSetIds(lib.setDataPreloaded[LIBSETS_TABLEKEY_SETITEMIDS], lib.DecompressSetIdItemIds)
+    checkForNewSetIds(lib.setDataPreloaded[LIBSETS_TABLEKEY_SETITEMIDS], lib.DecompressSetIdItemIds, true)
     return lib.CachedSetItemIdsTable
 end
 
@@ -324,14 +406,23 @@ function lib.DebugGetAllSetNames()
     --Use the SavedVariables to get the setNames of the current client language
     local svLoadedAlready = false
     local setNamesAdded = 0
+
+    local setWasChecked = false
+    local setIdsTable = {}
+    local setNamesOfLangTable = {}
+    local maxSetIdChecked = 0
+
     --Does not work as new setIds are unknown to table lib.setInfo until we scan the data and add it to the excel, to generate the code for this table!
     --So we FIRST need to call the function LibSets.DebugScanAllSetData(), update the table lib.setDataPreloaded[LIBSETS_TABLEKEY_SETITEMIDS] with the scanned
     --setIds and their compressed itemIds, and afterwards we can use this fucntion DebugGetAllSetNames to rad this table, to get the new setIds
     --local allSetItemIds = lib.GetAllSetItemIds()
     local allSetItemIds = getAllSetItemIds()
-    if allSetItemIds then
+    if allSetItemIds ~= nil then
         --Transfer new scanned setIds with their setItemIds temporarily to the table of the preloaded setItemIds
         --so looping over this table further down in this function will also add the names of new found sets!
+        -->Done within checkForNewSetIds now already and transfered to lib.CachedSetItemIdsTable, which here is
+        -->allSetItemIds now!
+        --[[
         if lib.svData and lib.svData[LIBSETS_TABLEKEY_SETITEMIDS_COMPRESSED] then
             local scannedSVSetItemIds = lib.svData[LIBSETS_TABLEKEY_SETITEMIDS_COMPRESSED]
             for setId, setItemIds in pairs(scannedSVSetItemIds) do
@@ -340,41 +431,50 @@ function lib.DebugGetAllSetNames()
                 end
             end
         end
-    end
-    --Check the set names now
-    local setWasChecked = false
-    local setIdsTable = {}
-    local setNamesOfLangTable = {}
-    local maxSetIdChecked = 0
+        ]]
 
-    for setIdToCheck, setsItemIds in pairs(allSetItemIds) do
-        setWasChecked = false
-        if setsItemIds then
-            for itemIdToCheck, _ in pairs(setsItemIds) do
-                if not setWasChecked and itemIdToCheck ~= nil then
-                    local isSet, setName, setId = lib.IsSetByItemId(itemIdToCheck)
-                    if isSet and setId == setIdToCheck then
-                        setWasChecked = true
-                        setName = ZO_CachedStrFormat("<<C:1>>", setName)
-                        if setName ~= "" then
-                            --Load the SV once
-                            if not svLoadedAlready then
-                                LoadSavedVariables()
-                                svLoadedAlready = true
+       --Check the set names now
+       for setIdToCheck, setsItemIds in pairs(allSetItemIds) do
+            setWasChecked = false
+            if setsItemIds then
+                for itemIdToCheck, _ in pairs(setsItemIds) do
+                    if not setWasChecked and itemIdToCheck ~= nil then
+                        local isSet, setName, setId = lib.IsSetByItemId(itemIdToCheck)
+                        if isSet and setId == setIdToCheck then
+                            local isNewSet = false
+                            for idx, setIdNewFound in pairs(newSetIdsFound) do
+                                if setIdNewFound == setId then
+                                    isNewSet = true
+                                    break
+                                end
                             end
-                            --lib.svData[LIBSETS_TABLEKEY_SETNAMES][setId] = lib.svData[LIBSETS_TABLEKEY_SETNAMES][setId] or {}
-                            --lib.svData[LIBSETS_TABLEKEY_SETNAMES][setId][lib.clientLang] = setName
-                            table.insert(setIdsTable, setId)
-                            setNamesOfLangTable[setId] = setName
-                            setNamesAdded = setNamesAdded +1
+                            setWasChecked = true
+                            setName = ZO_CachedStrFormat("<<C:1>>", setName)
+
+                            if isNewSet == true then
+    d(">newSetId found: " ..tostring(setId) .. ", name: " ..tostring(setName))
+                            end
+
+                            if setName ~= "" then
+                                --Load the SV once
+                                if not svLoadedAlready then
+                                    LoadSavedVariables()
+                                    svLoadedAlready = true
+                                end
+                                --lib.svData[LIBSETS_TABLEKEY_SETNAMES][setId] = lib.svData[LIBSETS_TABLEKEY_SETNAMES][setId] or {}
+                                --lib.svData[LIBSETS_TABLEKEY_SETNAMES][setId][lib.clientLang] = setName
+                                table.insert(setIdsTable, setId)
+                                setNamesOfLangTable[setId] = setName
+                                setNamesAdded = setNamesAdded +1
+                            end
                         end
                     end
                 end
             end
-        end
-        --Remember the highest setId which was checked
-        if setIdToCheck > maxSetIdChecked then
-            maxSetIdChecked = setIdToCheck
+            --Remember the highest setId which was checked
+            if setIdToCheck > maxSetIdChecked then
+                maxSetIdChecked = setIdToCheck
+            end
         end
     end
     --Did we add setNames?
@@ -393,10 +493,15 @@ function lib.DebugGetAllSetNames()
                 end
             end
         end
-        local foundNewSetsCount = (newSetIdsFound and #newSetIdsFound) or 0
+        local foundNewSetsCount = (newSetIdsFound and NonContiguousCount(newSetIdsFound)) or 0
         d("-->Maximum setId found: " ..tostring(maxSetIdChecked) .. " / Added set names: " ..tostring(setNamesAdded) .. " / New setIds found: " .. tostring(foundNewSetsCount))
-        for _, setIdNewFound in ipairs(newSetIdsFound) do
-            d("--->new setId: " ..tostring(setIdNewFound) .. ": " .. tostring(lib.svData[LIBSETS_TABLEKEY_SETNAMES][setIdNewFound][lib.clientLang]))
+        if foundNewSetsCount > 0 then
+            for idx, setIdNewFound in pairs(newSetIdsFound) do
+                if type(idx) == "number" then
+                    local setNameOfNewSet = lib.svData[LIBSETS_TABLEKEY_SETNAMES][setIdNewFound] and lib.svData[LIBSETS_TABLEKEY_SETNAMES][setIdNewFound][lib.clientLang] or "n/a"
+                    d("--->new setId: " ..tostring(setIdNewFound) .. ", name: " .. tostring(setNameOfNewSet))
+                end
+            end
         end
         d("->Stored in SaveVariables file \'" .. MAJOR .. ".lua\', in the table \'" .. LIBSETS_TABLEKEY_SETNAMES .. "\', language: \'" ..tostring(lib.clientLang).."\'")
     end
@@ -407,8 +512,18 @@ end
 ---------------------------------------------------------------------------------------------------------------------------
 --Variables needed for the functions below (Scan itemIds for sets and itemIds)
 local sets = {}
+local setsEquipTypes= {}
+local setsArmor = {}
+local setsArmorTypes = {}
+local setsJewelry = {}
+local setsWeapons = {}
+local setsWeaponTypes = {}
+
 local setCount = 0
 local itemCount = 0
+local itemArmorCount = 0
+local itemJewelryCount = 0
+local itemWeaponsCount = 0
 local itemIdsScanned = 0
 local function showSetCountsScanned(finished, keepUncompressedetItemIds)
     keepUncompressedetItemIds = keepUncompressedetItemIds or false
@@ -416,6 +531,7 @@ local function showSetCountsScanned(finished, keepUncompressedetItemIds)
     d(debugOutputStartLine .."[" .. MAJOR .."]Scanned itemIds: " .. tostring(itemIdsScanned))
     d("-> Sets found: "..tostring(setCount))
     d("-> Set items found: "..tostring(itemCount))
+    df("-->Armor: %s / Jewelry: %s / Weapons: %s", tostring(itemArmorCount), tostring(itemJewelryCount), tostring(itemWeaponsCount))
     if finished == true then
         newSetIdsFound = {}
         local newSetsFound = 0
@@ -428,20 +544,29 @@ local function showSetCountsScanned(finished, keepUncompressedetItemIds)
         if setCount > 0 then
             --Check how many new setId were found
             if sets ~= nil then
-                checkForNewSetIds(sets)
+                checkForNewSetIds(sets, nil, false)
             end
-            newSetsFound = (newSetIdsFound and #newSetIdsFound) or 0
+            newSetsFound = (newSetIdsFound and NonContiguousCount(newSetIdsFound)) or 0
             if newSetsFound > 0 then
                 d(">> !!! Found " .. tostring(newSetsFound) .. " new setIds !!!")
-                for idx, newSetId in ipairs(newSetIdsFound) do
-                    local newSetName = (lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId] and
-                            (lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId][lib.clientLang] or lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId]["en"])) or "n/a"
-                    newSetName = ZO_CachedStrFormat("<<C:1>>", newSetName)
-                    d(">>>New setId found: " ..tostring(newSetId) .. "|" .. tostring(newSetName))
-                    --Update the value of the table entry with the setId|setNameClean
-                    newSetIdsFound[idx] = tostring(newSetId) .. "|" .. tostring(newSetName)
+                for idx, newSetId in pairs(newSetIdsFound) do
+                    if type(idx) == "number" then
+                        local newSetName = (lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId] and
+                                (lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId][lib.clientLang] or lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId]["en"])) or "n/a"
+                        if newSetName ~= "n/a" then
+                            newSetName = ZO_CachedStrFormat("<<C:1>>", newSetName)
+                        else
+                            newSetName = "n/a - Name unknown in LibSets.setDataPreloaded[\'" .. LIBSETS_TABLEKEY_SETNAMES .. "\']"
+                        end
+                        d(string.format(">>>New setId found at index %s: %s -> name: %s", tostring(idx), tostring(newSetId), tostring(newSetName)))
+                        --Update the value of the table entry with the setId|setNameClean
+                        newSetIdsFound[idx] = newSetId
+                    end
                 end
             end
+
+            --For debugging:
+            --lib._newSetIdsFound = ZO_ShallowTableCopy(newSetIdsFound)
 
             LoadSavedVariables()
             --First save the new found setIds to the SavedVariables table ""
@@ -455,8 +580,17 @@ local function showSetCountsScanned(finished, keepUncompressedetItemIds)
                 lib.svData[LIBSETS_TABLEKEY_NEWSETIDS][worldName][GetAPIVersion()] = newSetIdsFound
             end
 
+            --Save the set data to the SV
             lib.svData[LIBSETS_TABLEKEY_SETITEMIDS] = {}
             lib.svData[LIBSETS_TABLEKEY_SETITEMIDS] = sets
+            --Save the set's armorType, equipmentTypes, weaponTypes and jewelryTypes to the SV
+            lib.svData[LIBSETS_TABLEKEY_SETS_EQUIP_TYPES]   = setsEquipTypes
+            --lib.svData[LIBSETS_TABLEKEY_SETS_ARMOR]         = setsArmor
+            lib.svData[LIBSETS_TABLEKEY_SETS_ARMOR_TYPES]   = setsArmorTypes
+            lib.svData[LIBSETS_TABLEKEY_SETS_JEWELRY]       = setsJewelry
+            --lib.svData[LIBSETS_TABLEKEY_SETS_WEAPONS]       = setsWeapons
+            lib.svData[LIBSETS_TABLEKEY_SETS_WEAPONS_TYPES] = setsWeaponTypes
+
             --Compress the itemIds now to lower the fileSize of LibSets_Data_all.lua later (copied setItemIds from SavedVariables)
             compressSetItemIdsNow(sets)
             --Keep the uncompressed setItemIds, or delete them again?
@@ -474,6 +608,9 @@ end
 --If yes: Update the table sets and setNames, and add the itemIds found for this set to the sets table
 --Format of the sets table is: sets[setId] = {[itemIdOfSetItem]=LIBSETS_SET_ITEMID_TABLE_VALUE_OK, ...}
 local function loadSetsByIds(from,to)
+    local isJewelryEquiptype = lib.isJewelryEquipType
+    local isWeaponEquipType = lib.isWeaponEquipType
+
     for setItemId=from,to do
         itemIdsScanned = itemIdsScanned + 1
         --Generate link for item
@@ -493,6 +630,55 @@ local function loadSetsByIds(from,to)
                         sets[setId][setItemId] = LIBSETS_SET_ITEMID_TABLE_VALUE_OK
                         --Update the set's item count
                         itemCount = itemCount + 1
+
+                        --Add the table entries to the set's equiptypes, armor, jewelry and weapon types,
+                        --and the general armor, jewelry, weapon tables, and armor class (light, medium, heavy)
+                        --[[
+                            setsEquipTypes= {}
+                            setsArmor = {}
+                            setsArmorTypes = {}
+                            setsJewelry = {}
+                            setsJewelryTypes = {}
+                            setsWeapons = {}
+                            setsWeaponTypes = {}
+                        ]]
+                        --Check the item's equipment type
+                        local equipType = GetItemLinkEquipType(itemLink)
+                        if equipType > EQUIP_TYPE_INVALID then
+                            setsEquipTypes[equipType] = setsEquipTypes[equipType] or {}
+                            setsEquipTypes[equipType][setId] = LIBSETS_SET_ITEMID_TABLE_VALUE_OK
+
+                            if isJewelryEquiptype[equipType] then
+                                if not setsJewelry[setId] then
+                                    itemJewelryCount = itemJewelryCount + 1
+                                end
+                                setsJewelry[setId] = LIBSETS_SET_ITEMID_TABLE_VALUE_OK
+
+                            elseif isWeaponEquipType[equipType] then
+                                if not setsWeapons[setId] then
+                                    itemWeaponsCount = itemWeaponsCount + 1
+                                end
+                                setsWeapons[setId] = LIBSETS_SET_ITEMID_TABLE_VALUE_OK
+
+                                local weaponType = GetItemLinkWeaponType(itemLink)
+                                if weaponType > WEAPONTYPE_NONE then
+                                    setsWeaponTypes[weaponType] = setsWeaponTypes[weaponType] or {}
+                                    setsWeaponTypes[weaponType][setId] = LIBSETS_SET_ITEMID_TABLE_VALUE_OK
+                                end
+
+                            else
+                                if not setsArmor[setId] then
+                                    itemArmorCount = itemArmorCount + 1
+                                end
+                                setsArmor[setId] = LIBSETS_SET_ITEMID_TABLE_VALUE_OK
+
+                                local armorType = GetItemLinkArmorType(itemLink)
+                                if armorType > ARMORTYPE_NONE then
+                                    setsArmorTypes[armorType] = setsArmorTypes[armorType] or {}
+                                    setsArmorTypes[armorType][setId] = LIBSETS_SET_ITEMID_TABLE_VALUE_OK
+                                end
+                            end
+                        end
                     end
                 end
             end
@@ -520,9 +706,20 @@ local function scanAllSetData(keepUncompressedetItemIds)
 
     --Clear all set data
     sets = {}
+    setsEquipTypes= {}
+    setsArmor = {}
+    setsArmorTypes = {}
+    setsJewelry = {}
+    setsWeapons = {}
+    setsWeaponTypes = {}
+
     --Clear counters
     setCount = 0
     itemCount = 0
+    itemArmorCount = 0
+    itemJewelryCount = 0
+    itemWeaponsCount = 0
+
     itemIdsScanned = 0
 
     --Loop through all item ids and save all sets to an array
@@ -544,7 +741,7 @@ local function scanAllSetData(keepUncompressedetItemIds)
     --Add itemIds and scan them for set parts!
     for _, v in pairs(fromTo) do
         zo_callLater(function()
-            loadSetsByIds(v.from,v.to)
+            loadSetsByIds(v.from, v.to)
         end, milliseconds)
         milliseconds = milliseconds + 1000 -- scan item ID packages every 1 second to get not kicked/crash the client!
     end
@@ -656,7 +853,7 @@ function lib.DebugGetAllCollectibleNames(collectibleStartId, collectibleEndId)
             collectiblesAdded = collectiblesAdded +1
         end
     end
-    if collectiblesAdded >0 then
+    if collectiblesAdded > 0 then
         table.sort(collectibleDataScanned)
         LoadSavedVariables()
         lib.svData[LIBSETS_TABLEKEY_COLLECTIBLE_NAMES][lib.clientLang] = {}
@@ -672,50 +869,44 @@ end
 --->table lib.setDataPreloaded[LIBSETS_TABLEKEY_SETITEMIDS].
 --->Or there are no new setIds since the last time you updated this table.
 function lib.DebugShowNewSetIds()
-    d("[" .. MAJOR .."]DebugShowNewSetIds - Checking for new setIds.")
-    checkForNewSetIds(lib.setDataPreloaded[LIBSETS_TABLEKEY_SETITEMIDS])
-    local newSetsFound = (newSetIdsFound and #newSetIdsFound) or 0
+    d("[" .. MAJOR .."]DebugShowNewSetIds - Checking for new setIds...")
+
+    --Is the local table still filled? Else: Fill it up again, either from SavedVariables of the current server and API version,
+    --or by comparing setItemIds etc.
+    local worldName = GetWorldName()
+    local apiVersion = GetAPIVersion()
+
+    local newSetsLoadedFromSV = false
+    checkForNewSetIds(lib.setDataPreloaded[LIBSETS_TABLEKEY_SETITEMIDS], nil, true)
+    --Output the new sets data (id and name)
+    local newSetsFound = (newSetIdsFound and NonContiguousCount(newSetIdsFound)) or 0
     if newSetsFound > 0 then
         d(">Found " .. tostring(newSetsFound) .. " new setIds!")
-        for idx, newSetId in ipairs(newSetIdsFound) do
-            local newSetName = (lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId] and
-                    (lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId][lib.clientLang] or lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId]["en"])) or "n/a"
-            newSetName = ZO_CachedStrFormat("<<C:1>>", newSetName)
-            d(">>New setId found: " ..tostring(newSetId) .. "|" ..tostring(newSetName))
-            --Update the value of the table entry with the setId|setNameClean
-            newSetIdsFound[idx] = tostring(newSetId) .. "|" .. tostring(newSetName)
+        for idx, newSetId in pairs(newSetIdsFound) do
+            if type(idx) == "number" then
+                local newSetName = (lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId] and
+                        (lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId][lib.clientLang] or lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][newSetId]["en"])) or "n/a"
+                newSetName = ZO_CachedStrFormat("<<C:1>>", newSetName)
+                d(string.format(">>New setId found: %s -> name: %s", tostring(newSetId), tostring(newSetName)))
+                --Update the value of the table entry with the setId|setNameClean
+                newSetIdsFound[idx] = newSetId
+            end
         end
     end
-    --[[
-    --> Already done within function "checkForNewSetIds" now!
-    --Check if any setId was already added to LibSets.setInfo table but is also inside the "do not use for current live APIversion" table,
-    --and the current API version is not yet live
-    if not lib.checkIfPTSAPIVersionIsLive() and lib.setsOfNewerAPIVersion and #lib.setsOfNewerAPIVersion > 0 then
-        local setsOfNewerAPIVersion = lib.setsOfNewerAPIVersion
-        d(">Found " .. tostring(#setsOfNewerAPIVersion) .. " setIds ONLY available for APIVersion \'"..tostring(lib.APIVersions["PTS"]).."\'!")
-        for _, setIdForPTSAPI in ipairs(setsOfNewerAPIVersion) do
-            local newSetName = (lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][setIdForPTSAPI] and
-                    (lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][setIdForPTSAPI][lib.clientLang] or lib.setDataPreloaded[LIBSETS_TABLEKEY_SETNAMES][setIdForPTSAPI]["en"])) or "n/a"
-            newSetName = ZO_CachedStrFormat("<<C:1>>", newSetName)
-            d(">>SetId for PTS API: " ..tostring(setIdForPTSAPI) .. "|" ..tostring(newSetName))
-            table.insert(newSetIdsFound, tostring(setIdForPTSAPI) .. "|" .. tostring(newSetName))
-        end
-        newSetsFound = newSetsFound + #setsOfNewerAPIVersion
-    end
-    ]]
     if newSetsFound == 0 then
-        d("<No new setIds were found!\nDid you run function \'LibSets.DebugScanAllSetData()\' before already?")
+        d("<No new setIds were found!\nDid you run function \'LibSets.DebugScanAllSetData()\' already?")
         d("Please read the function's description text in file \'LibSets_Debug.lua\' to be able to update the internal needed tables \'LibSets.setDataPreloaded[\'setItemIds\'] properly, before you try to search for new setIds!")
     else
-        LoadSavedVariables()
+        if not newSetsLoadedFromSV then
+            LoadSavedVariables()
+        end
         --First save the new found setIds to the SavedVariables table ""
         --Add the dateTime and APIversion the new setIds were scanned
         newSetIdsFound["UpdateType"]  = "LibSets.DebugShowNewSetIds()"
         newSetIdsFound["DateTime"]    = os.date("%c")
-        local worldName = GetWorldName()
         lib.svData[LIBSETS_TABLEKEY_NEWSETIDS] = lib.svData[LIBSETS_TABLEKEY_NEWSETIDS] or {}
         lib.svData[LIBSETS_TABLEKEY_NEWSETIDS][worldName] = lib.svData[LIBSETS_TABLEKEY_NEWSETIDS][worldName] or {}
-        lib.svData[LIBSETS_TABLEKEY_NEWSETIDS][worldName][GetAPIVersion()] = newSetIdsFound
+        lib.svData[LIBSETS_TABLEKEY_NEWSETIDS][worldName][apiVersion] = newSetIdsFound
     end
 end
 
@@ -723,9 +914,12 @@ end
 function lib.DebugGetAllNames()
     lib.DebugGetAllCollectibleNames()
     lib.DebugGetAllMapNames()
-    lib.DebugGetAllSetNames()
     lib.DebugGetAllWayshrineNames()
     lib.DebugGetAllZoneInfo()
+    -->Attention, you need to run LibSets.DebugScanAllSetData() first to scan for all setIds and setItemids AND update
+    -->the file LibSets_Data.lua, table LibSets.setItemIds, with them first, in order to let this function work properly
+    -->and let it scann and get names of all current data!
+    lib.DebugGetAllSetNames()
 end
 
 --This function will reset all SavedVariables to nil (empty them) to speed up the loading of the library
@@ -734,6 +928,12 @@ function lib.DebugResetSavedVariables()
     lib.svData[LIBSETS_TABLEKEY_SETITEMIDS] = nil
     lib.svData[LIBSETS_TABLEKEY_SETITEMIDS_NO_SETID] = nil
     lib.svData[LIBSETS_TABLEKEY_SETITEMIDS_COMPRESSED] = nil
+    lib.svData[LIBSETS_TABLEKEY_SETS_EQUIP_TYPES]   = nil
+    --lib.svData[LIBSETS_TABLEKEY_SETS_ARMOR]         = nil
+    lib.svData[LIBSETS_TABLEKEY_SETS_ARMOR_TYPES]   = nil
+    lib.svData[LIBSETS_TABLEKEY_SETS_JEWELRY]       = nil
+    --lib.svData[LIBSETS_TABLEKEY_SETS_WEAPONS]       = nil
+    lib.svData[LIBSETS_TABLEKEY_SETS_WEAPONS_TYPES] = nil
     lib.svData[LIBSETS_TABLEKEY_SETNAMES] = nil
     lib.svData[LIBSETS_TABLEKEY_MAPS] = nil
     lib.svData[LIBSETS_TABLEKEY_WAYSHRINES] = nil

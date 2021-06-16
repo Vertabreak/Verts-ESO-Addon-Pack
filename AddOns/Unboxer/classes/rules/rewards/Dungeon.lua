@@ -46,7 +46,7 @@ end
 
 function class.Dungeon:Match(data)
     
-    if data.quality < (ITEM_QUALITY_LEGENDARY or ITEM_FUNCTIONAL_QUALITY_LEGENDARY)
+    if data.quality < ITEM_FUNCTIONAL_QUALITY_LEGENDARY
        and (self:MatchDlcDungeonByNameAndFlavorText(data)
             or self:MatchUndauntedCoffers(data))
     then
@@ -90,5 +90,7 @@ knownIds = {
   [153518]=1,[153519]=1,[153520]=1,[153521]=1,[153522]=1,[153523]=1,
   [153524]=1,[153525]=1,[153526]=1,[153527]=1,[153528]=1,[153529]=1,
   [153530]=1,[153531]=1,[153532]=1,[153533]=1,[156795]=1,[158310]=1,
-  [158311]=1,[159621]=1,[167232]=1,[167233]=1,[167243]=1,
+  [158311]=1,[159621]=1,[167232]=1,[167233]=1,[167243]=1,[171599]=1,
+  [171599]=1,[171600]=1,[171714]=1,[175803]=1,[175804]=1,[175913]=1,
+  [175914]=1,
 }

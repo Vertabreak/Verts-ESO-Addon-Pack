@@ -22,6 +22,19 @@ function class.AccountSummary:Initialize(options)
     end
 end
 
+function class.AccountSummary:Clone()
+    local summary = class.AccountSummary:New(self.options)
+    summary.chat = self.chat
+    summary.account = self.account
+    summary.counterText = self.counterText
+    summary.defaults = self.defaults
+    summary.mailIcon = self.mailIcon
+    summary.mailType = self.mailType
+    summary.prefix = self.prefix
+    summary.suffix = self.suffix
+    return summary
+end
+
 function class.AccountSummary:SetAccount(account)
     self.account = account
 end
@@ -30,7 +43,7 @@ end
 function class.AccountSummary:Print()
     local tagSuffix = self.chat.tagSuffix
     if self.account then
-        local mailIconSize = math.max(self.iconSize, 100)
+        local mailIconSize = math.max(self:GetOption('iconSize'), 100)
         mailIconSize = string.format("%s%%", tostring(mailIconSize))
         local mailIconString = zo_iconFormatInheritColor(self.mailIcon, mailIconSize, mailIconSize)
         local account = mailIconString .. self.account

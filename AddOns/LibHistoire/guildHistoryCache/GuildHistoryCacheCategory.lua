@@ -11,8 +11,9 @@ local WriteToSavedVariable = internal.WriteToSavedVariable
 local ReadFromSavedVariable = internal.ReadFromSavedVariable
 
 local SERVER_NAME = GetWorldName()
-local RETRY_ON_INVALID_DELAY = 5000
-local RETRY_WAIT_FOR_MORE_DELAY = 250
+local RETRY_ON_INVALID_DELAY = 5000 -- ms
+local RETRY_WAIT_FOR_MORE_DELAY = 250 -- ms
+local REQUEST_COOLDOWN = 1 -- s
 
 local function Ascending(a, b)
     return b > a
@@ -49,9 +50,19 @@ function GuildHistoryCacheCategory:Initialize(nameCache, saveData, guildId, cate
     self.eventIndexLookup = {}
     self.eventIndexLookupDirty = false
     self.progressDirty = true
+    self.lastRequestTime = 0
+
+    -- remove holes in the saved vars
+    for i = #self.saveData, 1, -1 do
+        if self.saveData[i] == nil then
+            logger:Warn("Entry %d in %s is nil - closing hole", i, self.key)
+            self.saveData[i] = ""
+            table.remove(self.saveData, i)
+        end
+    end
 
     -- add placeholders - deserialization will happen lazily
-    for i = 1, #self.saveData do
+    for i in ipairs(self.saveData) do
         self.events[i] = false
     end
 
@@ -99,6 +110,16 @@ end
 
 function GuildHistoryCacheCategory:IsProcessing()
     return self.storeEventsTask ~= nil or self.rescanEventsTask ~= nil
+end
+
+function GuildHistoryCacheCategory:IsOnRequestCooldown()
+    return GetTimeStamp() < self.lastRequestTime + REQUEST_COOLDOWN
+end
+
+function GuildHistoryCacheCategory:SendRequest()
+    local success = RequestMoreGuildHistoryCategoryEvents(self.guildId, self.category, true)
+    self.lastRequestTime = GetTimeStamp()
+    return success
 end
 
 function GuildHistoryCacheCategory:GetNumPendingEvents()
@@ -192,7 +213,7 @@ function GuildHistoryCacheCategory:FindIndexForEventId(eventId)
         return index
     end
 
-    return 0
+    return 0, firstIndex, lastIndex
 end
 
 function GuildHistoryCacheCategory:SearchEventIdInInterval(eventId, firstIndex, lastIndex)
@@ -308,11 +329,17 @@ function GuildHistoryCacheCategory:SearchClosestEventTimeInInterval(eventTime, f
 end
 
 function GuildHistoryCacheCategory:StoreEvent(event, missing)
-    local index = #self.events + 1
-    self.events[index] = event
     if not self.saveData.idOffset then self.saveData.idOffset = event:GetEventId() end
     if not self.saveData.timeOffset then self.saveData.timeOffset = event:GetEventTime() end
-    WriteToSavedVariable(self.saveData, index, event:Serialize())
+
+    local index = #self.events + 1
+    local eventData = event:Serialize()
+    assert(eventData, "Failed to serialize history event")
+
+    self.events[index] = event
+
+    WriteToSavedVariable(self.saveData, index, eventData)
+    assert(self.saveData[index] ~= nil, "Failed to write history event to save data")
 
     if missing then
         self.eventIndexLookupDirty = true
@@ -323,9 +350,14 @@ function GuildHistoryCacheCategory:StoreEvent(event, missing)
 end
 
 function GuildHistoryCacheCategory:InsertEvent(event, index)
+    local eventData = event:Serialize()
+    assert(eventData, "Failed to serialize history event")
+
     table.insert(self.events, index, event)
     table.insert(self.saveData, index, "") -- insert a placeholder so all indices are moved up by one
-    WriteToSavedVariable(self.saveData, index, event:Serialize())
+
+    WriteToSavedVariable(self.saveData, index, eventData)
+    assert(self.saveData[index] ~= nil, "Failed to write history event to save data")
 
     self.eventIndexLookupDirty = true
     internal:FireCallbacks(internal.callback.EVENT_STORED, self.guildId, self.category, event, index, true)
@@ -430,8 +462,13 @@ function GuildHistoryCacheCategory:StoreMissingEventsBefore(eventsBefore, callba
             local taskD = internal:CreateAsyncTask()
             taskD:For(ipairs(storedEvents)):Do(function(i, event)
                 local index = #self.events + 1
+                local eventData = event:Serialize()
+                assert(eventData, "Failed to serialize history event")
+
                 self.events[index] = event
-                WriteToSavedVariable(self.saveData, index, event:Serialize())
+
+                WriteToSavedVariable(self.saveData, index, eventData)
+                assert(self.saveData[index] ~= nil, "Failed to write history event to save data")
             end):Then(callback)
         end)
     end)
@@ -440,16 +477,12 @@ end
 function GuildHistoryCacheCategory:StoreMissingEventsInside(eventsInside, callback)
     if #eventsInside == 0 then callback() return end
 
-    local startIndex = 2
-    local events = self.events
-    local lastEventId = self:GetOldestEvent():GetEventId()
-
-    local function GetProperIndexFor(eventId)
-        for j = startIndex, #events do
+    local function GetProperIndexFor(eventId, startIndex, endIndex)
+        local lastEventId = 0
+        for j = startIndex, endIndex do
             local nextEventId = self:GetEvent(j):GetEventId()
             if eventId > lastEventId and eventId < nextEventId then
                 lastEventId = eventId
-                startIndex = j + 1
                 return j
             end
             lastEventId = nextEventId
@@ -460,7 +493,18 @@ function GuildHistoryCacheCategory:StoreMissingEventsInside(eventsInside, callba
     task:For(ipairs(eventsInside)):Do(function(i, event)
         self:IncrementPendingEventMetrics()
         local eventId = event:GetEventId()
-        local index = GetProperIndexFor(eventId)
+
+        local index, startIndex, endIndex = self:FindIndexForEventId(eventId)
+        if index ~= 0 then
+            logger:Warn("event with id %d is already stored", eventId)
+            return
+        elseif not startIndex or not endIndex then
+            logger:Warn("Could not find interval for event with id %d", eventId)
+            return
+        else
+            index = GetProperIndexFor(eventId, startIndex, endIndex)
+        end
+
         if index then
             self:InsertEvent(event, index)
         else

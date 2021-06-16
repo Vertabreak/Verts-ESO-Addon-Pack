@@ -126,6 +126,7 @@ local PARAMS_FORMAT = {
         [GUILD_EVENT_GUILD_APPLICATION_ACCEPTED] = PARAMS_FORMAT_TWO_NAMES,         -- (eventType, displayName1, displayName2)
         [GUILD_EVENT_REMOVED_FROM_BLACKLIST] = PARAMS_FORMAT_TWO_NAMES,             -- (eventType, displayName1, displayName2)
         [GUILD_EVENT_ADDED_TO_BLACKLIST] = PARAMS_FORMAT_TWO_NAMES,                 -- (eventType, displayName1, displayName2)
+        [GUILD_EVENT_EDIT_BLACKLIST_NOTE] = PARAMS_FORMAT_TWO_NAMES,                -- (eventType, displayName1, displayName2)
         [GUILD_EVENT_GUILD_RECRUITMENT_GUILD_LISTED] = PARAMS_FORMAT_ONE_NAME,      -- (eventType, displayName)
         [GUILD_EVENT_GUILD_RECRUITMENT_GUILD_UNLISTED] = PARAMS_FORMAT_ONE_NAME,    -- (eventType, displayName)
         [GUILD_EVENT_ITEM_SOLD] = {
@@ -184,6 +185,9 @@ function GuildHistoryCacheEntry:Serialize()
     temp[1] = eventType
     for i = 2, #paramsFormat do
         temp[i] = info[INDEX_PARAM_1 + i - 2]
+        if paramsFormat == CURRENT_PARAMS_FORMAT.default and temp[i] == nil then
+            temp[i] = ""
+        end
     end
     local params = EncodeData(temp, paramsFormat, PARAM_SEPARATOR, self.cacheCategory:GetNameDictionary())
 

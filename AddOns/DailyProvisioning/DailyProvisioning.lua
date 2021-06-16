@@ -2,7 +2,7 @@ DailyProvisioning = {
     displayName = "|c3CB371" .. "Daily Provisioning" .. "|r",
     shortName = "DP",
     name = "DailyProvisioning",
-    version = "1.4.11",
+    version = "1.4.25",
 
     emptySlot = nil,        -- ※Don't Finalize
 
@@ -15,176 +15,14 @@ DailyProvisioning = {
 
     recipeList = nil,
     itemTypeFilter = {},
-    isSilent = false,
     isDontKnow = nil,
-    dontKnowRecipe = nil,
+    isStationInteract = false,  -- need Debug!
+    isAcquire = false,
+    existUnknownRecipe = nil,
+
+    QUEST_DAILY  = "1:DAILY",
+    QUEST_MASTER = "2:MASTER",
 }
-
-
-
-
-local function Choice(conditions, trueValue, falseValue)
-
-    if conditions then
-        if trueValue then
-            return trueValue
-        else
-            return conditions
-        end
-    else
-        return falseValue
-    end
-end
-
-
-
-
-function DailyProvisioning:Acquire(eventCode)
-
-    if (not self.savedVariables.isAcquireItem) then
-        return
-    end
-
-
-    self:Debug("[Pre Acquire]")
-    local infos, hasMaster, hasDaily, hasEvent = self:GetQuestInfos()
-    if (not infos) or #infos == 0 then
-        self:Debug("　　No Quest")
-        return
-    end
-
-
-    self.emptySlot = nil
-    if DailyAlchemy and DailyAlchemy.emptySlot ~= nil then
-        self.emptySlot = DailyAlchemy.emptySlot
-    end
-    self.emptySlot = self:NextEmptySlot(BAG_BACKPACK, self.emptySlot)
-
-
-    if (not self.recipeList) then
-        self.recipeList = self:GetRecipeList(hasMaster, hasDaily, hasEvent)
-    end
-    self.stackList = self:GetStackList()
-    self.houseStackList = self:GetHouseStackList()
-
-
-    self:Debug("[Acquire]")
-    for _, info in pairs(infos) do
-        local parameterList
-        if self:IsValidAcquireItemConditions(info.current, info.max, info.isVisible, info.convertedTxt) then
-            self:Debug("　　　　[AcquireItem]")
-            parameterList = self:CreateParameterQuiet(info)
-            self:AcquireItem(info, parameterList)
-        end
-        if self:IsValidAcquireMaterialConditions(info.current, info.max, info.isVisible, info.convertedTxt) then
-            self:Debug("　　　　[AcquireMaterial]")
-            if (not parameterList) then
-                parameterList = self:CreateParameterQuiet(info)
-            end
-            self:AcquireMaterial(info, parameterList)
-        end
-    end
-end
-
-
-
-
-function DailyProvisioning:AcquireItem(info, parameterList)
-
-    if (info.current >= info.max) then
-        return
-    end
-    if #parameterList == 0 then
-        return
-    end
-    parameter = parameterList[1]
-    if (not parameter.itemId) then
-        return
-    end
-
-
-    local isWorkingByWritcreater = (not info.isMaster)
-                                    and WritCreater
-                                    and WritCreater:GetSettings().shouldGrab
-                                    and WritCreater:GetSettings()[CRAFTING_TYPE_PROVISIONING]
-    local bagIdList = self:GetItemBagList()
-    local moved = 0
-    if isWorkingByWritcreater then
-        moved = self:CountByItem(parameter.recipeLink, info.current, info.max, bagIdList)
-    else
-        moved = self:MoveByItem(parameter.recipeLink, info.current, info.max, bagIdList)
-    end
-    if moved > 0 then
-        info.current = info.current + moved
-    end
-end
-
-
-
-
-function DailyProvisioning:AcquireMaterial(info, parameterList)
-
-    if (info.current >= info.max) then
-        return
-    end
-    if #parameterList == 0 then
-        return
-    end
-    parameter = parameterList[1]
-    if parameter.errorMsg and (not parameter.isKnown) then
-        return
-    end
-
-
-    local quantity = (info.max - info.current)
-    if self:IsDebug() then
-        self:Debug("　　　　　　" .. parameter.recipeLink .. " x " .. quantity .. " ["
-                                  .. table.concat(parameter.ingredientLinks, ", ")
-                                  .. "]")
-    end
-
-    local bagIdList = self:GetHouseBankIdList()
-    local materialMax = math.ceil(quantity / self:GetAmountToMake(parameter.itemType))
-    local totalMax = 4
-    local total = 0
-    for _, material in ipairs(parameter.ingredients) do
-        local stack = self.stackList[material.itemId] or 0
-        local houseStack = self.houseStackList[material.itemId] or 0
-        local used = math.min(materialMax, stack)
-        self.stackList[material.itemId] = stack - used
-        local materialCurrent = Choice(material.itemName, used, materialMax)
-        self:Debug("　　　　　　" .. material.itemLink
-                                  .. "(" .. stack .. "/" .. materialMax .. ")"
-                                  .. " UsedStack x" .. used
-                                  .. " HouseStack x" .. houseStack)
-        local moved = self:MoveByItem(material.itemLink, materialCurrent, materialMax, bagIdList)
-        if (moved + materialCurrent >= materialMax) then
-            total = total + 1
-        end
-    end
-    if (total >= totalMax) then
-        info.current = info.max
-    end
-end
-
-
-
-
-function DailyProvisioning:Camehome(eventCode)
-    if IsOwnerOfCurrentHouse() then
-        zo_callLater(function()
-            self:Acquire(eventCode)
-            self:Finalize()
-
-            zo_callLater(function()
-                self.isSilent = true
-                self:Acquire(eventCode)
-                self:Finalize()
-            end, 5000)
-
-        end, 5500) -- DailyAlchemy +500ms
-    end
-end
 
 
 
@@ -192,79 +30,98 @@ end
 function DailyProvisioning:CraftCompleted(eventCode, craftSkill)
 
     if craftSkill ~= CRAFTING_TYPE_PROVISIONING then
-        return false
+        return
+    end
+    self:Debug("[CraftCompleted]")
+
+
+    local result = self:Crafting(eventCode, craftSkill)
+    if (not result) then
+        self:Debug("　　> return(not result)")
+        return
     end
 
 
-    if (self:Crafting(eventCode, craftSkill)) and (self.savedVariables.isAutoExit) then
-        if (self.savedVariables.bulkQuantity) and (self.executeToEnd ~= nil) then
-            return
+    local isEmpty = true
+    for key, value in pairs(self.checkedJournal) do
+        self:Debug("　　<<1>>=<<2>>", key, tostring(value))
+        if (not value) then
+           self:Debug("　　> return(not value)")
+           return
         end
-        local isEmpty = true
-        for _, value in pairs(self.checkedJournal) do
-            if value == false then
-                return
-            end
-            isEmpty = false
-        end
-        if isEmpty then
-            return
-        end
+        isEmpty = false
+    end
+    if isEmpty then
+        self:Debug("　　> return(isEmpty)")
+        return
+    end
 
-        local provisioner = Choice(IsInGamepadPreferredMode(), GAMEPAD_PROVISIONER, PROVISIONER)
-        provisioner:StartHide()
-        SCENE_MANAGER:Hide(provisioner.mainSceneName)
+
+    if self.savedVariables.isAutoExit then
+        self:Debug("　　> EndInteraction")
+        EndInteraction(INTERACTION_CRAFT)
+    else
+        self:Debug("　　> not AutoExit")
     end
 end
 
 
 
 
-function DailyProvisioning:Crafting(eventCode, craftSkill)
+function DailyProvisioning:Crafting(craftSkill)
 
-    self:Debug("bulkQuantity=" .. tostring(self.savedVariables.bulkQuantity))
-    self:Debug("isAcquireItem=" .. tostring(self.savedVariables.isAcquireItem))
-    self:Debug("isAutoExit=" .. tostring(self.savedVariables.isAutoExit))
-    self:Debug("isDontKnow=" .. tostring(self.savedVariables.isDontKnow))
-    self:Debug("isDebug=" .. tostring(self.savedVariables.isDebug))
+    self:Debug("[Crafting]", self.checkColor)
 
-    self:Debug("[Pre Crafting]")
+    if self.isAcquire then
+        zo_callLater(function()
+            self:Crafting(craftSkill)
+        end, 1000)
+    end
+
+
     local infos, hasMaster, hasDaily, hasEvent = self:GetQuestInfos()
     if (not infos) or #infos == 0 then
-        self:Debug("　　No Quest")
+        self:Debug("　　>No Quest")
         return
     end
 
+
     self.recipeList = self.recipeList or self:GetRecipeList(hasMaster, hasDaily, hasEvent)
-    local isDontKnow, recipeName = self:IsDontKnow(infos)
-    self:Debug("　　isDontKnow=" .. tostring(isDontKnow) .. ", recipeName=" .. tostring(recipeName))
-    if isDontKnow then
-        local msg = zo_strformat(GetString(DP_UNKNOWN_RECIPE), recipeName)
-        self:Message(msg, ZO_ERROR_COLOR:ToHex())
-        return false
-    elseif isDontKnow == nil then
-        return false
+    if self.savedVariables.isDontKnow then
+        if self:ExistUnknownRecipe(infos) then
+            return false
+        end
     end
 
 
-    self:Debug("[Crafting]")
+    local toHide = self:IsDebug() and (not self.savedVariables.isDebugRecipe)
+    local parameter
     for _, info in pairs(infos) do
+        self:Debug("　　--------")
         info.convertedTxt = self:IsValidConditions(info.convertedTxt, info.current, info.max, info.isVisible)
         if info.convertedTxt then
-            local parameter = self:CreateParameter(info)[1]
+
+            if toHide then
+                self.savedVariables.isDebug = false
+            end
+            parameter = self:CreateParameter(info)[1]
+            if toHide then
+                self.savedVariables.isDebug = true
+            end
+
             if (not parameter) then
-                if (self.checkedJournal[info.key] ~= false) then
-                    local msg = zo_strformat(GetString(DP_MISMATCH_RECIPE), info.txt:gsub("\n", ""))
-                    self:Message(msg, ZO_ERROR_COLOR:ToHex())
-                end
                 self.checkedJournal[info.key] = false
                 return false
 
             elseif parameter.errorMsg then
                 if (self.checkedJournal[info.key] ~= false) then
+                    local isLogTmp = self.savedVariables.isLog
+                    self.savedVariables.isLog = true
                     self:Message(parameter.recipeName .. parameter.errorMsg)
+                    self.savedVariables.isLog = isLogTmp
                 end
                 self.executeCurrent = nil
+                self.executeToEnd = nil
                 self.checkedJournal[info.key] = false
 
             elseif parameter.recipeLink then
@@ -275,10 +132,17 @@ function DailyProvisioning:Crafting(eventCode, craftSkill)
                 if self.executeCurrent then
                     local _, _, stack = GetRecipeResultItemInfo(parameter.listIndex, parameter.recipeIndex)
                     self.executeCurrent = math.min(self.executeCurrent + stack, self.executeToEnd)
-                    remainingQuantity = self.executeCurrent .. "/" .. self.executeToEnd
-                                        .. " [" .. GetString(DP_BULK_HEADER) .. "]"
+                    remainingQuantity = zo_strformat("<<1>>/<<2>> [<<3>>]", self.executeCurrent,
+                                                                            self.executeToEnd,
+                                                                            GetString(DP_BULK_HEADER))
                 end
-                self:Message(parameter.recipeLink .. " x " .. remainingQuantity)
+                
+
+
+                local msg = zo_strformat("<<1>><<2>> x <<3>>", parameter.icon,
+                                                               parameter.recipeLink,
+                                                               remainingQuantity)
+                self:Message(msg)
                 info.current = math.min(info.current + self:GetAmountToMake(parameter.itemType), info.max)
                 if info.uniqueId then
                     self.savedVariables.reservations[info.uniqueId].current = info.current
@@ -300,11 +164,17 @@ function DailyProvisioning:CreateMenu()
     if self.savedVariables.isAcquireItem == nil then
         self.savedVariables.isAcquireItem = true
     end
+    if self.savedVariables.acquireDelay == nil then
+        self.savedVariables.acquireDelay = 1
+    end
     if self.savedVariables.isDontKnow == nil then
         self.savedVariables.isDontKnow = true
     end
     if self.savedVariables.isLog == nil then
         self.savedVariables.isLog = true
+    end
+    if self.savedVariables.isDebugQuest == nil then
+        self.savedVariables.isDebugQuest = true
     end
 
 
@@ -380,6 +250,25 @@ function DailyProvisioning:CreateMenu()
             default = true,
         },
         {
+            type = "slider",
+            name = GetString(DP_DELAY),
+            tooltip = GetString(DP_DELAY_TOOLTIP),
+            min = 0,
+            max = 10,
+            step = 0.5,
+            disabled = function()
+                return (not self.savedVariables.isAcquireItem)
+            end,
+            getFunc = function()
+                return self.savedVariables.acquireDelay
+            end,
+            setFunc = function(value)
+                self.savedVariables.acquireDelay = tonumber(value)
+            end,
+            width = "full",
+            default = 1,
+        },
+        {
             type = "checkbox",
             name = GetString(DP_AUTO_EXIT),
             tooltip = GetString(DP_AUTO_EXIT_TOOLTIP),
@@ -390,7 +279,7 @@ function DailyProvisioning:CreateMenu()
                 self.savedVariables.isAutoExit = value
             end,
             width = "full",
-            default = false,
+            default = true,
         },
         {
             type = "checkbox",
@@ -425,10 +314,55 @@ function DailyProvisioning:CreateMenu()
             end,
             setFunc = function(value)
                 self.savedVariables.isDebug = value
+                DP_IsDebugSettings:SetHidden(not value)
+                DP_IsDebugQuest:SetHidden(not value)
+                DP_IsDebugRecipe:SetHidden(not value)
             end,
             width = "full",
             default = false,
         },
+        {
+            type = "checkbox",
+            name = zo_strformat("<<1>>(<<2>>)", GetString(DA_DEBUG_LOG), GetString(SI_GAME_MENU_SETTINGS)),
+            getFunc = function()
+                DP_IsDebugSettings:SetHidden(not self.savedVariables.isDebug)
+                return self.savedVariables.isDebugSettings
+            end,
+            setFunc = function(value)
+                self.savedVariables.isDebugSettings = value
+            end,
+            width = "full",
+            default = true,
+            reference = "DP_IsDebugSettings",
+        },
+        {
+            type = "checkbox",
+            name = zo_strformat("<<1>>(<<2>>)", GetString(DP_DEBUG_LOG), GetString(SI_QUEST_JOURNAL_MENU_JOURNAL)),
+            getFunc = function()
+                DP_IsDebugQuest:SetHidden(not self.savedVariables.isDebug)
+                return self.savedVariables.isDebugQuest
+            end,
+            setFunc = function(value)
+                self.savedVariables.isDebugQuest = value
+            end,
+            width = "full",
+            default = true,
+            reference = "DP_IsDebugQuest",
+        },
+        {
+            type = "checkbox",
+            name = zo_strformat("<<1>>(<<2>>)", GetString(DP_DEBUG_LOG), GetString(SI_ITEMTYPE29)),
+            getFunc = function()
+                DP_IsDebugRecipe:SetHidden(not self.savedVariables.isDebug)
+                return self.savedVariables.isDebugRecipe
+            end,
+            setFunc = function(value)
+                self.savedVariables.isDebugRecipe = value
+            end,
+            width = "full",
+            default = false,
+            reference = "DP_IsDebugRecipe",
+        }
     }
     LibAddonMenu2:RegisterOptionControls(self.displayName, optionsTable)
 end
@@ -438,10 +372,13 @@ end
 
 function DailyProvisioning:CreateParameter(info)
 
-    self:Debug("　　[Parameter]")
+    self:Debug("　　[CreateParameter]")
     local qualityMax = 1
     local qualityMin = 1
-    if info.isMaster then
+    if info.isEvent then
+        qualityMax = 4
+        qualityMin = 1
+    elseif info.isMaster then
         qualityMax = 4
         qualityMin = 1
     end
@@ -458,96 +395,146 @@ function DailyProvisioning:CreateParameter(info)
                       8, 9, 10}
     end
 
-    self:Debug("　　　　convertedTxt=" .. tostring(info.convertedTxt))
-    self:Debug("　　　　questIdx=" .. tostring(info.questIdx)
-                                   .. ", stepIdx=" .. tostring(info.stepIdx)
-                                   .. ", conditionIdx=" .. tostring(info.conditionIdx))
-    self:Debug("　　　　Quality=" .. tostring(qualityMin) .. " to " .. tostring(qualityMax))
+    local resultItem = string.match(info.convertedTxt, "%[(.+)%]")
+    if not resultItem then
+        local isLogTmp = self.savedVariables.isLog
+        self.savedVariables.isLog = true
+        local msg = zo_strformat(GetString(DP_MISMATCH_RECIPE), info.convertedTxt)
+        self:Message(msg, self.failedColor)
+        self.savedVariables.isLog = isLogTmp
+        return {}
+    end
+    self:Debug("　　　　Quality=<<1>> to <<2>>", qualityMin, qualityMax)
+    self:Debug("　　　　resultItem=\"<<1>>\"", resultItem)
 
-    local parameterList = {}
+    local convertedItemNames
     for _, recipe in ipairs (self.recipeList) do
         if self:ContainsNumber(recipe.listIndex, listIndexs)
             and recipe.skillQuality <= qualityMax
             and recipe.skillQuality >= qualityMin then
 
-            if self:IsDebug() then
-                local convertedItemNames = self:ConvertedItemNames(recipe.recipeName)
-                local mark = Choice(self:Contains(info.convertedTxt, convertedItemNames), "|cffff66(O)", "|c5c5c5c(X)")
-                self:Debug("　　　　　　" .. mark .. ": " .. table.concat(convertedItemNames, ", ") .. (recipe.errorMsg or "") .. "|r ") 
-            end
+            convertedItemNames = self:ConvertedItemNames(recipe.recipeName)
+            for i, name in pairs (convertedItemNames) do
 
-            if self:Contains(info.convertedTxt, self:ConvertedItemNames(recipe.recipeName))then
-                parameterList[#parameterList + 1] = recipe
-                break
+                -- There are cases where string.match("xxx", "%[" .. "xxx" .. "%]") does not work properly depending on the timing ...
+                if self:Contains(resultItem, name) then
+                    self:Debug("　　　　(O):Index<<1>>-<<2>>: <<3>><<4>>", recipe.listIndex,
+                                                                           recipe.recipeIndex,
+                                                                           name,
+                                                                           recipe.errorMsg)
+                    return {self:ComplementRecipeData(recipe)}
+
+                elseif self:IsDebug() then
+                    -- Don't Use self:Debug() !
+                    d("|c" .. self.disabledColor
+                      .. self.shortName .. ":"
+                      .. zo_strformat("　　　　(X):Index<<1>>-<<2>>: ", recipe.listIndex, recipe.recipeIndex)
+                      .. "\"" .. convertedItemNames[i] .. "\""
+                      .. (i == 1 and recipe.errorMsg or "")
+                      .. "|r")
+                end
             end
         end
     end
-    if #parameterList == 0 then
-        local recipe = self:GetRecipeException(info)
-        if recipe then
-            if self:IsDebug() or GetDisplayName() == "@Marify" then
-                local mark = Choice(recipe.isKnown, "|cff00ff(O)", "|cff00ff(X)")
-                local convertedItemNames = self:ConvertedItemNames(recipe.recipeName)
-                self:Debug("　　　　　　" .. mark .. ": " .. table.concat(convertedItemNames, ", ") .. (recipe.errorMsg or "") .. "|r ") 
+
+
+    local recipe = self:GetRecipeException(info)
+    if recipe then
+        if recipe.isKnown then
+            if GetDisplayName() == "@Marify" and (not self:IsDebug()) then
+                self:DebugIfMarify("　　convertedTxt=\"<<1>>\"", tostring(info.convertedTxt))
+                self:DebugIfMarify("　　　　(O): Index<<1>>-<<2>>: \"<<3>>\" skillLevel=<<4>> skillQuality=<<5>>", recipe.listIndex,
+                                                                                                                   recipe.recipeIndex,
+                                                                                                                   recipe.recipeName,
+                                                                                                                   recipe.skillLevel,
+                                                                                                                   recipe.skillQuality,
+                                                                                                                   "ff00ff")
             end
-            parameterList[#parameterList + 1] = recipe
+            self:Debug("　　　　(O): Index<<1>>-<<2>>: <<3>> skillLevel=<<4>> skillQuality=<<5>>", recipe.listIndex,
+                                                                                                   recipe.recipeIndex,
+                                                                                                   recipe.recipeName,
+                                                                                                   recipe.skillLevel,
+                                                                                                   recipe.skillQuality,
+                                                                                                   "ff00ff")
         else
-            return {}
+            self:Debug("　　　　(X):Index<<1>>-<<2>>: <<3>><<4>>", recipe.listIndex,
+                                                                   recipe.recipeIndex,
+                                                                   recipe.recipeName,
+                                                                   recipe.errorMsg,
+                                                                   self.disabledColor)
         end
+        return {self:ComplementRecipeData(recipe)}
     end
 
-
-    local recipe = parameterList[1]
-    recipe.recipeName = self:ConvertedItemNameForDisplay(recipe.recipeName)
-    if (not recipe.isKnown) then
-        return {recipe}
-    end
-
-
-    recipe.recipeLink = GetRecipeResultItemLink(recipe.listIndex, recipe.recipeIndex)
-    recipe.itemId = GetItemLinkItemId(recipe.recipeLink)
-    recipe.itemType = GetItemLinkItemType(recipe.recipeLink)
-    recipe.ingredients = {}
-    recipe.ingredientLinks = {}
-    local shortList = {}
-    for ingredientIndex = 1, recipe.numIngredients do
-        local ingredient = {}
-        ingredient.itemName, _, ingredient.quantity = GetRecipeIngredientItemInfo(recipe.listIndex, recipe.recipeIndex, ingredientIndex)
-        ingredient.itemLink = GetRecipeIngredientItemLink(recipe.listIndex, recipe.recipeIndex, ingredientIndex)
-        ingredient.itemId = GetItemLinkItemId(ingredient.itemLink)
-        ingredient.icon = zo_iconFormat(GetItemLinkIcon(ingredient.itemLink), 20, 20)
-        local count = GetCurrentRecipeIngredientCount(recipe.listIndex, recipe.recipeIndex, ingredientIndex)
-        if count < ingredient.quantity then
-            shortList[#shortList + 1] = ingredient.icon .. self:ConvertedItemNameForDisplay(ingredient.itemName)
-        end
-        recipe.ingredients[#recipe.ingredients + 1] = ingredient
-        recipe.ingredientLinks[#recipe.ingredientLinks + 1] = ingredient.itemLink
-    end
-    if #shortList > 0 then
-        recipe.errorMsg = zo_strformat(GetString(DP_SHORT_OF), table.concat(shortList, ", "))
-    end
-    return {recipe}
+    local msg = zo_strformat(GetString(DP_MISMATCH_RECIPE), info.convertedTxt)
+    local isLogTmp = self.savedVariables.isLog
+    self.savedVariables.isLog = true
+    self:Message(msg, self.failedColor)
+    self.savedVariables.isLog = isLogTmp
+    return {}
 end
 
 
 
 
-function DailyProvisioning:CreateParameterQuiet(info)
+function DailyProvisioning:ExistUnknownRecipe(infos)
 
-    if self:IsDebug() then
-        self.savedVariables.isDebug = false
-        local parameterList = self:CreateParameter(info)
-        self.savedVariables.isDebug = true
-        return parameterList
-    else
-        return self:CreateParameter(info)
+    -- Case: Already checked.
+    if self.existUnknownRecipe ~= nil then
+        return self.existUnknownRecipe
     end
+
+
+    self:Debug("　　[ExistUnknownRecipe]")
+    self.existUnknownRecipe = false
+    local toHide = self:IsDebug() and (not self.savedVariables.isDebugRecipe)
+    local bulkQuantity = self.savedVariables.bulkQuantity
+    self.savedVariables.bulkQuantity = nil
+
+    local parameter
+    for _, info in pairs(infos) do
+        if (not info.isMaster)
+            and self:IsValidConditions(info.convertedTxt, info.current, info.max, info.isVisible) then
+
+            if toHide then
+                self.savedVariables.isDebug = false
+            end
+            parameter = self:CreateParameter(info)[1]
+            parameterList = self:CreateParameter(info)
+            if toHide then
+                self.savedVariables.isDebug = true
+            end
+
+            if (not parameter) then
+                -- Case DP_MISMATCH_RECIPE
+                self.existUnknownRecipe = true
+                break
+
+            elseif parameter.errorMsg and (not parameter.isKnown) then
+                local isLogTmp = self.savedVariables.isLog
+                self.savedVariables.isLog = true
+                local msg = zo_strformat(GetString(DP_UNKNOWN_RECIPE), parameter.recipeName)
+                self:Message(msg)
+                self.savedVariables.isLog = isLogTmp
+
+                self.existUnknownRecipe = true
+                break
+            end
+        end
+    end
+
+    self.savedVariables.bulkQuantity = bulkQuantity
+    self.bulkConditionText = nil
+    self.executeCurrent = nil
+    self.executeToEnd = nil
+    return self.existUnknownRecipe
 end
 
 
 
 
 function DailyProvisioning:Finalize()
+    self:Debug("[Finalize]")
     self.bulkConditionText = nil
     self.executeCurrent = nil
     self.executeToEnd = nil
@@ -557,9 +544,8 @@ function DailyProvisioning:Finalize()
     self.itemTypeFilter = {}
     self.stackList = {}
     self.houseStackList = {}
-    self.isSilent = false
-    self.isDontKnow = nil
-    self.dontKnowRecipe = nil
+    self.existUnknownRecipe = nil
+    self.isStationInteract = false
 end
 
 
@@ -582,64 +568,8 @@ function DailyProvisioning:GetAmountToMake(itemType)
     -- Rank2:3 (+2)
     -- Rank3:4 (+3)
     abilityName = abilityName:gsub("(\^)%a*", "")
-    self:Debug("　　" .. abilityName .. " Rank" .. rankIndex)
+    self:Debug("　　　　<<1>> Rank<<2>> ... AmountToMake=<<3>>", abilityName, rankIndex, 1 + rankIndex)
     return 1 + rankIndex
-end
-
-
-
-
-function DailyProvisioning:GetHouseBankIdList()
-
-    local houseBankBagId = GetBankingBag()
-    if GetInteractionType() == INTERACTION_BANK
-        and IsOwnerOfCurrentHouse()
-        and IsHouseBankBag(houseBankBagId) then
-        return {houseBankBagId}
-
-    elseif IsOwnerOfCurrentHouse() then
-        return {BAG_HOUSE_BANK_ONE,
-                BAG_HOUSE_BANK_TWO,
-                BAG_HOUSE_BANK_THREE,
-                BAG_HOUSE_BANK_FOUR,
-                BAG_HOUSE_BANK_FIVE,
-                BAG_HOUSE_BANK_SIX,
-                BAG_HOUSE_BANK_SEVEN,
-                BAG_HOUSE_BANK_EIGHT,
-                BAG_HOUSE_BANK_NINE,
-                BAG_HOUSE_BANK_TEN}
-    end
-    return {}
-end
-
-
-
-
-function DailyProvisioning:GetHouseStackList()
-
-    if GetInteractionType() == INTERACTION_BANK then
-        if (not IsOwnerOfCurrentHouse()) then
-            return {}
-        end
-    end
-
-
-    local list = {}
-    for _, bagId in pairs(self:GetHouseBankIdList()) do
-        local slotIndex = ZO_GetNextBagSlotIndex(bagId, nil)
-        while slotIndex do
-            local itemType = GetItemType(bagId, slotIndex)
-            if self:ContainsNumber(itemType, self.itemTypeFilter) then
-                local itemId = GetItemId(bagId, slotIndex)
-                local _, stack = GetItemInfo(bagId, slotIndex)
-                local totalStack = list[itemId] or 0
-                list[itemId] = totalStack + stack
-            end
-
-            slotIndex = ZO_GetNextBagSlotIndex(bagId, slotIndex)
-        end
-    end
-    return list
 end
 
 
@@ -647,7 +577,13 @@ end
 
 function DailyProvisioning:GetQuestInfos()
 
-    self:Debug("[Quest]")
+    local toHide = self:IsDebug() and (not self.savedVariables.isDebugQuest)
+    if toHide then
+        self.savedVariables.isDebug = false
+    end
+
+    self:Debug("　　[GetQuestInfos]")
+
     local hasMaster = false
     local hasDaily = false
     local hasEvent = false
@@ -686,12 +622,11 @@ function DailyProvisioning:GetQuestInfos()
                         info.questIdx = questIdx
                         info.stepIdx = stepIdx
                         info.conditionIdx = conditionIdx
-                        self:Debug("　　　　"
-                            .. tostring(info.questIdx)
-                            .. "-" .. tostring(info.stepIdx)
-                            .. "-" .. tostring(info.conditionIdx)
-                            .. ":" .. tostring(info.convertedTxt)
-                        )
+
+                        self:Debug("　　　　　　<<1>>-<<2>>-<<3>>: <<4>>", info.questIdx,
+                                                                           info.stepIdx,
+                                                                           info.conditionIdx,
+                                                                           info.convertedTxt)
                         list[#list + 1] = info
                     end
                 end
@@ -713,8 +648,8 @@ function DailyProvisioning:GetQuestInfos()
         if self:GetCraftingTypeByLink(itemLink) == CRAFTING_TYPE_PROVISIONING then
             uniqueId = Id64ToString(GetItemUniqueId(BAG_BACKPACK, slotIndex))
             reservation = reservations[uniqueId]
-            if reservation and reservation.current < reservation.max then
-                self:Debug("　　questName(O):" .. GetString(DP_CRAFTING_MASTER))
+            if reservation then
+                self:Debug("　　　　questName(O):" .. GetString(DP_CRAFTING_MASTER))
                 txt = GenerateMasterWritBaseText(GetItemLink(BAG_BACKPACK, slotIndex))
                 local info = {}
                 info.recipeItemId = reservation.recipeItemId
@@ -733,13 +668,17 @@ function DailyProvisioning:GetQuestInfos()
                 else
                     hasMaster = true
                 end
-                self:Debug(zo_strformat("　　　　<<1>>:<<2>> <<3>> / <<4>>", info.recipeItemId,
-                                                                             tostring(reservation.txt),
-                                                                             tostring(reservation.current),
-                                                                             tostring(reservation.max)))
+                self:Debug(zo_strformat("　　　　　　<<1>>:<<2>> <<3>> / <<4>>", info.recipeItemId,
+                                                                                 tostring(info.convertedTxt),
+                                                                                 tostring(info.current),
+                                                                                 tostring(info.max)))
             end
         end
         slotIndex = ZO_GetNextBagSlotIndex(BAG_BACKPACK, slotIndex)
+    end
+
+    if toHide then
+        self.savedVariables.isDebug = true
     end
     return list, hasMaster, hasDaily, hasEvent
 end
@@ -749,10 +688,11 @@ end
 
 function DailyProvisioning:GetRecipeException(info)
 
-    self:Debug("　　[RecipeException]")
+    self:Debug("　　[GetRecipeException]")
     local listName, numRecipes
     local isKnown, recipeName, numIg, level, quality, ingredientType, stationType
     local itemLink
+    local itemId
     self:Debug("　　　　info.questIdx=" .. tostring(info.questIdx))
     self:Debug("　　　　info.stepIdx=" .. tostring(info.stepIdx))
     self:Debug("　　　　info.conditionIdx=" .. tostring(info.conditionIdx))
@@ -763,13 +703,12 @@ function DailyProvisioning:GetRecipeException(info)
             isKnown, recipeName, numIg, level, quality, ingredientType, stationType = GetRecipeInfo(listIndex,
                                                                                                     recipeIndex)
             itemLink = GetRecipeResultItemLink(listIndex, recipeIndex)
-
+            itemId   = GetItemLinkItemId(itemLink)
             if (info.questIdx and DoesItemLinkFulfillJournalQuestCondition(itemLink,
                                                                            info.questIdx,
                                                                            info.stepIdx,
                                                                            info.conditionIdx))
-            or (info.recipeItemId and info.recipeItemId == GetItemLinkItemId(itemLink)) then
-
+            or (info.recipeItemId and info.recipeItemId == itemId) then
                 local recipe = {}
                 recipe.recipeName       = recipeName
                 recipe.isKnown          = isKnown
@@ -784,7 +723,7 @@ function DailyProvisioning:GetRecipeException(info)
                 if (not isKnown) then
                     recipe.errorMsg = GetString(DP_NOTHING_RECIPE)
                 end
-                return recipe
+                return self:ComplementRecipeData(recipe)
             end
         end
     end
@@ -796,16 +735,19 @@ end
 
 function DailyProvisioning:GetRecipeList(hasMaster, hasDaily, hasEvent)
 
-    self:Debug("[Recipe]")
-    self.itemTypeFilter = {ITEMTYPE_INGREDIENT}
-    local itemTypeCache = {ITEMTYPE_INGREDIENT}
+    local toHide = self:IsDebug() and (not self.savedVariables.isDebugRecipe)
+    if toHide then
+        self.savedVariables.isDebug = false
+    end
+
+    self:Debug("　　[GetRecipeList]")
+    self.itemTypeFilter = {ITEMTYPE_INGREDIENT, ITEMTYPE_DRINK, ITEMTYPE_FOOD}
+    local itemTypeCache = {ITEMTYPE_INGREDIENT, ITEMTYPE_DRINK, ITEMTYPE_FOOD}
     local list = {}
     local listName, numRecipes
     local isKnown, recipeName, numIg, level, quality, ingredientType, stationType
     local itemLink
     local itemType
-
-
     local levelMax = self.savedCharVariables.levelWhenReceived
     local levelMin = levelMax
     if (not levelMax) then
@@ -813,7 +755,7 @@ function DailyProvisioning:GetRecipeList(hasMaster, hasDaily, hasEvent)
         levelMin = math.max(levelMax - 3, 1)
     end
     if hasEvent then
-        levelMax = 1
+        levelMax = 6
         levelMin = 1
     elseif hasMaster then
         levelMax = 6
@@ -822,7 +764,10 @@ function DailyProvisioning:GetRecipeList(hasMaster, hasDaily, hasEvent)
 
     local qualityMax = 1
     local qualityMin = 1
-    if hasMaster then
+    if hasEvent then
+        qualityMax = 4
+        qualityMin = 1
+    elseif hasMaster then
         qualityMax = 4
         qualityMin = 1 -- TODO: In case of Master, is there quality 1?
     end
@@ -853,7 +798,7 @@ function DailyProvisioning:GetRecipeList(hasMaster, hasDaily, hasEvent)
                 recipe.skillLevel       = level
                 recipe.skillQuality     = quality
 
-                if (not isKnown) then
+                if (not isKnown) then -- Flags are not returned correctly in some environments?
                     recipe.errorMsg = GetString(DP_NOTHING_RECIPE)
 
                 elseif quality >= 2 then
@@ -891,29 +836,33 @@ function DailyProvisioning:GetRecipeList(hasMaster, hasDaily, hasEvent)
         return a.len > b.len
     end)
 
-    if self:IsDebug() then
-        self:GetSkillLevel()
-        self:GetSkillQuality()
-        self:Debug("　　LevelWhenReceived=" .. tostring(self.savedCharVariables.levelWhenReceived))
-        self:Debug("　　QualityWhenReceived=" .. tostring(self.savedCharVariables.qualityWhenReceived))
-        self:Debug("　　hasMaster=" .. tostring(hasMaster))
-        self:Debug("　　hasDaily=" .. tostring(hasDaily))
-        self:Debug("　　hasEvent=" .. tostring(hasEvent))
-        self:Debug("　　Level=" .. tostring(levelMin) .. " to " .. tostring(levelMax))
-        self:Debug("　　Quality=" .. tostring(qualityMin) .. " to " .. tostring(qualityMax))
-        for _, recipe in pairs(list) do
-            local convertedItemNames = self:ConvertedItemNames(recipe.recipeName)
-            local mark = Choice(recipe.isKnown, "|cffff66", "|c5c5c5c")
-            self:Debug("　　" .. mark
-                              .. "Lv" .. recipe.skillLevel
-                              .. ":Quality".. recipe.skillQuality
-                              .. ":Index".. recipe.listIndex .. "-" .. recipe.recipeIndex
-                              .. ": " .. table.concat(convertedItemNames, ", ")
-                              .. (recipe.errorMsg or "") .. "|r ") 
-        end
-        self:Debug("　　Total:" .. #list)
-    end
 
+    self:GetSkillLevel()
+    self:GetSkillQuality()
+    self:Debug("　　　　LevelWhenReceived=" .. tostring(self.savedCharVariables.levelWhenReceived))
+    self:Debug("　　　　QualityWhenReceived=" .. tostring(self.savedCharVariables.qualityWhenReceived))
+    self:Debug("　　　　hasMaster=" .. tostring(hasMaster))
+    self:Debug("　　　　hasDaily=" .. tostring(hasDaily))
+    self:Debug("　　　　hasEvent=" .. tostring(hasEvent))
+    self:Debug("　　　　Level=" .. tostring(levelMin) .. " to " .. tostring(levelMax))
+    self:Debug("　　　　Quality=" .. tostring(qualityMin) .. " to " .. tostring(qualityMax))
+    local convertedItemNames
+    for _, recipe in pairs(list) do
+        --convertedItemNames = self:ConvertedItemNames(recipe.recipeName)
+        self:Debug("　　　　Lv<<1>>:Quality<<2>>:Index<<3>>-<<4>>: <<5>><<6>>", recipe.skillLevel,
+                                                                                recipe.skillQuality,
+                                                                                recipe.listIndex,
+                                                                                recipe.recipeIndex,
+                                                                                recipe.recipeName,
+                                                                                recipe.errorMsg,
+                                                                                (not recipe.isKnown) and self.disabledColor or nil
+                                                                                )
+    end
+    self:Debug("　　　　Total:" .. #list)
+
+    if toHide then
+        self.savedVariables.isDebug = true
+    end
     return list
 end
 
@@ -923,14 +872,14 @@ end
 function DailyProvisioning:GetSkillLevel()
 
     local skillType, skillIndex = GetCraftingSkillLineIndices(CRAFTING_TYPE_PROVISIONING)
-    local abilityIndex = 2
+    local abilityIndex = 1
     local abilityName, _, _, _, _, purchased, _, rankIndex = GetSkillAbilityInfo(skillType, skillIndex, abilityIndex)
     if (not purchased) then
         rankIndex = 1
     end
 
     abilityName = abilityName:gsub("(\^)%a*", "")
-    self:Debug("　　" .. abilityName .. " Level" .. rankIndex)
+    self:Debug("　　　　" .. abilityName .. " Level" .. rankIndex)
     return rankIndex
 end
 
@@ -940,14 +889,14 @@ end
 function DailyProvisioning:GetSkillQuality()
 
     local skillType, skillIndex = GetCraftingSkillLineIndices(CRAFTING_TYPE_PROVISIONING)
-    local abilityIndex = 1
+    local abilityIndex = 2
     local abilityName, _, _, _, _, purchased, _, rankIndex = GetSkillAbilityInfo(skillType, skillIndex, abilityIndex)
     if (not purchased) then
         rankIndex = 1
     end
 
     abilityName = abilityName:gsub("(\^)%a*", "")
-    self:Debug("　　" .. abilityName .. " Quality" .. rankIndex)
+    self:Debug("　　　　" .. abilityName .. " Quality" .. rankIndex)
     return rankIndex
 end
 
@@ -957,10 +906,11 @@ end
 function DailyProvisioning:GetStackList()
 
     local stackList = {}
+    local itemType
     for i, bagId in ipairs({BAG_BACKPACK, BAG_VIRTUAL, BAG_BANK, BAG_SUBSCRIBER_BANK}) do
         local slotIndex = ZO_GetNextBagSlotIndex(bagId, nil)
         while slotIndex do
-            local itemType = GetItemType(bagId, slotIndex)
+            itemType = GetItemType(bagId, slotIndex)
             if self:ContainsNumber(itemType, self.itemTypeFilter) then
                 local itemId = GetItemId(bagId, slotIndex)
                 local _, stack = GetItemInfo(bagId, slotIndex)
@@ -977,146 +927,74 @@ end
 
 
 
-function DailyProvisioning:IsDontKnow(infos)
-
-    if self.isDontKnow ~= nil then
-        return self.isDontKnow, self.dontKnowRecipe
-    end
-
-    if (not self.savedVariables.isDontKnow) then
-        self:Debug("　　　　Off")
-        self.isDontKnow = false
-        self.dontKnowRecipe = nil
-        return self.isDontKnow, self.dontKnowRecipe
-    end
-
-
-    self:Debug("[IsDontKnow]")
-    local parameter
-    for _, info in pairs(infos) do
-        if (not info.isMaster)
-            and self:IsValidConditions(info.convertedTxt, info.current, info.max, info.isVisible) then
-
-            parameter = self:CreateParameter(info)[1]
-            if (not parameter) then
-                if (self.checkedJournal[info.key] ~= false) then
-                    local msg = zo_strformat(GetString(DP_MISMATCH_RECIPE), info.txt:gsub("\n", ""))
-                    self:Message(msg, ZO_ERROR_COLOR:ToHex())
-                end
-                self.isDontKnow = nil
-                self.dontKnowRecipe = nil
-                return self.isDontKnow, self.dontKnowRecipe
-
-            elseif parameter.errorMsg and (not parameter.isKnown) then
-                self.bulkConditionText = nil
-                self.executeCurrent = nil
-                self.executeToEnd = nil
-                self.isDontKnow = true
-                self.dontKnowRecipe = parameter.recipeName
-                return self.isDontKnow, self.dontKnowRecipe
-            end
-            self.bulkConditionText = nil
-            self.executeCurrent = nil
-            self.executeToEnd = nil
-        end
-    end
-    self.bulkConditionText = nil
-    self.executeCurrent = nil
-    self.executeToEnd = nil
-    self.isDontKnow = false
-    self.dontKnowRecipe = nil
-    return self.isDontKnow, self.dontKnowRecipe
-end
-
-
-
-
-function DailyProvisioning:IsValidAcquireItemConditions(current, max, isVisible, conditionText)
-
-    if (not isVisible) then
-        return false
-    end
-    if (not conditionText) or conditionText == "" then
-        return false
-    end
-
-
-    if current < max then
-        if self:Contains(conditionText, self:CraftingConditions()) then
-
-            self:Debug("　　journalAcquireCondition(O):" .. tostring(conditionText))
-            return true
-        end
-    end
-    self:Debug("|c5c5c5c" .. "　　journalAcquireCondition(X):" .. tostring(conditionText) .. "|r")
-    return false
-end
-
-
-
-
-function DailyProvisioning:IsValidAcquireMaterialConditions(current, max, isVisible, conditionText)
-
-    if (not isVisible) then
-        return false
-    end
-    if (not conditionText) or conditionText == "" then
-        return false
-    end
-
-
-    if current < max then
-        if self:Contains(conditionText, self:CraftingConditions()) then
-            self:Debug("　　journalMaterialCondition(O):" .. tostring(conditionText))
-            return true
-        end
-    end
-    self:Debug("|c5c5c5c" .. "　　journalMaterialCondition(X):" .. tostring(conditionText) .. "|r")
-    return false
-end
-
-
-
-
 function DailyProvisioning:IsValidConditions(conditionText, current, max, isVisible)
 
+    self:Debug("　　[IsValidConditions]")
     if (not conditionText) or conditionText == "" then
+        self:Debug("　　　　> conditionText is nil")
         return nil
     end
 
-    if (self.savedVariables.bulkQuantity) then
+
+    if not string.match(conditionText, "%[.+%]") then
+        return nil -- Thanks @mightyjo!
+    end
+
+
+    if self.savedVariables.bulkQuantity then
+        --self:Debug("　　　　bulkQuantity=" .. tostring(self.savedVariables.bulkQuantity), self.checkColor)
+        self:Debug("　　　　isVisible=" .. tostring(isVisible), self.checkColor)
+        self:Debug("　　　　current=" .. tostring(current), self.checkColor)
+        self:Debug("　　　　max=" .. tostring(max), self.checkColor)
+        self:Debug("　　　　self.executeCurrent=" .. tostring(self.executeCurrent), self.checkColor)
+        self:Debug("　　　　self.executeToEnd=" .. tostring(self.executeToEnd), self.checkColor)
+        self:Debug("　　　　-----------------------------", self.checkColor)
         if self.executeCurrent == nil and isVisible and (current < max) then
             local conditions = self.CraftingConditions()
             if (#conditions == 0) or self:Contains(conditionText, conditions) then
                 self.bulkConditionText = conditionText
                 self.executeCurrent = 0
                 self.executeToEnd = tonumber(self.savedVariables.bulkQuantity)
-                self:Debug("　　journalCondition(O):" .. tostring(conditionText))
-                return conditionText
+                self:Debug("　　　　self.executeCurrent > " .. tostring(self.executeCurrent), self.checkColor)
+                self:Debug("　　　　self.executeToEnd > " .. tostring(self.executeToEnd), self.checkColor)
+                self:Debug("　　　　(O): <<1>> [<<2>> <<3>>/<<4>>]", tostring(conditionText),
+                                                                     GetString(DP_BULK_HEADER),
+                                                                     self.executeCurrent,
+                                                                     self.executeToEnd,
+                                                                     self.checkColor)
+               return conditionText
             end
 
         elseif self.executeCurrent == nil then
-            self:Debug("|c5c5c5c" .. "　　journalCondition(X):" .. tostring(conditionText) .. "|r")
+            self:Debug("　　　　(X): <<1>> [<<2>>]", tostring(conditionText),
+                                                     GetString(DP_BULK_HEADER),
+                                                     self.disabledColor)
             return nil
 
         elseif self.executeCurrent < self.executeToEnd then
-            self:Debug("　　journalCondition(O):" .. tostring(self.bulkConditionText))
+            self:Debug("　　　　(O): <<1>> [<<2>> <<3>>/<<4>>]", tostring(self.bulkConditionText),
+                                                                 GetString(DP_BULK_HEADER),
+                                                                 self.executeCurrent,
+                                                                 self.executeToEnd,
+                                                                 self.checkColor)
             return self.bulkConditionText
         else
             self.bulkConditionText = nil
             self.executeCurrent = nil
             self.executeToEnd = nil
+            self:Debug("　　　　self.executeCurrent > " .. tostring(self.executeCurrent), self.checkColor)
+            self:Debug("　　　　self.executeToEnd > " .. tostring(self.executeToEnd), self.checkColor)
         end
 
     elseif isVisible and (current < max) then
         local conditions = self.CraftingConditions()
         if (#conditions == 0) or self:Contains(conditionText, conditions) then
-            self:Debug("　　journalCondition(O):" .. tostring(conditionText))
+            self:Debug("　　　　(O):" .. tostring(conditionText))
             return conditionText
         end
     end
 
-    self:Debug("|c5c5c5c" .. "　　journalCondition(X):" .. tostring(conditionText) .. "|r")
+    self:Debug("　　　　(X):" .. tostring(conditionText), self.disabledColor)
     return nil
 end
 
@@ -1128,7 +1006,7 @@ function DailyProvisioning:IsValidQuest(questIdx, questName)
     if GetJournalQuestType(questIdx) == QUEST_TYPE_CRAFTING then
         if (not GetJournalQuestIsComplete(questIdx)) then
             if self:Contains(questName, GetString(DP_CRAFTING_QUEST), GetString(DP_CRAFTING_MASTER)) then
-                self:Debug("　　questName(O):" .. tostring(questName))
+                self:Debug("　　　　questName(O):<<1>>", questName)
                 return true
             end
 
@@ -1138,21 +1016,21 @@ function DailyProvisioning:IsValidQuest(questIdx, questName)
                         local txt, current, max, _, _, _, isVisible = GetJournalQuestConditionInfo(questIdx,
                                                                                                    stepIdx,
                                                                                                    conditionIdx)
-                        if isVisible and txt and txt ~="" and (self:isAlchemy(txt)) then
-                            self:Debug("　　|c5c5c5c" .. "questName(X):" .. tostring(questName) .. "|r")
+                        if isVisible and txt and txt ~="" and (not self:isProvisioning(txt)) then
+                            self:Debug("　　　　questName(X):<<1>>", questName, self.disabledColor)
                             return false
                         end
                         if isVisible and current >= max then
-                            self:Debug("　　|c5c5c5c" .. "questName(X):" .. tostring(questName) .. "|r")
+                            self:Debug("　　　　questName(X):<<1>>", questName, self.disabledColor)
                             return false
                         end
                     end
                 end
-                self:Debug("　　questName(O):" .. tostring(questName))
+                self:Debug("　　　　questName(O):<<1>>", questName)
                 return true
             end
         end
-        self:Debug("　　|c5c5c5c" .. "questName(X):" .. tostring(questName) .. "|r")
+        self:Debug("　　　　questName(X):<<1>>", questName, self.disabledColor)
     end
     return false
 end
@@ -1160,112 +1038,59 @@ end
 
 
 
-function DailyProvisioning:Message(msg, color)
-    if self.isSilent then
-        return
-    end
-    if (not self.savedVariables.isLog) then
-        return
-    end
-    if color then
-        d("|c88aaff" .. self.name .. ":|r |c" .. color .. msg .. "|r")
-    else
-        d("|c88aaff" .. self.name .. ":|r |cffffff" .. msg .. "|r")
-    end
-    if self.savedVariables.isDebug then
-        local log = self.name .. tostring(msg):gsub("　", "  "):gsub("|c5c5c5c", ""):gsub("|cffff66", ""):gsub("|r", "")
-        table.insert(self.savedVariables.debugLog, log)
-    end
-end
+function DailyProvisioning:ComplementRecipeData(recipe)
 
+    self:Debug("　　　　[ComplementRecipeData]")
 
+    recipe.recipeName       = self:ConvertedItemNameForDisplay(recipe.recipeName)
+    if (not recipe.isKnown) then
+        recipe.recipeLink = self.questRecipeList[recipe.listIndex][recipe.recipeIndex]
+        recipe.itemId     = GetItemLinkItemId(recipe.recipeLink)
 
-
-function DailyProvisioning:CountByItem(itemLink, current, max, bagIdList)
-
-    if (not itemLink) then
-        return 0
-    end
-    if current >= max then
-        return 0
-    end
-
-
-    self:Debug("　　　　　　[CountByItem " .. itemLink .. " (" .. current .. " to " .. max .. ")]")
-    local itemId = GetItemLinkItemId(itemLink)
-    local counted = 0
-    for _, bagId in ipairs(bagIdList) do
-        if current >= max then
-            return counted
+        if recipe.recipeLink == nil and GetDisplayName() == "@Marify" then
+            self:DebugIfMarify("　　　　New Recipe <<1>> (listIndex<<2>>, recipeIndex<<3>>)", recipe.recipeName,
+                                                                                              recipe.listIndex,
+                                                                                              recipe.recipeIndex,
+                                                                                              "ff00ff")
         end
 
-        local slotIndex = ZO_GetNextBagSlotIndex(bagId, nil)
-        while slotIndex do
-            if (current >= max) then
-                return counted
-            end
-            if GetItemId(bagId, slotIndex) == itemId then
-                itemLink = GetItemLink(bagId, slotIndex)    -- GetItemLink() ≠ GetRecipeResultItemLink()
-                local _, stack = GetItemInfo(bagId, slotIndex)
-                local quantity = math.min(max - current, stack)
-                self:Debug(zo_iconFormat(GetItemLinkIcon(itemLink), 18, 18) .. itemLink .. " x " .. quantity)
-                current = current + quantity
-                counted = counted + quantity
-            end
-            slotIndex = ZO_GetNextBagSlotIndex(bagId, slotIndex)
+        return recipe
+    end
+
+    recipe.recipeLink       = GetRecipeResultItemLink(recipe.listIndex, recipe.recipeIndex)
+    recipe.itemId           = GetItemLinkItemId(recipe.recipeLink)
+    recipe.itemType         = GetItemLinkItemType(recipe.recipeLink)
+    recipe.icon             = zo_iconFormat(GetItemLinkIcon(recipe.recipeLink), 20, 20)
+    recipe.ingredients      = {}
+    recipe.ingredientLinks  = {}
+
+
+    local ingredient
+    local count
+    local nameForDisplay
+    local shortList = {}
+    for ingredientIndex = 1, recipe.numIngredients do
+        ingredient = {}
+        ingredient.itemName, _, ingredient.quantity = GetRecipeIngredientItemInfo(recipe.listIndex,
+                                                                                  recipe.recipeIndex,
+                                                                                  ingredientIndex)
+        ingredient.itemLink = GetRecipeIngredientItemLink(recipe.listIndex, recipe.recipeIndex, ingredientIndex)
+        ingredient.itemId = GetItemLinkItemId(ingredient.itemLink)
+        ingredient.icon = zo_iconFormat(GetItemLinkIcon(ingredient.itemLink), 20, 20)
+        count = GetCurrentRecipeIngredientCount(recipe.listIndex, recipe.recipeIndex, ingredientIndex)
+        nameForDisplay = self:ConvertedItemNameForDisplay(ingredient.itemName)
+        self:Debug("　　　　　　<<1>><<2>> (<<3>>/<<4>>)", ingredient.icon, nameForDisplay, count, ingredient.quantity)
+        if count < ingredient.quantity then
+            shortList[#shortList + 1] = ingredient.icon .. nameForDisplay
         end
-    end
-    return counted
-end
-
-
-
-
-function DailyProvisioning:MoveByItem(itemLink, current, max, bagIdList)
-
-    if (not itemLink) then
-        return 0
-    end
-    if current >= max then
-        return 0
+        recipe.ingredients[#recipe.ingredients + 1] = ingredient
+        recipe.ingredientLinks[#recipe.ingredientLinks + 1] = ingredient.itemLink
     end
 
-
-    self:Debug("　　　　　　[MoveByItem " .. itemLink .. " (" .. current .. " to " .. max .. ")]")
-    local itemId = GetItemLinkItemId(itemLink)
-    local moved = 0
-    for _, bagId in ipairs(bagIdList) do
-        if current >= max then
-            return moved
-        end
-
-        local slotIndex = ZO_GetNextBagSlotIndex(bagId, nil)
-        while slotIndex do
-            if (current >= max) then
-                return moved
-            end
-            if GetItemId(bagId, slotIndex) == itemId then
-                itemLink = GetItemLink(bagId, slotIndex)    -- GetItemLink() ≠ GetRecipeResultItemLink()
-                local _, stack = GetItemInfo(bagId, slotIndex)
-                local quantity = math.min(max - current, stack)
-
-                if IsProtectedFunction("RequestMoveItem") then
-                    CallSecureProtected("RequestMoveItem", bagId, slotIndex, BAG_BACKPACK, self.emptySlot, quantity)
-                else
-                    RequestMoveItem(bagId, slotIndex, BAG_BACKPACK, self.emptySlot, quantity)
-                end
-                local msg = zo_iconFormat(GetItemLinkIcon(itemLink), 18, 18)
-                            .. itemLink
-                            .. " x " .. quantity
-                self:Message(msg)
-                self.emptySlot = self:NextEmptySlot(BAG_BACKPACK, self.emptySlot)
-                current = current + quantity
-                moved = moved + quantity
-            end
-            slotIndex = ZO_GetNextBagSlotIndex(bagId, slotIndex)
-        end
+    if #shortList > 0 and self.isStationInteract then
+        recipe.errorMsg = zo_strformat(GetString(DP_SHORT_OF), table.concat(shortList, ", "))
     end
-    return moved
+    return recipe
 end
 
 
@@ -1273,9 +1098,10 @@ end
 
 function DailyProvisioning:OnAddOnLoaded(event, addonName)
 
-    if addonName ~= DailyProvisioning.name then
+    if addonName ~= self.name then
         return
     end
+    EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_ADD_ON_LOADED)
     setmetatable(DailyProvisioning, {__index = LibMarify})
 
 
@@ -1296,36 +1122,15 @@ function DailyProvisioning:OnAddOnLoaded(event, addonName)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_CRAFT_COMPLETED,               function(...) self:CraftCompleted(...) end)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_END_CRAFTING_STATION_INTERACT, function(...) self:Finalize(...) end)
 
-    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_PLAYER_ACTIVATED,              function(...) self:Camehome(...) end)
-    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_OPEN_BANK,                     function(...) self:Acquire(...) end)
+    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_PLAYER_ACTIVATED,              function(...) self:Camehome() end)
+    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_OPEN_BANK,                     function(...) self:OnOpenBank() end)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_CLOSE_BANK,                    function(...) self:Finalize(...) end)
-
 
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_QUEST_ADDED,                   function(...) self:QuestReceived(...) end)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_QUEST_COMPLETE,                function(...) self:QuestComplete(...) end)
     self:PostHook(ZO_PlayerInventoryBackpack.dataTypes[1], "setupCallback",        function(...) self:UpdateInventory(...) end)
     LibCustomMenu:RegisterContextMenu(function(...) self:ShowContextMenu(...) end, LibCustomMenu.CATEGORY_LATE)
 
-end
-
-
-
-
-function DailyProvisioning:PostHook(objectTable, existingFunctionName, hookFunction)
-    local existingFunction = objectTable[existingFunctionName]
-    if existingFunction == nil then
-        return
-    end
-    if type(existingFunction) ~= "function" then
-        return
-    end
-
-    local newFunction = function(...)
-        local result = existingFunction(...)
-        hookFunction(...)
-        return result
-    end
-    objectTable[existingFunctionName] = newFunction
 end
 
 
@@ -1448,13 +1253,19 @@ function DailyProvisioning:ShowContextMenu(inventorySlot, slotActions)
 
     local reservation = reservations[uniqueId]
     if reservation and reservation.current < reservation.max then
-        AddCustomMenuItem(GetString(DP_CANCEL_WRIT), function()
+        local label = (self.savedVariables.isDebug or GetDisplayName() == "@Marify")
+                        and zo_strformat("|cE4007F<<1>>|r", GetString(DP_CANCEL_WRIT))
+                        or GetString(DP_CANCEL_WRIT)
+        AddCustomMenuItem(label, function()
             reservations[uniqueId] = nil
             self:Message(GetString(DP_CANCEL_WRIT_MSG))
             PLAYER_INVENTORY:RefreshAllInventorySlots(INVENTORY_BACKPACK)
         end, MENU_ADD_OPTION_LABEL)
     else
-        AddCustomMenuItem(GetString(DP_CRAFT_WRIT), function()
+        local label = (self.savedVariables.isDebug or GetDisplayName() == "@Marify")
+                        and zo_strformat("|c3CB371<<1>>|r", GetString(DP_CRAFT_WRIT))
+                        or GetString(DP_CRAFT_WRIT)
+        AddCustomMenuItem(label, function()
             local reservation = {}
             reservation.recipeItemId = self:SplitRecipeItemId(itemLink)
             reservation.txt = txt
@@ -1484,9 +1295,23 @@ function DailyProvisioning:StationInteract(eventCode, craftSkill, sameStation)
         return false
     end
 
+    self.isStationInteract = true
     self.savedVariables.debugLog = {}
     self.recipeList = nil
-    self:Crafting(eventCode, craftSkill)
+    self:Debug("[StationInteract]")
+    if self:IsDebug() and self.savedVariables.isDebugSettings then
+        self:Debug("　　savedVariables.bulkQuantity=" .. tostring(self.savedVariables.bulkQuantity))
+        self:Debug("　　savedVariables.isAcquireItem=" .. tostring(self.savedVariables.isAcquireItem))
+        self:Debug("　　savedVariables.acquireDelay=" .. tostring(self.savedVariables.acquireDelay))
+        self:Debug("　　savedVariables.isAutoExit=" .. tostring(self.savedVariables.isAutoExit))
+        self:Debug("　　savedVariables.isDontKnow=" .. tostring(self.savedVariables.isDontKnow))
+        self:Debug("　　savedVariables.isLog=" .. tostring(self.savedVariables.isLog))
+        self:Debug("　　savedVariables.isDebug=" .. tostring(self.savedVariables.isDebug))
+        self:Debug("　　savedVariables.isDebugSettings=" .. tostring(self.savedVariables.isDebugSettings))
+        self:Debug("　　savedVariables.isDebugQuest=" .. tostring(self.savedVariables.isDebugQuest))
+        self:Debug("　　savedVariables.isDebugRecipe=" .. tostring(self.savedVariables.isDebugRecipe))
+    end
+    self:Crafting(craftSkill)
 end
 
 

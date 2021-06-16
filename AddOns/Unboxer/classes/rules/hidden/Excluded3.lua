@@ -17,7 +17,7 @@ function class.Excluded3:New()
 end
 
 function class.Excluded3:Match(data)
-    if data.quality == (ITEM_QUALITY_LEGENDARY or ITEM_FUNCTIONAL_QUALITY_LEGENDARY) -- gold-quality
+    if data.quality == ITEM_FUNCTIONAL_QUALITY_LEGENDARY -- gold-quality
        or data.bindType == BIND_TYPE_ON_PICKUP_BACKPACK -- character-bound
        or data.bindType == BIND_TYPE_ON_EQUIP -- boe
        or string.find(data.name, "[0-9]") -- numbers in name
@@ -45,5 +45,9 @@ knownIds = {
   [153613]=1,[153614]=1,[153615]=1,[158198]=1,[158220]=1,[158279]=1,
   [159517]=1,[159518]=1,[159523]=1,[159926]=1,[160111]=1,[160296]=1,
   [160490]=1,[160513]=1,[160540]=1,[163735]=1,[166475]=1,[166476]=1,
-  [166477]=1,[166707]=1,[166722]=1,[167389]=1,
+  [166477]=1,[166707]=1,[166722]=1,[167389]=1,[174835]=1,[175051]=1,
+  [175052]=1,[175053]=1,[175054]=1,[175055]=1,[175056]=1,[175057]=1,
+  [175058]=1,[175059]=1,[175060]=1,[175061]=1,[175062]=1,[175063]=1,
+  [175064]=1,[175065]=1,[175066]=1,[175067]=1,[175069]=1,[175073]=1,
+  [175074]=1,[175726]=1,[178495]=1,[178496]=1,
 }

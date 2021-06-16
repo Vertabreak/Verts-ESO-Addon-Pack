@@ -5,7 +5,7 @@ local DamageTimeout=5000
 local ReportToShow, LastSection, LastTarget, TargetBuffsIsExpanded
 local BuffsSection=true
 local BUFF_W=355
-local AttributeColor={[ATTRIBUTE_HEALTH]={.7,.2,.2,1},[ATTRIBUTE_MAGICKA]={.4,.4,.9,1},[ATTRIBUTE_STAMINA]={.2,.7,.2,1}}
+local ChampionDisciplineColor={[CHAMPION_DISCIPLINE_TYPE_CONDITIONING]={.7,.2,.2,1},[CHAMPION_DISCIPLINE_TYPE_COMBAT]={.4,.4,.9,1},[CHAMPION_DISCIPLINE_TYPE_WORLD]={.2,.7,.2,1}}
 local _seconds=BUI.language=="ru" and "|r сек." or BUI.language=="de" and "|r Sekunden" or BUI.language=="fr" and "|r secondes" or BUI.language=="br" and "|r segundos" or "|r seconds"
 local AbilityIcons={
 	[103]="esoui/art/tutorial/swap_button_up.dds",	--Swap
@@ -340,8 +340,8 @@ local function EquipementInfo()
 	end
 	local name=BUI.UI.Label("BUI_Report_Einfo_Char", ui, {w-w1-10,fs*1.4}, {TOPLEFT,TOPLEFT,w1+5,10+w2*2}, BUI.UI.Font("esobold",fs,true), {1,1,1,1}, {0,0}, BUI.GetIcon("esoui/art/icons/heraldrycrests_race_"..RaceIcon[GetUnitRaceId("player")]..".dds",fs*1.4)..BUI.GetIcon(GetClassIcon(GetUnitClassId("player")),fs*1.4)..BUI.Player.name.." ("..BUI.Player:GetColoredLevel("player")..")")
 	local mainpower=BUI.Player["stamina"].max>BUI.Player["magicka"].max and "stamina" or "magicka"
-	local s_crit,m_crit=BUI.GetCritDamage()
-	local b_cost,b_mitigation=BUI.GetBlockCost()
+--	local s_crit,m_crit=BUI.GetCritDamage()
+--	local b_cost,b_mitigation=BUI.GetBlockCost()
 	local text="|cbb3333"..zo_strformat("<<!aC:1>>",EsoStrings[SI_ATTRIBUTES1]).."|r "..BUI.DisplayNumber(BUI.Player["health"].max).." |cbb3333Recovery|r "..BUI.DisplayNumber(GetPlayerStat(STAT_HEALTH_REGEN_COMBAT)).."\n"
 		.."|c33bb33"..zo_strformat("<<!aC:1>>",EsoStrings[SI_ATTRIBUTES3]).."|r "..BUI.DisplayNumber(BUI.Player["stamina"].max).." |c33bb33Recovery|r "..BUI.DisplayNumber(GetPlayerStat(STAT_STAMINA_REGEN_COMBAT)).."\n"
 		.."|c5555ff"..zo_strformat("<<!aC:1>>",EsoStrings[SI_ATTRIBUTES2]).."|r "..BUI.DisplayNumber(BUI.Player["magicka"].max).." |c5555ffRecovery|r "..BUI.DisplayNumber(GetPlayerStat(STAT_MAGICKA_REGEN_COMBAT))
@@ -350,18 +350,59 @@ local function EquipementInfo()
 	local text=(mainpower=="stamina" and "|c33bb33"..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS33]) or "|c5555ff"..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS34])).."|r "..BUI.DisplayNumber(penetr).." |c808080("..math.floor(penetr/66.2)/10 .."%)|r\n"
 		..(mainpower=="stamina" and "|c33bb33"..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS35]).."|r "..BUI.DisplayNumber(GetPlayerStat(STAT_POWER)) or "|c5555ff"..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS25]).."|r "..BUI.DisplayNumber(GetPlayerStat(STAT_SPELL_POWER))).."\n"
 		..(mainpower=="stamina" and "|c33bb33"..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS16]).."|r "..math.floor(GetPlayerStat(STAT_CRITICAL_STRIKE)/219*10)/10 or "|c5555ff"..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS23]).."|r "..math.floor(GetPlayerStat(STAT_SPELL_CRITICAL)/219*10)/10).."%\n"
-		..(mainpower=="stamina" and "|c33bb33"..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS16]).."|r bonus "..s_crit or "|c5555ff"..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS23]).."|r bonus "..m_crit).."%"
+--		..(mainpower=="stamina" and "|c33bb33"..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS16]).."|r bonus "..s_crit or "|c5555ff"..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS23]).."|r bonus "..m_crit).."%"
 	local stat2=BUI.UI.Label("BUI_Report_Einfo_Stats2", ui, {w-w1-10,sfs*1.4*4}, {TOPLEFT,BOTTOMLEFT,0,10,stat1}, BUI.UI.Font("standard",sfs,true), {.8,.8,.8,1}, {0,0}, text)
 	local p_resist,s_resist=GetPlayerStat(STAT_PHYSICAL_RESIST),GetPlayerStat(STAT_SPELL_RESIST)
 	local text=zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS38]).." "..BUI.DisplayNumber(p_resist).." |c808080("..math.floor(p_resist/66.2)/10 .."%)|r\n"
 		..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS44]).." "..BUI.DisplayNumber(s_resist).." |c808080("..math.floor(s_resist/66.2)/10 .."%)|r\n"
-		..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS1142]).." "..BUI.DisplayNumber(b_cost).."\n"
-		..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS1143]).." "..b_mitigation.."%"
+--		..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS1142]).." "..BUI.DisplayNumber(b_cost).."\n"
+--		..zo_strformat("<<!aC:1>>",EsoStrings[SI_DERIVEDSTATS1143]).." "..b_mitigation.."%"
 	local stat3=BUI.UI.Label("BUI_Report_Einfo_Stats3", ui, {w-w1-10,sfs*1.4*4}, {TOPLEFT,BOTTOMLEFT,0,10,stat2}, BUI.UI.Font("standard",sfs,true), {.8,.8,.8,1}, {0,0}, text)
 
-	--Champion system
+	--Champion system v2
 	ui.champ=BUI.UI.Control("BUI_Report_Einfo_Champion", ui, {w3,fs*3.5*9}, {TOPLEFT,TOPLEFT,w+(BUFF_W-w3)/2,0},not(BUI.Vars.StatsBuffs and BuffsSection))
 --	BUI.UI.Line("BUI_Report_Einfo_L2", ui.champ, {w-w1-2,0}, {TOPLEFT,TOPLEFT,0,0}, {.7,.7,.5,.3}, 2)
+--	for di=1, GetNumChampionDisciplines() do
+		--Discipline
+		local di=2	--Warfare
+		local d_id=GetChampionDisciplineId(di)
+		local d_name=zo_strformat("<<!aC:1>>",GetChampionDisciplineName(d_id))
+		local d_label=_G["BUI_Report_Discipline"..di] or WINDOW_MANAGER:CreateControl("BUI_Report_Discipline"..di, ui.champ, CT_LABEL)
+		d_label:SetDimensions(w3/3, fs)
+		d_label:ClearAnchors()
+		d_label:SetAnchor(TOPLEFT,ui.champ,TOPLEFT,0,(fs+(fs-3)*2)*(di-1))
+		d_label:SetFont(BUI.UI.Font("standard",fs-1,true))
+		d_label:SetColor(unpack(ChampionDisciplineColor[GetChampionDisciplineType(d_id)]))
+		d_label:SetHorizontalAlignment(1)
+		d_label:SetVerticalAlignment(1)
+		d_label:SetText((BUI.Vars.DeveloperMode and di..". " or "")..d_name)
+		for si=1,GetNumChampionDisciplineSkills(di) do
+			local s_id=GetChampionSkillId(di,si)
+			--Skill
+			local s_name=zo_strformat("<<!aC:1>>",GetChampionSkillName(s_id))
+			local s_label=_G["BUI_Report_Skill"..di..si] or WINDOW_MANAGER:CreateControl("BUI_Report_Skill"..di..si, ui.champ, CT_LABEL)
+			s_label:SetDimensions(w3/2-20, fs-4)
+			s_label:ClearAnchors()
+			s_label:SetAnchor(TOPLEFT,d_label,BOTTOMLEFT,math.abs(si%2-1)*w3/2,math.floor((si-1)/2)*(fs-2))
+			s_label:SetFont(BUI.UI.Font("standard",fs-4,true))
+			s_label:SetColor(.8,.8,.8,1)
+			s_label:SetHorizontalAlignment(0)
+			s_label:SetVerticalAlignment(1)
+			s_label:SetText((BUI.Vars.DeveloperMode and si..". " or "")..s_name)
+			--Value
+			local s_value=GetNumPointsSpentOnChampionSkill(s_id)
+			local label=_G["BUI_Report_SkillValue"..di..si] or WINDOW_MANAGER:CreateControl("BUI_Report_SkillValue"..di..si, ui.champ, CT_LABEL)
+			label:SetDimensions(20, fs-4)
+			label:ClearAnchors()
+			label:SetAnchor(TOPLEFT,s_label,TOPRIGHT,0,0)
+			label:SetFont(BUI.UI.Font("standard",fs-4,true))
+			label:SetColor(1,.9,.8,1)
+			label:SetHorizontalAlignment(0)
+			label:SetVerticalAlignment(1)
+			label:SetText(s_value>0 and s_value or "-")
+--		end
+	end
+--[[	Champion system v1
 	for i=0,8 do
 		local line=i<8 and i+2 or i-7
 		--Discipline
@@ -400,6 +441,7 @@ local function EquipementInfo()
 			label:SetText(s_value>0 and s_value or "-")
 		end
 	end
+--]]
 end
 
 function BUI.Stats.Analistics_Init()	--ANALYTICS WINDOW
@@ -1228,7 +1270,7 @@ function BUI.Stats.SetupReport(context,header_button)	--Setup player report
 		local Direct_Damage=0
 		local Spell_Damage=0
 		local Weapon_Damage=0
-		local Element_Damage={[0]=0,[1]=0,[2]=0,[3]=0,[4]=0,[5]=0,[6]=0,[7]=0,[8]=0,[9]=0,[10]=0,[11]=0}
+		local Element_Damage={[0]=0,[1]=0,[2]=0,[3]=0,[4]=0,[5]=0,[6]=0,[7]=0,[8]=0,[9]=0,[10]=0,[11]=0,[12]=0,[13]=0,[14]=0}
 		for name,data in pairs(Report.Damage.Total) do
 --			if not BUI.Stats.IsSingleAttack(ability) then Dot_Damage=Dot_Damage+data.total end
 			if GetAbilityUptime(data.id,name)==0 then Direct_Damage=Direct_Damage+data.total end
@@ -1248,16 +1290,17 @@ function BUI.Stats.SetupReport(context,header_button)	--Setup player report
 			title=
 			"|cbbbbbbPhysical|r "..math.floor(Element_Damage[DAMAGE_TYPE_PHYSICAL]*100/Report.damage).."%"..
 			"  |c33bb33Poison|r "..math.floor(Element_Damage[11]*100/Report.damage).."%"..
-			"  |cbb33bbDisease|r "..math.floor(Element_Damage[DAMAGE_TYPE_DISEASE]*100/Report.damage).."%"
+			"  |cbb33bbDisease|r "..math.floor(Element_Damage[DAMAGE_TYPE_DISEASE]*100/Report.damage).."%"..
+			"  |cbb3333Bleed|r "..math.floor(Element_Damage[DAMAGE_TYPE_BLEED]*100/Report.damage).."%"
 		end
 			title=title.."\n"..
-			"|cAAAAAADoT|r ".. 100-Direct_Damage.."%"..	--math.floor(Dot_Damage*100/Report.damage)
-			"  |cAAAAAADirect|r "..Direct_Damage.."%"..
-			"  |cbbbbbbWeapon|r "..math.floor(Weapon_Damage*100/Report.damage).."%"..
-			"  |c5555ffSpell|r "..math.floor(Spell_Damage*100/Report.damage).."%"
+			"|cbbbbbbWeapon|r "..math.floor(Weapon_Damage*100/Report.damage).."%"..
+			"  |c5555ffSpell|r "..math.floor(Spell_Damage*100/Report.damage).."%"..
+--			"  |cAAAAAADoT|r ".. 100-Direct_Damage.."%"..
+			(Direct_Damage<100 and "  |cAAAAAADirect damage|r "..Direct_Damage.."%" or "")
 		--Weawing
 		title=title.."\n"..
-			(Report.Ability.w and "|cAAAAAALight Attack/Ability:|r "..Report.Ability.w.."|cAAAAAA/|r"..(Report.Ability.a or 0) or "")..
+			(Report.Ability.w and "|cAAAAAAWeapon Attack/Ability:|r "..Report.Ability.w.."|cAAAAAA/|r"..(Report.Ability.a or 0) or "")..
 			(Report.Ability.a and "  |cbbbbbbRotation speed:|r "..math.min(math.floor(Report.Ability.a/fighttime*100),100).."|cAAAAAA%|r" or "")
 		BUI_Report_Elements:SetText(title)
 		BUI_Report_Elements:SetHidden(realcontext=="Incoming")

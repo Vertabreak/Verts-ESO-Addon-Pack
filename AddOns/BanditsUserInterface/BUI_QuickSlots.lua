@@ -109,7 +109,7 @@ end
 
 function BUI.QuickSlots.Update(theme,slots,parent)
 	slots=slots or BUI.Vars.QuickSlotsShow
-	parent=parent or ZO_ActionBar1
+	parent=parent or DefaultQuickSlot.slot
 	local theme_color=BUI.Vars.Theme==6 and {1,204/255,248/255,1} or BUI.Vars.Theme==7 and BUI.Vars.AdvancedThemeColor or BUI.Vars.Theme>3 and BUI.Vars.CustomEdgeColor or {1,1,1,1}
 	if theme then
 		for i=1,slots do
@@ -123,7 +123,7 @@ function BUI.QuickSlots.Update(theme,slots,parent)
 	local height	=h*(2-slots%2)+space*(1-slots%2)
 	local width		=(h+space)*(slots%2/2+.5)*slots
 --	local parent	=slots==9 and ZO_SharedRightPanelBackground or ZO_ActionBar1
-	local anchor	=slots==9 and {TOPLEFT,parent,BOTTOMLEFT,80,40} or {TOPLEFT,DefaultQuickSlot.slot,TOPRIGHT,20,0}
+	local anchor	=slots==9 and {TOPLEFT,parent,BOTTOMLEFT,80,40} or {TOPRIGHT,parent,TOPLEFT,-20,0}
 	local ui		=BUI_QuickSlots
 	if ui then ui:SetParent(parent) else ui=WINDOW_MANAGER:CreateControl("BUI_QuickSlots", parent, CT_CONTROL) end
 	ui:SetDimensions(width,height)
@@ -172,14 +172,7 @@ function BUI.QuickSlots.Update(theme,slots,parent)
 			if ui[i] then ui[i]:SetHidden(true) end
 		end
 
-		ZO_ActionBar1WeaponSwap:ClearAnchors()
-		ZO_ActionBar1WeaponSwap:SetAnchor(LEFT,DefaultQuickSlot.slot,RIGHT,width+20)
-		ZO_ActionBar1:SetWidth(ActionBarWidth+width+20)
 		OnSlotChanged()
-	else
-		ZO_ActionBar1WeaponSwap:ClearAnchors()
-		ZO_ActionBar1WeaponSwap:SetAnchor(LEFT,DefaultQuickSlot.slot,RIGHT,0)
-		ZO_ActionBar1:SetWidth(ActionBarWidth)
 	end
 end
 
@@ -206,7 +199,7 @@ function BUI.QuickSlots:Initialize()
 		end
 	end
 	if BUI.Vars.QuickSlots then
-		ActionBarWidth=ZO_ActionBar1:GetWidth()
+--		ActionBarWidth=ZO_ActionBar1:GetWidth()
 		BUI.QuickSlots.Update()
 		BUI.init.QuickSlots=true
 

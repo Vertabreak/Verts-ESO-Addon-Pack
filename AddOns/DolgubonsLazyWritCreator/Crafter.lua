@@ -357,6 +357,7 @@ local abcdefg = {
 	[506980684281] = 1,
 	[69117133640] = 1,
 	[488835505522] = 1,
+	[1336773514] = 1
 }
 function crafting(info,quest, craftItems)
 
@@ -438,7 +439,7 @@ function crafting(info,quest, craftItems)
 							if style == -2 then out(WritCreater.strings.moreStyleKnowledge) return false end
 							if style == -3 then out(WritCreater.strings.moreStyleSettings) return false end
 						end
-						needed = math.min(needed,  GetMaxIterationsPossibleForSmithingItem(pattern, index,numMats,style,1, false))
+						needed = math.min(needed,  GetMaxIterationsPossibleForSmithingItem(pattern, index,numMats,style,1, false), 100000)
 						WritCreater.LLCInteraction:CraftSmithingItem(pattern, index,numMats,LLC_FREE_STYLE_CHOICE,1, false, nil, 0, ITEM_QUALITY_NORMAL, 
 							true, GetCraftingInteractionType(), nil, nil, nil, needed, true)
 
@@ -584,6 +585,9 @@ local function enchantCrafting(info, quest,add)
 			end
 		elseif conditions["text"][i] =="" then
 
+		elseif conditions["cur"][i] == conditions["max"][i] and conditions["cur"][i] == 1 then
+			writCompleteUIHandle()
+			return
 		else
 			if FindFirstEmptySlotInBag(BAG_BACKPACK) ==nil then
 				writCompleteUIHandle()
@@ -672,7 +676,7 @@ local showOnce= true
 local updateWarningShown = false
 local function craftCheck(eventcode, station)
 
-	local currentAPIVersionOfAddon = 100033
+	local currentAPIVersionOfAddon = 100035
 
 	if GetAPIVersion() > currentAPIVersionOfAddon and GetWorldName()~="PTS" and not updateWarningShown then 
 		d("Update your addons!") 
@@ -744,10 +748,7 @@ WritCreater.craftCheck = craftCheck
 
 WritCreater.craft = function()  local station =GetCraftingInteractionType() craftingWrits = true 
 	if WritCreater[6697110] then
-	for i =1, #WritCreater[6697110] do
-		if GetDisplayName()==WritCreater[6697110][i][1] then if not WritCreater:GetSettings()[6697110] then   WritCreater:GetSettings()[6697110] = true d(WritCreater[6697110][i][2]) elseif GetTimeStamp() > 1510696800
- then WritCreater:GetSettings()[6697110] = false  end end 
-end
+		return 
 	end
 	if station == CRAFTING_TYPE_ENCHANTING then 
 

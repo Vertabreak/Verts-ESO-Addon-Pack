@@ -50,6 +50,8 @@ lib.defaultSettings = {
 lib.chatHistory = {}
 lib.chatHistoryActive = true
 
+lib.registeredChatLinks = {}
+
 -- internal functions
 
 local function GetFormattedTime(timeStamp)
@@ -90,17 +92,71 @@ end
 
 -- chat system hooks
 local messageFormatters = CHAT_ROUTER:GetRegisteredMessageFormatters()
-local function PostHookFormatter(eventType, postHook)
-    local originalFormatter = messageFormatters[eventType]
-    messageFormatters[eventType] = function(...)
+local newFormatter = {}
+do
+    local redirect = {}
+    setmetatable(newFormatter, redirect)
+    redirect.__index = function(_, key)
+        -- Called, if newFormatter has no entry: use original.
+        return messageFormatters[key]
+    end
+    local orgOnChatEvent = CHAT_ROUTER.FormatAndAddChatMessage
+    ZO_PreHook(CHAT_ROUTER, "FormatAndAddChatMessage", function(self)
+        if IsChatSystemAvailableForCurrentPlatform() then
+            -- Replace Formatters for ZOS
+            self.registeredMessageFormatters = newFormatter
+        end
+    end)
+    SecurePostHook(CHAT_ROUTER, "FormatAndAddChatMessage", function(self)
+        -- Restore Formatters for addons
+        self.registeredMessageFormatters = messageFormatters
+    end)
+end
+
+local function dummyPreHook(...) return ... end
+local function PostHookFormatter(eventType, postHook, preHook)
+    preHook = preHook or dummyPreHook
+    newFormatter[eventType] = function(...)
         local timeStamp, isRestoring = GetTimeStampForEvent()
         if(not isRestoring) then
             StoreChatEvent(timeStamp, eventType, ...)
         end
-        local formattedEventText, targetChannel, fromDisplayName, rawMessageText = originalFormatter(...)
+        local originalFormatter = messageFormatters[eventType]
+        local formattedEventText, targetChannel, fromDisplayName, rawMessageText = originalFormatter(preHook(...))
         return postHook(formattedEventText, targetChannel, fromDisplayName, rawMessageText, timeStamp)
     end
 end
+
+----------------------------------------------
+
+local UNKNOWN_LINK_TYPE = "unknown"
+lib.UNKNOWN_LINK_TYPE = UNKNOWN_LINK_TYPE
+local LINK_GMATCH_PATTERN = "||H(%d):(.-):(.-)||h(.-)||h"
+local function unknownTypeReformatter(linkStyle, linkType, data, displayText)
+    return ZO_LinkHandler_CreateLinkWithoutBrackets(displayText, nil, UNKNOWN_LINK_TYPE, linkType)
+end
+local function decodeCustomLinks(linkStyle, linkType, data, displayText)
+    local reformatter = lib.registeredChatLinks[linkType] or unknownTypeReformatter
+    linkStyle = tonumber(linkStyle)
+    return reformatter(linkStyle, linkType, data, displayText)
+end
+-- The chat event escapes unknown links. Here it gets unescaped.
+local function customLinkFormatter(messageType, fromName, text, ...)
+    text = text:gsub(LINK_GMATCH_PATTERN, decodeCustomLinks)
+    return messageType, fromName, text, ...
+end
+
+local function defaultReformatter(linkStyle, linkType, data, displayText)
+    return ZO_LinkHandler_CreateLinkWithFormat(displayText, nil, linkType, linkStyle, data)
+end
+
+function lib:RegisterCustomChatLink(linkType, optionalReformatter)
+    assert(not optionalReformatter or type(optionalReformatter) == "function", "Reformatter has to be a function")
+    self.registeredChatLinks[linkType] = optionalReformatter or defaultReformatter
+	ZO_VALID_LINK_TYPES_CHAT[linkType] = true
+end
+
+----------------------------------------------
 
 -- CHAT_ROUTER:FormatAndAddChatMessage(EVENT_CHAT_MESSAGE_CHANNEL, CHAT_CHANNEL_SAY, "test", "test", false, "test")
 PostHookFormatter(EVENT_CHAT_MESSAGE_CHANNEL, function(formattedEventText, targetChannel, fromDisplayName, rawMessageText, timeStamp)
@@ -108,7 +164,7 @@ PostHookFormatter(EVENT_CHAT_MESSAGE_CHANNEL, function(formattedEventText, targe
         formattedEventText = MESSAGE_TEMPLATE:format(GetFormattedTime(timeStamp), formattedEventText)
     end
     return formattedEventText, targetChannel, fromDisplayName, rawMessageText
-end)
+end, customLinkFormatter)
 
 -- CHAT_ROUTER:FormatAndAddChatMessage(EVENT_BROADCAST, "test")
 PostHookFormatter(EVENT_BROADCAST, function(formattedEventText, targetChannel, fromDisplayName, rawMessageText, timeStamp)
@@ -546,4 +602,18 @@ EVENT_MANAGER:RegisterForEvent(LIB_IDENTIFIER, EVENT_ADD_ON_LOADED, function(eve
     if(not lib.chatHistoryActive) then
         lib:ClearHistory()
     end
+
+    local function OnLinkClicked(link, button, text, color, linkType, ...)
+        if linkType ~= UNKNOWN_LINK_TYPE then
+            return
+        end
+        if button == MOUSE_BUTTON_INDEX_LEFT then
+            local unknownType = ...
+            ZO_Alert(EVENT_UI_ERROR, SOUNDS.NEGATIVE_CLICK, zo_strformat(LIB_CHATMESSAGE_UNKNOWN_DESCRIPTION, unknownType))
+            return true
+        end
+    end
+	LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_CLICKED_EVENT, OnLinkClicked)
+	LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_MOUSE_UP_EVENT, OnLinkClicked)
+	KEYBOARD_CHAT_SYSTEM:GetEditControl():SetAllowMarkupType(ALLOW_MARKUP_TYPE_ALL)
 end)

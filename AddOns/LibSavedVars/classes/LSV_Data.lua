@@ -971,14 +971,19 @@ function initToggle(self)
     if not characterRawDataTable
        or (characterRawDataTable[LIBNAME] 
            and characterRawDataTable[LIBNAME].accountSavedVarsActive)
-       or (ds.defaultToAccount and not characterRawDataTable[LIBNAME])
+       or (ds.defaultToAccount 
+           and (not characterRawDataTable[LIBNAME] 
+                or characterRawDataTable[LIBNAME].accountSavedVarsActive ~= false)
+          )
     then
         ds.active = ds.account
     else
         ds.active = ds.character
         
         -- Ensure that active character settings receive new default values from account scope
-        if not ds.character.defaults or not next(ds.character.defaults) and ds.account.defaults and next(ds.account.defaults) then
+        if (not ds.character.defaults or not next(ds.character.defaults))
+           and ds.account.defaults and next(ds.account.defaults)
+        then
             ds.character.defaults = ZO_ShallowTableCopy(ds.account.defaults)
         end
     end

@@ -47,6 +47,22 @@ local Enchants={
 	}
 local LastWipe,LastPowerValue=0,0
 local ResultDamage={[ACTION_RESULT_DAMAGE]=true,[ACTION_RESULT_CRITICAL_DAMAGE]=true,[ACTION_RESULT_BLOCKED_DAMAGE]=true,[ACTION_RESULT_DOT_TICK]=true,[ACTION_RESULT_DOT_TICK_CRITICAL]=true,[ACTION_RESULT_DAMAGE_SHIELDED]=true}
+local TrialZones,TrialNames={
+636,	--Hel Ra Citadel
+638,	--Aetheran Archive
+639,	--Sanctum Ophidia
+635,	--Dragonstar Arena
+725,	--Maw of Lorkhaj
+677,	--Maelstrom Arena
+975,	--Halls of Fabrication
+1000,	--Asylum Sanctorium
+1051,	--Cloudrest
+1082,	--Blackrose Prison
+1121,	--Sunspire
+1196,	--Kyne's Aegis
+1227,	--Vateshran Hollows
+},{}
+for _,id in pairs(TrialZones) do TrialNames[GetZoneNameById(id)]=id end
 
 --USER INTERFACE
 local function OnScreenResize()
@@ -630,12 +646,18 @@ local function OnActivated()
 	end
 	BUI.PvPzone=PvPzone
 	--Vanity Pet
-	if not PvPzone then
-		local trials={sunspirehall001_base=true,cloudresttrial_base=true,hofabriccaves_base=true,maw_of=true,mawlorkajsevenriddles_base=true,arenaslobbyexterior_base=true,trl_so=true,helracitadelentry_base=true,aetherianarchivebottom_base=true,gladiatorsassembly_base=true,blackroseprison01_base=true}
-		if trials[BUI.MapId] then
+	if not PvPzone then	--and not (RaidNotifier and RaidNotifier.Vars.general.last_pet) then
+		local TrialLobby={sunspirehall001_base=true,cloudresttrial_base=true,hofabriccaves_base=true,maw_of=true,mawlorkajsevenriddles_base=true,arenaslobbyexterior_base=true,trl_so=true,helracitadelentry_base=true,aetherianarchivebottom_base=true,gladiatorsassembly_base=true,blackroseprison01_base=true,kynesaegismap001_0=true,vateshransrites01_0=true}
+		if TrialLobby[BUI.MapId] then
 			local id=GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_VANITY_PET)
-			if id~=0 then d("Dismissing: "..GetCollectibleName(id)) UseCollectible(id) CallBackVanityPet=id end
---		elseif CallBackVanityPet then UseCollectible(CallBackVanityPet) CallBackVanityPet=false
+			if id~=0 then
+				ZO_Alert(UI_ALERT_CATEGORY_ALERT,nil,"Dismissing: "..string.gsub(tostring(GetCollectibleName(id)),"%^%w+",""))
+				UseCollectible(id)
+				CallBackVanityPet=id
+			end
+		elseif CallBackVanityPet and not TrialNames[GetUnitZone('player')] and not IsCollectibleBlocked(CallBackVanityPet) then
+			ZO_Alert(UI_ALERT_CATEGORY_ALERT,nil,"Activating: "..string.gsub(tostring(GetCollectibleName(CallBackVanityPet)),"%^%w+",""))
+			UseCollectible(CallBackVanityPet) CallBackVanityPet=false
 		end
 	end
 	--Leader arrow

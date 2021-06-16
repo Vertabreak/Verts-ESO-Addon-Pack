@@ -31,8 +31,20 @@ function class.Transmutation:Match(data)
        and data.flavorText ~= ""
        and not string.find(data.name, "[0-9]") -- no numbers in name
     then
+        data.isUnboxable = not self:IsAtTransmuteCap()
         return true
     end
+end
+
+function class.Transmutation:MatchKnownIds(data)
+    if addon.classes.Rule.MatchKnownIds(self, data) then
+        data.isUnboxable = not self:IsAtTransmuteCap()
+        return true
+    end
+end
+
+function class.Transmutation:IsAtTransmuteCap()
+    return GetCurrencyAmount(CURT_CHAOTIC_CREATIA, CURRENCY_LOCATION_ACCOUNT) >= GetMaxPossibleCurrency(CURT_CHAOTIC_CREATIA, CURRENCY_LOCATION_ACCOUNT)
 end
 
 knownIds = {

@@ -5,16 +5,13 @@ BUI.Meters={
 		Meter_Scale=120,
 		BUI_Meter_Speed={BOTTOMRIGHT,BOTTOMLEFT,-10,0,ZO_ActionBar1},
 		BUI_Meter_Power={CENTER,CENTER,-100,300},
+		BUI_Meter_Crit={CENTER,CENTER,-300,300},
 		BUI_Meter_Exp={BOTTOMLEFT,BOTTOMRIGHT,10,0,function() return (BUI_CustomBar or ZO_ActionBar1) end},
 		BUI_Meter_DPS={CENTER,CENTER,100,300},
 		BUI_Meter_Criminal={BOTTOMLEFT,BOTTOMRIGHT,250,0,ZO_ActionBar1},
 		},
-	List={"Speed","Power","Exp","DPS","Criminal"}
+	List={"Speed","Power","Crit","Exp","DPS","Criminal"}
 }
-
---	/script MeterSet("Power",2500)
---	/script SetRawValue("Power",210)
---	/script BUI.Meters.Initialize()
 
 local function MeterMove(name,i)
 	local frame=_G["BUI_Meter_"..name]
@@ -38,7 +35,6 @@ end
 local function MeterSet(name,value1,value2)
 	local frame=_G["BUI_Meter_"..name]
 	for i,val in pairs({value1,value2}) do
---		d(val)
 		if val then
 			if val>Meters[name].max then Meters[name].max=val Meters[name].delta=val-Meters[name].min end
 			frame.state[i][2]=209-math.floor((math.max(val,Meters[name].min)-Meters[name].min)/Meters[name].delta*58)
@@ -49,10 +45,10 @@ local function MeterSet(name,value1,value2)
 		end
 	end
 end
-
+--	/script BUI_Meter_Power_Line1:SetColor(.6,.6,.6,1)
 Meters={
 	Speed	={
-		min=0,max=2000,delta=2000,
+		min=0,max=2000,delta=2000,color={{.6,.6,.6,1},{.9,.9,.9,1}},
 		startfunc=function()
 			BUI.Meters.UI_Init("Speed")
 			local index,data=0,{}
@@ -60,6 +56,7 @@ Meters={
 			EVENT_MANAGER:RegisterForUpdate("BUI_Meter_Speed", 1000, function()
 				local zone,x,y,z=GetUnitRawWorldPosition('player')
 				local delta=math.floor(math.sqrt((lx-x)^2+(lz-z)^2))
+				if delta>5000 then delta=0 end
 				lx=x
 				lz=z
 				index=(index+1)%10
@@ -67,7 +64,7 @@ Meters={
 				local avg=0
 				for _,val in pairs(data) do avg=avg+val end avg=avg/#data
 				BUI_Meter_Speed.value:SetText(delta)
-				MeterSet("Speed",avg)
+				MeterSet("Speed",delta,avg)
 			end)
 		end,
 		stopfunc=function()
@@ -77,19 +74,42 @@ Meters={
 		},
 
 	Power	={
-		min=0,max=5000,delta=5000,color={{0,.12,.86,1},{0,.55,.12,1}},
+		min=0,max=5000,delta=5000,color={{.6,.6,.6,1},{.9,.9,.9,1}},
 		startfunc=function()
+			local minValue=BUI.MainPower=="magicka" and GetPlayerStat(STAT_SPELL_POWER) or GetPlayerStat(STAT_POWER)
+			Meters.Power.color[2]=BUI.MainPower=="magicka" and {0,.2,.96,1} or {0,.55,.12,1}
 			BUI.Meters.UI_Init("Power")
 			local function PowerUpdate()
-				local power={["magicka"]=GetPlayerStat(STAT_SPELL_POWER),["stamina"]=GetPlayerStat(STAT_POWER)}
-				BUI_Meter_Power.value:SetText("|c5555ff"..power.magicka.."|r / |c33bb33"..power.stamina.."|r")
-				MeterSet("Power",power.magicka,power.stamina)
+				local value=BUI.MainPower=="magicka" and GetPlayerStat(STAT_SPELL_POWER) or GetPlayerStat(STAT_POWER)
+				if value<minValue then minValue=value end
+				BUI_Meter_Power.value:SetText(value)	--(BUI.MainPower=="magicka" and "|c5555ff" or "|c33bb33")..value.."|r")
+				MeterSet("Power",minValue,value)
 			end
 			EVENT_MANAGER:RegisterForUpdate("BUI_Meter_Power", 2000, PowerUpdate)
 		end,
 		stopfunc=function()
 			if BUI_Meter_Power then BUI_Meter_Power:SetHidden(true) end
 			EVENT_MANAGER:UnregisterForUpdate("BUI_Meter_Power")
+		end
+		},
+
+	Crit	={
+		min=0,max=100,delta=100,color={{.6,.6,.6,1},{.9,.9,.9,1}},
+		startfunc=function()
+			local minValue=BUI.MainPower=="magicka" and GetPlayerStat(STAT_SPELL_POWER) or GetPlayerStat(STAT_POWER)
+			Meters.Crit.color[2]=BUI.MainPower=="magicka" and {0,.2,.96,1} or {0,.55,.12,1}
+			BUI.Meters.UI_Init("Crit")
+			local function PowerUpdate()
+				local value=BUI.MainPower=="magicka" and math.floor(GetPlayerStat(STAT_SPELL_CRITICAL)/219*10)/10 or math.floor(GetPlayerStat(STAT_CRITICAL_STRIKE)/219*10)/10
+				if value<minValue then minValue=value end
+				BUI_Meter_Crit.value:SetText(value.."%")
+				MeterSet("Crit",minValue,value)
+			end
+			EVENT_MANAGER:RegisterForUpdate("BUI_Meter_Crit", 2000, PowerUpdate)
+		end,
+		stopfunc=function()
+			if BUI_Meter_Crit then BUI_Meter_Crit:SetHidden(true) end
+			EVENT_MANAGER:UnregisterForUpdate("BUI_Meter_Crit")
 		end
 		},
 
@@ -192,10 +212,10 @@ function BUI.Meters.UI_Init(name)
 	ui.border	=BUI.UI.Texture(	"BUI_Meter_"..name.."_Bord",	ui.base,	{w,h},	{TOPLEFT,TOPLEFT,0,0},		"/BanditsUserInterface/textures/meter.dds",	false,2,{0,1,0,.5})
 	ui.border:SetColor(unpack(theme_color))
 	ui.name	=BUI.UI.Label(	"BUI_Meter_"..name.."_Name",		ui.base,	{w,fs*1.2},	{BOTTOMLEFT,TOPLEFT,0,0},	BUI.UI.Font(BUI.Vars.FrameFont1,fs,true), nil, {1,1}, BUI.Loc("Meter_"..name))
-	ui.value	=BUI.UI.Label(	"BUI_Meter_"..name.."_Value",		ui.base,	{w,fs*1.2},	{BOTTOMLEFT,BOTTOMLEFT,0,0},	BUI.UI.Font(BUI.Vars.FrameFont1,fs,true), nil, {1,1}, "0")
+	ui.value	=BUI.UI.Label(	"BUI_Meter_"..name.."_Value",		ui.base,	{w,fs*1.5},	{BOTTOMLEFT,BOTTOMLEFT,0,0},	BUI.UI.Font(BUI.Vars.FrameFont1,fs*1.3,true), nil, {1,1}, "0")
 	ui.line	={
-			BUI.UI.Line(	"BUI_Meter_"..name.."_Line1",		ui.base,	{0,0},	{TOPLEFT,TOP,0,0}, color[1], 4*s, true),
-			BUI.UI.Line(	"BUI_Meter_"..name.."_Line2",		ui.base,	{0,0},	{TOPLEFT,TOP,0,0}, color[2], 4*s, true)
+			BUI.UI.Line(	"BUI_Meter_"..name.."_Line1",		ui.base,	{0,0},	{TOPLEFT,TOP,0,0}, color[1], 5*s, true),
+			BUI.UI.Line(	"BUI_Meter_"..name.."_Line2",		ui.base,	{0,0},	{TOPLEFT,TOP,0,0}, color[2], 5*s, true)
 		}
 	for i=1,2 do ui.line[i]:SetDrawLayer(1) end
 	ui.state	={{209,209},{209,209}}
@@ -204,7 +224,6 @@ end
 function BUI.Meters.Initialize()
 	theme_color=BUI.Vars.Theme==6 and {1,204/255,248/255,1} or BUI.Vars.Theme==7 and BUI.Vars.AdvancedThemeColor or BUI.Vars.CustomEdgeColor
 	s=(BUI.Vars.Meter_Scale or BUI.Meters.Default.Meter_Scale)/100
-	Meters.Power.color={BUI.Vars.FrameMagickaColor,BUI.Vars.FrameStaminaColor}
 
 	for name,data in pairs(Meters) do
 		if BUI.Vars["Meter_"..name] then

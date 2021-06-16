@@ -126,20 +126,16 @@ local function SetUpSearchResultsWithAGS(rowControl)
     averagePricePerUnit = GetControlsForSearchResults(rowControl)
 
   if (not profitMarginControl) then
-    local h = nameControl:GetHeight()
-
-    timeRemainingControl:SetWidth(45) -- original 60
-
-    timeRemainingControl:ClearAnchors()
-    timeRemainingControl:SetAnchor(LEFT, nameControl, RIGHT, 15)
+    local h = timeRemainingControl:GetHeight()
+    local fontSize = timeRemainingControl:GetFontHeight()
 
     profitMarginControl = CreateControlFromVirtual(rowControl:GetName() .. 'ProfitMargin', rowControl, 'ZO_KeyboardGuildRosterRowLabel')
     -- 55 is better for large sale prices, but 65 is better for items super overpriced or underpriced
     profitMarginControl:SetDimensions(55, h)
     profitMarginControl:ClearAnchors()
-    profitMarginControl:SetAnchor(LEFT, timeRemainingControl, RIGHT, -5)
-    profitMarginControl:SetHorizontalAlignment(TEXT_ALIGN_RIGHT)
-    profitMarginControl:SetVerticalAlignment(TEXT_ALIGN_CENTER) --Center and right look better, but left fits better
+    profitMarginControl:SetAnchor(TOPLEFT, timeRemainingControl, TOPRIGHT, -10)
+    profitMarginControl:SetHorizontalAlignment(TEXT_ALIGN_CENTER)
+    profitMarginControl:SetVerticalAlignment(TEXT_ALIGN_CENTER)
     profitMarginControl:SetFont('ZoFontGameShadow')
   end
 
@@ -174,17 +170,21 @@ local function TradingHouseSearchResultsSetupRow(rowControl, ...)
 end
 
 local function OnEvent(eventCode, responseType, result)
-  --    if (eventCode == EVENT_TRADING_HOUSE_SEARCH_RESULTS_RECEIVED) then
-  if (eventCode == EVENT_TRADING_HOUSE_RESPONSE_RECEIVED) and (responseType == TRADING_HOUSE_RESULT_SEARCH_PENDING) and (result == TRADING_HOUSE_RESULT_SUCCESS) then
+  if (eventCode == EVENT_TRADING_HOUSE_RESPONSE_RECEIVED) and (responseType == TRADING_HOUSE_RESULT_SEARCH_PENDING) and (result == TRADING_HOUSE_RESULT_SUCCESS) 
+    -- searchResultsList doesn't exist in gamepad mode, so we'll bail out immediately to avoid the error
+    and TRADING_HOUSE.searchResultsList then
     local dataType = TRADING_HOUSE.searchResultsList.dataTypes[1]
     ZO_PreHook(dataType, 'setupCallback', TradingHouseSearchResultsSetupRow)
 
-    --EVENT_MANAGER:UnregisterForEvent(ArkadiusTradeToolsSales.NAME, EVENT_TRADING_HOUSE_SEARCH_RESULTS_RECEIVED)
-    EVENT_MANAGER:UnregisterForEvent(ArkadiusTradeToolsSales.NAME, EVENT_TRADING_HOUSE_RESPONSE_RECEIVED)
-
-    -- Small hack to refreh the list
+    -- Small hack to refresh the list
     ZO_ScrollList_Commit(ZO_TradingHouseBrowseItemsRightPaneSearchResults)
+    -- We can't unregister until we actually add the hook as a user may toggle gamepad mode in a single session
+    EVENT_MANAGER:UnregisterForEvent(ArkadiusTradeToolsSales.NAME, EVENT_TRADING_HOUSE_RESPONSE_RECEIVED)
   end
+end
+
+local function GetNormalizedTradingHouseSearchResultItemLink(slotIndex)
+  return ArkadiusTradeToolsSales:NormalizeItemLink(GetTradingHouseSearchResultItemLink(slotIndex))
 end
 
 local function ZO_ScrollList_Commit_Hook(list)
@@ -195,11 +195,12 @@ local function ZO_ScrollList_Commit_Hook(list)
     local days = ArkadiusTradeToolsSales.TradingHouse:GetCalcDays()
 
     for i = 1, #scrollData do
-      itemLink = GetTradingHouseSearchResultItemLink(scrollData[i].data.slotIndex)
       -- AGS appears to add an extra row at the bottom of the list (or override one)
       -- to render the Show More Results button, which causes parsing issues.
       -- We're gonna conditionally skip the last item if AGS is enabled so these errors aren't thrown.
-      if scrollData[i].data.stackCount ~= nil then
+      itemLink = GetNormalizedTradingHouseSearchResultItemLink(scrollData[i].data.slotIndex)
+      -- Guild Tabard listings don't have item links in vanilla, so we need to check for nil
+      if scrollData[i].data.stackCount ~= nil and itemLink then
         if (averagePrices[itemLink] == nil) then
           local itemType = GetItemLinkItemType(itemLink)
           averagePrices[itemLink] = {}
@@ -231,6 +232,7 @@ function ArkadiusTradeToolsSales.TradingHouse:Initialize(settings)
   end
   Settings.calcDays = Settings.calcDays or 10
   Settings.defaultDealLevel = Settings.defaultDealLevel or 2
+  Settings.enableAutoPricing = Settings.enableAutoPricing or false
   self:Enable(Settings.enabled)
 end
 
@@ -240,6 +242,14 @@ end
 
 function ArkadiusTradeToolsSales.TradingHouse:SetDefaultDealLevel(level)
   Settings.defaultDealLevel = level
+end
+
+function ArkadiusTradeToolsSales.TradingHouse:EnableAutoPricing(enable)
+  Settings.enableAutoPricing = enable
+end
+
+function ArkadiusTradeToolsSales.TradingHouse:IsAutoPricingEnabled()
+  return Settings.enableAutoPricing
 end
 
 --Copying a lot of stuff from AGS SellTabWrapper to duplicate functionality until AGS adds price providers
@@ -254,13 +264,27 @@ function ArkadiusTradeToolsSales.TradingHouse:AddAGSPriceButton()
   averagePriceButton.control:ClearAnchors()
   averagePriceButton.control:SetAnchor(RIGHT, lastSellPriceButton, LEFT, 2, 0)
   averagePriceButton.HandlePress = function(button)
-    local itemLink = AwesomeGuildStore.internal.tradingHouse.sellTab.pendingItemLink
+    local itemLink = ArkadiusTradeToolsSales:NormalizeItemLink(AwesomeGuildStore.internal.tradingHouse.sellTab.pendingItemLink)
+    -- We could use the isMasterWrit internal method of the SellTabWrapper, but I want to use as few internal AGS APIs as possible
+    local itemType = GetItemLinkItemType(itemLink)
+    local denominator = itemType == ITEMTYPE_MASTER_WRIT and ArkadiusTradeToolsSales:GetVoucherCount(itemLink) or 1
     local days = ArkadiusTradeToolsSalesData.settings.tooltips.days
-    local price = ArkadiusTradeToolsSales:GetAveragePricePerItem(itemLink, GetTimeStamp() - SECONDS_IN_DAY * days)
+    local price = ArkadiusTradeToolsSales:GetAveragePricePerItem(itemLink, GetTimeStamp() - SECONDS_IN_DAY * days) / denominator
     if (price) then
       AwesomeGuildStore.internal.tradingHouse.sellTab:SetUnitPrice(math.floor(price + 0.5))
     end
   end
+end
+
+function ArkadiusTradeToolsSales.TradingHouse.SetPendingItemPrice(_tradingHouse, slotId, isPending)
+  if not Settings.enableAutoPricing then return end
+  local _, stackCount = GetItemInfo(BAG_BACKPACK, slotId)
+  local itemLink = ArkadiusTradeToolsSales:NormalizeItemLink(GetItemLink(BAG_BACKPACK, slotId))
+  local days = ArkadiusTradeToolsSalesData.settings.tooltips.days
+  -- Vanilla UI doesn't do unit pricing, so we don't have to worry about the item type
+  local price = ArkadiusTradeToolsSales:GetAveragePricePerItem(itemLink, GetTimeStamp() - SECONDS_IN_DAY * days)
+  price = math.floor(price * stackCount + 0.5)
+  TRADING_HOUSE:SetPendingPostPrice(price)
 end
 
 function ArkadiusTradeToolsSales.TradingHouse:Enable(enable)
@@ -297,6 +321,9 @@ function ArkadiusTradeToolsSales.TradingHouse:Enable(enable)
     if AwesomeGuildStore then
       self:RegisterAGSInitCallback()
       ZO_PostHook(AwesomeGuildStore.class.SellTabWrapper, 'InitializeListingInput', function() self:AddAGSPriceButton() end)
+    else
+      -- I tried to do this with the pending item update event, but got a race condition under certain circumstances
+      ZO_PostHook(TRADING_HOUSE, 'OnPendingPostItemUpdated', self.SetPendingItemPrice)
     end
 
     -- Trying to hook in after AGS to avoid any conflicts
@@ -377,7 +404,8 @@ function ArkadiusTradeToolsSales.TradingHouse:InitializeListingMarginDisplay()
           listingMargin:SetAnchor(TOPLEFT, timeRemainingControl, TOPRIGHT, -20, 0)
           listingMargin:SetFont(LISTING_MARGIN_FONT)
       end
-      local margin, formatted = GetMarginData(cache, item, item.itemLink, days)
+      local itemLink = ArkadiusTradeToolsSales:NormalizeItemLink(item.itemLink)
+      local margin, formatted = GetMarginData(cache, item, itemLink, days)
       local color = self.GetMarginColor(margin)
       listingMargin:SetText(formatted)
       listingMargin:SetColor(color:UnpackRGBA())
@@ -405,12 +433,12 @@ function ArkadiusTradeToolsSales.TradingHouse.GetMarginColor(margin)
 end
 
 local STEPS = {
-  {id=1, value=-math.huge, icon="ArkadiusTradeToolsSales/img/baddeal_%s.dds"},
-  {id=2, value=-1.5, icon="AwesomeGuildStore/images/qualitybuttons/normal_%s.dds"},
-  {id=3, value=20, icon="AwesomeGuildStore/images/qualitybuttons/magic_%s.dds"},
-  {id=4, value=35, icon="AwesomeGuildStore/images/qualitybuttons/arcane_%s.dds"},
-  {id=5, value=50, icon="AwesomeGuildStore/images/qualitybuttons/artifact_%s.dds"},
-  {id=6, value=65, icon="AwesomeGuildStore/images/qualitybuttons/legendary_%s.dds"}
+  {id=1, value=-math.huge},
+  {id=2, value=-1.5},
+  {id=3, value=20},
+  {id=4, value=35},
+  {id=5, value=50},
+  {id=6, value=65}
 }
 
 function ArkadiusTradeToolsSales.TradingHouse.InitAGSIntegration(tradingHouseWrapper)
@@ -478,7 +506,8 @@ function ArkadiusTradeToolsSales.TradingHouse.InitAGSIntegration(tradingHouseWra
     end
 
     function AGSFilter:FilterLocalResult(data)
-      local itemLink = GetTradingHouseSearchResultItemLink(data.slotIndex)
+      local itemLink = GetNormalizedTradingHouseSearchResultItemLink(data.slotIndex)
+      if not itemLink then return false end
       local days = ArkadiusTradeToolsSales.TradingHouse:GetCalcDays()
       local margin = GetMarginData(self.averagePrices, data, itemLink, days)
       return self:IsWithinDealRange(margin) or self:IsDefaultDealLevel(margin)

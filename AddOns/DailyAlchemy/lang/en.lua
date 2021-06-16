@@ -29,6 +29,8 @@ ZO_CreateStringId("DA_PRIORITY_CHANGED",    "The add-on setting [<<1>>] has been
 
 ZO_CreateStringId("DA_OTHER_HEADER",        "Other")
 ZO_CreateStringId("DA_ACQUIRE_ITEM",        "Retrieve items from bank")
+ZO_CreateStringId("DA_DELAY",               "Delay time")
+ZO_CreateStringId("DA_DELAY_TOOLTIP",       "Delay time to retrieve item(sec)\nIf you cannot take out the item well, increase it.")
 ZO_CreateStringId("DA_AUTO_EXIT",           "Auto exit")
 ZO_CreateStringId("DA_AUTO_EXIT_TOOLTIP",   "You will automatically leave the crafting table after completing the daily writ.")
 ZO_CreateStringId("DA_ITEM_LOCK",           "Do not use locked items")

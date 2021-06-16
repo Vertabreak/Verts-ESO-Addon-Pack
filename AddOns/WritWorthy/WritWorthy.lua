@@ -8,7 +8,7 @@ local WW = WritWorthy
 local LAM2 = LibAddonMenu2
 
 WritWorthy.name            = "WritWorthy"
-WritWorthy.version         = "6.2.7"
+WritWorthy.version         = "7.0.4"
 WritWorthy.savedVarVersion = 1
 
 WritWorthy.default = {
@@ -194,7 +194,7 @@ function WritWorthy.KnowTooltipText(know_list)
     if not know_list then return nil end
     local elements = {}
     for i, know in ipairs(know_list) do
-                        -- Include lines that don't duplicate what 
+                        -- Include lines that don't duplicate what
                         -- Marify's Confirm Master Writ already report.
         if (   (not (know.how and know.how.cmw))
                         -- Or include duplicates if no CMW loaded, or if
@@ -215,7 +215,7 @@ local function can_tooltip_mat(enable, mat_row)
     end
 
     if (enable == nil) or (enable == WW.Str("lam_mat_tooltip_missing_only")) then
-        return mat_row:HaveCt() < mat_row.ct 
+        return mat_row:HaveCt() < mat_row.ct
     end
 
     return false
@@ -564,7 +564,7 @@ function WritWorthy:CreateSettingsWindow()
                         -- Only show this checkbox if running Marify's
                         -- Confirm Master Writ.
     if ConfirmMasterWrit then
-        local o = 
+        local o =
         { type      = "checkbox"
         , name      = WW.Str("lam_cmw_title")
         , tooltip   = WW.Str("lam_cmw_desc")
@@ -603,6 +603,36 @@ function WritWorthy.Forget()
     WritWorthy.savedChariables.writ_unique_id = {}
 end
 
+function WritWorthy.ServerName()
+    local self = WritWorthy
+    if not self.server_name then
+        self.server_name = "NA"
+        local plat = GetCVar("LastPlatform") -- ""
+        if (plat == "Live-EU") then
+            self.server_name = "EU"
+        end
+    end
+    return self.server_name
+end
+
+function WritWorthy.Port()
+    local owner    = "@ziggr"
+    local house_id = 62     -- Grand Psijic Villa
+    if WritWorthy.ServerName() == "NA" then
+
+    else
+        Log.Error("No public crafting house for EU server. If you have one to volunteer, contact @ziggr on ESOUI.com .")
+    end
+
+                        -- Must use different function for jumping to your own house
+                        -- vs. jumping to another player's house.
+    if owner == GetDisplayName() then
+        RequestJumpToHouse(house_id)
+    else
+        JumpToSpecificHouse(owner, house_id)
+    end
+end
+
 function WritWorthy.SlashCommand(arg1)
     if arg1:lower() == WW.Str("slash_discover") then
         d("|c999999WritWorthy: ".. WW.Str("status_discover").."|r")
@@ -611,6 +641,8 @@ function WritWorthy.SlashCommand(arg1)
     elseif arg1:lower() == WW.Str("slash_forget") then
         d("|c999999WritWorthy: "..WW.Str("status_forget") .."|r")
         WritWorthy.Forget()
+    elseif arg1:lower() == WW.Str("slash_port") then
+        WritWorthy.Port()
     elseif arg1:lower() == WW.Str("slash_count") then
         local mwlist = WritWorthy:ScanInventoryForMasterWrits()
         local mw_ct = #mwlist
@@ -626,6 +658,17 @@ function WritWorthy.SlashCommand(arg1)
     elseif arg1:lower() == WW.Str("slash_auto") then
         if WritWorthy_AutoQuest then
             WritWorthy_AutoQuest()
+        end
+    elseif arg1:lower() == WW.Str("slash_mat") then
+                        -- Lazy init of list window
+        if not WritWorthy.mat_ui_inited then
+            WritWorthy.MatUI:LazyInit()
+            WritWorthy.mat_ui_inited = true
+            WritWorthy.MatUI.RestorePos()
+        end
+
+        if WritWorthy.MatUI then
+            WritWorthy.MatUI.ToggleUI()
         end
     else
         WritWorthyUI_ToggleUI()
@@ -649,6 +692,11 @@ function WritWorthy.RegisterSlashCommands()
         sub_count:SetCallback(function() WritWorthy.SlashCommand(WW.Str("slash_count")) end)
         sub_count:SetDescription(WW.Str("slash_count_desc"))
 
+        local sub_port = cmd:RegisterSubCommand()
+        sub_port:AddAlias(WW.Str("slash_port"))
+        sub_port:SetCallback(function() WritWorthy.SlashCommand(WW.Str("slash_port")) end)
+        sub_port:SetDescription(WW.Str("slash_port_desc"))
+
         if (GetDisplayName() == "@ziggr") then
             local sub_discover = cmd:RegisterSubCommand()
             sub_discover:AddAlias(WW.Str("slash_discover"))
@@ -661,6 +709,13 @@ function WritWorthy.RegisterSlashCommands()
             sub_auto:AddAlias(WW.Str("slash_auto"))
             sub_auto:SetCallback(function() WritWorthy.SlashCommand(WW.Str("slash_auto")) end)
             sub_auto:SetDescription(WW.Str("slash_auto_desc"))
+        end
+
+        if WritWorthy.MatUI then
+            local sub_auto = cmd:RegisterSubCommand()
+            sub_auto:AddAlias(WW.Str("slash_mat"))
+            sub_auto:SetCallback(function() WritWorthy.SlashCommand(WW.Str("slash_mat")) end)
+            sub_auto:SetDescription(WW.Str("slash_mat_desc"))
         end
 
     else
@@ -728,7 +783,10 @@ function WritWorthy:Initialize()
         WritWorthy:AQAddKeyBind()
     end
 
-    --EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_ADD_ON_LOADED)
+                        -- Intentionally NOT initializing MatUI here. Only
+                        -- init it if the player actually summons it.
+                        -- You're doing too much in here at loading screen
+                        -- time!
 end
 
 -- Postamble -----------------------------------------------------------------

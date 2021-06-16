@@ -1,5 +1,5 @@
 Recharge = {
-	version				= "2.68",
+	version				= "2.70",
     author				= "XanDDemoX, curernt: Baertram",
     name				= "Auto Recharge",
     displayName			= "Auto Recharge",

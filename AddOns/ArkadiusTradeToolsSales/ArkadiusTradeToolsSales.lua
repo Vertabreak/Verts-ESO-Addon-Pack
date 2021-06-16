@@ -67,7 +67,7 @@ function ArkadiusTradeToolsSalesList:Initialize(listControl)
     self.guildNameSwitch = Settings.filters.guildName
     self.itemNameSwitch = Settings.filters.itemName
     self.timeStampSwitch = Settings.filters.timeStamp
-    self.eapriceSwitch = Settings.filters.unitPrice
+    self.unitPriceSwitch = Settings.filters.unitPrice
     self.priceSwitch = Settings.filters.price
     
     self.sortHeaderGroup.headerContainer.sortHeaderGroup = self.sortHeaderGroup
@@ -85,7 +85,7 @@ function ArkadiusTradeToolsSalesList:Initialize(listControl)
     self.sortHeaderGroup:HeaderForKey("itemName").switch.OnToggle = OnHeaderFilterToggle
     self.sortHeaderGroup:HeaderForKey("timeStamp").switch:SetPressed(self.timeStampSwitch)
     self.sortHeaderGroup:HeaderForKey("timeStamp").switch.OnToggle = OnHeaderToggle
-    --self.sortHeaderGroup:HeaderForKey("unitPrice").switch:SetPressed(self.eapriceSwitch)
+    --self.sortHeaderGroup:HeaderForKey("unitPrice").switch:SetPressed(self.unitPriceSwitch)
     --self.sortHeaderGroup:HeaderForKey("unitPrice").switch.OnToggle = OnHeaderToggle
     --self.sortHeaderGroup:HeaderForKey("price").switch:SetPressed(self.priceSwitch)
     --self.sortHeaderGroup:HeaderForKey("price").switch.OnToggle = OnHeaderToggle
@@ -158,7 +158,7 @@ function ArkadiusTradeToolsSalesList:SetupSaleRow(rowControl, rowData)
     local buyerName = rowControl:GetNamedChild("BuyerName")
     local guildName = rowControl:GetNamedChild("GuildName")
     local itemLink = rowControl:GetNamedChild("ItemLink")
-    local unitPrice = rowControl:GetNamedChild("unitPrice")
+    local unitPrice = rowControl:GetNamedChild("UnitPrice")
     local price = rowControl:GetNamedChild("Price")
     local timeStamp = rowControl:GetNamedChild("TimeStamp")
     local icon = GetItemLinkInfo(data.itemLink)
@@ -226,7 +226,7 @@ end
 function ArkadiusTradeToolsSales:Initialize(serverName, displayName)
     for i = 1, NUM_SALES_TABLES do
         if (SalesTables[i] == nil) then
-            d("ArkadiusTradeToolsSales: Error! Number of data tables is not correct. Maybe you forgot to activate them in the addons menu?")
+            CHAT_ROUTER:AddSystemMessage("ArkadiusTradeToolsSales: Error! Number of data tables is not correct. Maybe you forgot to activate them in the addons menu?")
 
             return
         end
@@ -249,7 +249,7 @@ function ArkadiusTradeToolsSales:Initialize(serverName, displayName)
     self.frame.headers.buyerName = self.frame.headers:GetNamedChild("BuyerName")
     self.frame.headers.guildName = self.frame.headers:GetNamedChild("GuildName")
     self.frame.headers.itemLink = self.frame.headers:GetNamedChild("ItemLink")
-    self.frame.headers.unitPrice = self.frame.headers:GetNamedChild("unitPrice")
+    self.frame.headers.unitPrice = self.frame.headers:GetNamedChild("UnitPrice")
     self.frame.headers.price = self.frame.headers:GetNamedChild("Price")
     self.frame.headers.timeStamp = self.frame.headers:GetNamedChild("TimeStamp")
     self.frame.timeSelect = self.frame:GetNamedChild("TimeSelect")
@@ -316,8 +316,10 @@ function ArkadiusTradeToolsSales:GetSettingsMenu()
     table.insert(settingsMenu, {type = "checkbox", name = L["ATT_STR_ENABLE_GUILD_ROSTER_EXTENSIONS"], getFunc = function() return self.GuildRoster:IsEnabled() end, setFunc = function(bool) self.GuildRoster:Enable(bool) end})
     table.insert(settingsMenu, {type = "checkbox", name = L["ATT_STR_ENABLE_TRADING_HOUSE_EXTENSIONS"], getFunc = function() return self.TradingHouse:IsEnabled() end, setFunc = function(bool) self.TradingHouse:Enable(bool) end, requiresReload = true})
     table.insert(settingsMenu, {type = "dropdown", name = L["ATT_STR_DEFAULT_DEAL_LEVEL"], tooltip = L['ATT_STR_DEFAULT_DEAL_LEVEL_TOOLTIP'], choices = {L["ATT_STR_DEAL_LEVEL_1"], L["ATT_STR_DEAL_LEVEL_2"], L["ATT_STR_DEAL_LEVEL_3"], L["ATT_STR_DEAL_LEVEL_4"], L["ATT_STR_DEAL_LEVEL_5"], L["ATT_STR_DEAL_LEVEL_6"]}, choicesValues = {1, 2, 3, 4, 5, 6}, getFunc = function() return self.TradingHouse:GetDefaultDealLevel() end, setFunc = function(number) self.TradingHouse:SetDefaultDealLevel(number) end, disabled = function() return not self.TradingHouse:IsEnabled() end})
+    table.insert(settingsMenu, {type = "checkbox", name = L["ATT_STR_ENABLE_TRADING_HOUSE_AUTO_PRICING"], tooltip=L['ATT_STR_ENABLE_TRADING_HOUSE_AUTO_PRICING_TOOLTIP'], getFunc = function() return self.TradingHouse:IsAutoPricingEnabled() end, setFunc = function(bool) self.TradingHouse:EnableAutoPricing(bool) end})
     table.insert(settingsMenu, {type = "checkbox", name = L["ATT_STR_ENABLE_TOOLTIP_EXTENSIONS"], getFunc = function() return self.TooltipExtensions:IsEnabled() end, setFunc = function(bool) self.TooltipExtensions:Enable(bool) end})
     table.insert(settingsMenu, {type = "checkbox", name = L["ATT_STR_ENABLE_TOOLTIP_EXTENSIONS_GRAPH"], getFunc = function() return self.TooltipExtensions:IsGraphEnabled() end, setFunc = function(bool) self.TooltipExtensions:EnableGraph(bool) end, disabled = function() return not self.TooltipExtensions:IsEnabled() end})
+    table.insert(settingsMenu, {type = "checkbox", name = L["ATT_STR_ENABLE_TOOLTIP_EXTENSIONS_CRAFTING"], tooltip=L['ATT_STR_ENABLE_TOOLTIP_EXTENSIONS_CRAFTING_TOOLTIP'], getFunc = function() return self.TooltipExtensions:IsCraftingEnabled() end, setFunc = function(bool) self.TooltipExtensions:EnableCrafting(bool) end, disabled = function() return not self.TooltipExtensions:IsEnabled() end})
     table.insert(settingsMenu, {type = "checkbox", name = L["ATT_STR_ENABLE_INVENTORY_PRICES"], getFunc = function() return self.InventoryExtensions:IsEnabled() end, setFunc = function(bool) self.InventoryExtensions:Enable(bool) end, warning = L["ATT_STR_ENABLE_INVENTORY_PRICES_WARNING"]})
 
     for guildName, _ in pairs(TemporaryVariables.guildNamesLowered) do
@@ -751,14 +753,18 @@ function ArkadiusTradeToolsSales:DeleteSales()
     --- Delete old sales ---
     for _, salesTable in pairs(SalesTables) do
         for serverName, data in pairs(salesTable) do
-            local sales = data.sales
+            if serverName ~= '_directory' then
+                local sales = data.sales
 
-            for id, sale in pairs(sales) do
-                timeStamp = olderThanTimeStamps[sale.guildName] or DefaultSettings.keepSalesForDays * SECONDS_IN_DAY
+                for id, sale in pairs(sales) do
+                    timeStamp = olderThanTimeStamps[sale.guildName] or DefaultSettings.keepSalesForDays * SECONDS_IN_DAY
 
-                if (sale.timeStamp <= timeStamp) then
-                    sales[id] = nil
+                    if (sale.timeStamp <= timeStamp) then
+                        sales[id] = nil
+                    end
                 end
+            else
+                salesTable[serverName] = nil
             end
         end
     end

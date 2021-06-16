@@ -8,15 +8,18 @@ https://github.com/CaptainBlagbird
 
 local strings = {
     -- General
-    QUESTMAP_UNCOMPLETED            = "Unerledigt",
     QUESTMAP_COMPLETED              = "Erledigt",
+    QUESTMAP_UNCOMPLETED            = "Unerledigt",
     QUESTMAP_HIDDEN                 = "Manuell ausgeblendet",
     QUESTMAP_STARTED                = "Begonnen",
-    QUESTMAP_REPEATABLE             = "Repeatable",
+    QUESTMAP_GUILD                = "Guild",
     QUESTMAP_DAILY                  = "Daily",
-    QUESTMAP_CADWELL                = "Cadwells Almanach",
     QUESTMAP_SKILL                  = "Fertigkeitspunkt",
+    QUESTMAP_CADWELL                = "Cadwells Almanach",
+    QUESTMAP_DUNGEON              = "Dungeon",
     QUESTMAP_HOLIDAY              = "Holiday",
+    QUESTMAP_WEEKLY               = "Weekly",
+    QUESTMAP_ZONESTORY            = "Zone Story",
 
     QUESTMAP_HIDE                   = "Quest ausblenden",
     QUESTMAP_UNHIDE                 = "Quest einblenden",
@@ -52,7 +55,7 @@ local strings = {
 
     QUESTMAP_MENU_TOGGLE_COMPLETED_MSG  = "Schalter am Pin: Verstecke/Zeige erledigte Quest Liste",
     QUESTMAP_MENU_TOGGLE_COMPLETED_MSG_TT  = "Aktiviert oder deaktiviert einen Schalter an den Karten Quest Pins von erledigten Quests, welche eine Quest Liste anzeigt oder versteckt, wenn du den Pin anklickst.",
-    
+
     QUESTMAP_MENU_HIDDEN_QUESTS_T   = "Quests manuell ausblenden",
     QUESTMAP_MENU_HIDDEN_QUESTS_1   = "Du kannst Questmarkierungen manuell ausblenden indem du sie anklickst. (Um ausgeblendete Questmarkierungen zu sehen, aktiviere den Filter für Kartenmarkierungen rechts neben der Karte.)",
     QUESTMAP_MENU_HIDDEN_QUESTS_2   = "Zum gleichzeitigen ein-/ausblenden aller Kartenmarkierung einer bestimmten Karte kannst du den Chat-Befehl '/qm hide' oder '/qm unhide' verwenden.",
@@ -95,12 +98,12 @@ local strings = {
     QUESTMAP_STARTED_TOOLTIP_COLOR  = "Gestartete Quest Tooltip Farbe",
     QUESTMAP_STARTED_TOOLTIP_COLOR_DESC  = "Ändere die gestartete Quest Tooltip Farbe",
 
-    -- Repeatable quest pin text
-    QUESTMAP_REPEATABLE_PIN_COLOR  = "Repeatable Quest Pin Farbe",
-    QUESTMAP_REPEATABLE_PIN_COLOR_DESC  = "Change die Repeatable Quest Pin Farbe",
+    -- Guild quest pin text
+    QUESTMAP_GUILD_PIN_COLOR  = "Guild Quest Pin Color",
+    QUESTMAP_GUILD_PIN_COLOR_DESC  = "Change Guild Quest Pin Color",
 
-    QUESTMAP_REPEATABLE_TOOLTIP_COLOR  = "Wiederholbare Quest Tooltip Farbe",
-    QUESTMAP_REPEATABLE_TOOLTIP_COLOR_DESC  = "Ändere die wiederholbare Quest Tooltip Farbe",
+    QUESTMAP_GUILD_TOOLTIP_COLOR  = "Guild Quest Tooltip Color",
+    QUESTMAP_GUILD_TOOLTIP_COLOR_DESC  = "Change Guild Quest Tooltip Color",
 
     -- Daily quest pin text
     QUESTMAP_DAILY_PIN_COLOR  = "Tägliche Quest Pin Farbe",
@@ -108,6 +111,13 @@ local strings = {
 
     QUESTMAP_DAILY_TOOLTIP_COLOR  = "Daily Quest Tooltip Farbe",
     QUESTMAP_DAILY_TOOLTIP_COLOR_DESC  = "Ändere die tägliche Quest Tooltip Farbe",
+
+    -- Weekly Duration quest pin text
+    QUESTMAP_WEEKLY_PIN_COLOR  = "Weekly Quest Pin Color",
+    QUESTMAP_WEEKLY_PIN_COLOR_DESC  = "Change Weekly Quest Pin Color",
+
+    QUESTMAP_WEEKLY_TOOLTIP_COLOR  = "Weekly Quest Tooltip Color",
+    QUESTMAP_WEEKLY_TOOLTIP_COLOR_DESC  = "Change Weekly Quest Tooltip Color",
 
     -- Holiday quest pin text
     QUESTMAP_HOLIDAY_PIN_COLOR  = "Holiday Quest Pin Color",
@@ -136,6 +146,27 @@ local strings = {
 
     QUESTMAP_DUNGEON_TOOLTIP_COLOR  = "Verlies Quest Tooltip Farbe",
     QUESTMAP_DUNGEON_TOOLTIP_COLOR_DESC  = "Ändere die Verlies Quest Tooltip Farbe",
+
+    -- Zonestory quest pin text
+    QUESTMAP_ZONESTORY_PIN_COLOR  = "Zonestory Quest Pin Color",
+    QUESTMAP_ZONESTORY_PIN_COLOR_DESC  = "Change Zonestory Quest Pin Color",
+
+    QUESTMAP_ZONESTORY_TOOLTIP_COLOR  = "Zonestory Quest Tooltip Color",
+    QUESTMAP_ZONESTORY_TOOLTIP_COLOR_DESC  = "Change Zonestory Quest Tooltip Color",
+
+    -- Prologue quest pin text
+    QUESTMAP_PROLOGUE_PIN_COLOR  = "Prologue Quest Pin Color",
+    QUESTMAP_PROLOGUE_PIN_COLOR_DESC  = "Change Prologue Quest Pin Color",
+
+    QUESTMAP_PROLOGUE_TOOLTIP_COLOR  = "Prologue Quest Tooltip Color",
+    QUESTMAP_PROLOGUE_TOOLTIP_COLOR_DESC  = "Change Prologue Quest Tooltip Color",
+
+    -- Pledges quest pin text
+    QUESTMAP_PLEDGES_PIN_COLOR  = "Pledges Quest Pin Color",
+    QUESTMAP_PLEDGES_PIN_COLOR_DESC  = "Change Pledges Quest Pin Color",
+
+    QUESTMAP_PLEDGES_TOOLTIP_COLOR  = "Pledges Quest Tooltip Color",
+    QUESTMAP_PLEDGES_TOOLTIP_COLOR_DESC  = "Change Pledges Quest Tooltip Color",
 
 }
 

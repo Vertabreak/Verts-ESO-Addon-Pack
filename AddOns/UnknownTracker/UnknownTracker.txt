@@ -1,10 +1,10 @@
 ## Title: UnknownTracker
 ## Author: kadeer
 ## Description: Tracks which Motifs/Recipes/Furnishing/Stylepages/Runeboxes/Sets are unknown across multiple accounts
-## Version: 0.69
-## APIVersion: 100032 100033
-## AddOnVersion: 69
-## DependsOn: LibAddonMenu-2.0 LibAsync
+## Version: 0.71
+## APIVersion: 100035 100036
+## AddOnVersion: 71
+## DependsOn: LibAddonMenu-2.0>=28 LibAsync
 ## SavedVariables: UTMasterList UTDataDump UTOpts
 
 UnknownTracker_Constants.lua

@@ -27,59 +27,78 @@ Simply add `## DependsOn: LibLootSummary` to your addon's manifest text file.
 ## Usage Example
 
 ```
-local lls = LibLootSummary({ linkStyle = LINK_STYLE_DEFAULT })
+local lls = LibLootSummary()
 
--- combineDuplicates constructor field
+-- combineDuplicates
 -- If set to false, then successive calls to the Add*() methods for the same item id will
 -- be listed separately in the summary.  The default (true) causes the quantities to be
 -- summed and listed once in the summary.
 lls:SetCombineDuplicates(false)
 
--- delimiter constructor field
+-- Accepts a singular noun describing the increment displayed when lls:SetShowCounter() 
+-- is set to true.
+lls:SetCounterText("message")
+
+-- delimiter
 -- Use comma delimiters between items in the summary, instead of the default single space
 lls:SetDelimiter(", ")
 
--- hideSingularQuantities constructor field
+-- endText
+-- Text that gets appended once at the end of the entire summary if the summary is not empty.
+
+-- hideSingularQuantities
 -- Only print quantity multiplier text (e.g. x20) greater than one to chat
 lls:SetHideSingularQuantities(true)
 
--- linkStyle constructor field
+-- linkStyle
 -- Use bracket style links
 lls:SetLinkStyle(LINK_STYLE_BRACKETS)
 
--- minQuality constructor field
+-- minQuality
 -- Filter summary to only purple or gold items
 lls:SetMinQuality(ITEM_QUALITY_ARCANE)
 
--- showIcon constructor field
+-- showCounter
+-- When used in conjunction with lls:SetCounterText("text") and lls:IncrementCounter(),
+-- causes a count of how many increments were called while building the loot summary.
+-- Example: After Postmaster Mail loots 10 messages with attachments, the resulting 
+-- summary would print " (10 messages)" after the summary.
+lls:SetShowCounter(true)
+
+-- showIcon
 -- Display item icons to the left of item names in summary
 lls:SetShowIcon(true)
 
--- iconSize constructor field
+-- showNotCollected
+-- Displays "collection" icons to the right of item names if their set pieces are 
+-- not collected.
+lls:SetShowNotCollected(true/false)
+
+-- iconSize
 -- Sets the percentage multiplier for icons.  Defaults to 90%.
 lls:SetIconSize(90)
 
--- showTrait constructor field
+-- showTrait
 -- Display item trait to the right of item names in summary
 lls:SetShowTrait(true)
 
--- prefix constructor field
+-- prefix
 -- Prefix to get prepended to every line of the summary
 local prefix = "MyAddon: "
 prefix = "|cFFFFFF" .. prefix -- set line color to white
 lls:SetPrefix(prefix)
 
--- sortedByQuality constructor field
+-- sortedByQuality
 -- Sort summary by quality decending, then alphabetically
 lls:SetSortedByQuality(true)
 
 -- OR --
 
--- sorted constructor field
+-- sorted
 -- Sort summary alphabetically
 -- lls:SetSorted(true)
 
--- suffix constructor field
+-- suffix
 -- Suffix to get appended to the end of every line of the summary
 lls:SetSuffix("|r") -- reset color to default
 
@@ -94,8 +113,14 @@ lls:AddItem(bagId, slotIndex, quantity)
 -- Add 200x Ancestor Silk
 lls:AddItemLink("|H1:item:64504:1:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h", 200)
 
+-- Mark that both of the above items were added during a single loot event.
+lls:IncrementCounter()
+
 -- Add 1x Aetherial Dust
 lls:AddItemId(115026, 1)
+
+-- Mark that the Aetherial Dust was looted in a separate loot event
+lls:IncrementCounter()
 
 -- Output the entire summary to chat
 lls:Print()
@@ -110,7 +135,12 @@ local chatProxy = LibChatMessage("MyAddon", "MA")
 local colorHex = "FF6666"
 chatProxy:SetTagColor(colorHex)
 
-local lls = LibLootSummary( { chat = chatProxy } )
+local lls = LibLootSummary( {
+    chat = chatProxy,
+    prefix = "|c" .. colorHex,
+    suffix = "|r"
+} )
+
 -- OR --
 lls = LibLootSummary()
 lls:UseLibChatMessage(chatProxy)
@@ -128,11 +158,15 @@ As you can see below, instead of 2-3 items per line with icons enabled, LibChatM
 
 ![](https://i.imgur.com/oPK0jpt.png)
 
+*LibChatMessage output, sorted by quality, with icons, traits and non-collected set items icons.  Quality minimum = Fair/green.  Delimiter = new line / "\n".*
+
+![](https://i.imgur.com/tFznij7.png)
+
 ## LibAddonMenu Integration
 
 You can generate automatically bound [LibAddonMenu](https://www.esoui.com/downloads/info7-LibAddonMenu.html) option controls for the most common configurable LibLootSummary settings.
 
-![](https://i.imgur.com/psQJlBb.png)
+![](https://i.imgur.com/qB0b3vP.png)
 
 ```lua
 local addon = {
@@ -147,15 +181,19 @@ local addon = {
             minQuality = ITEM_QUALITY_MIN_VALUE,
             showIcon = true,
             showTrait = true,
-            hideSingularQuantities = true
+            showNotCollected = true,
+            sortedByQuality = true,
+            hideSingularQuantities = true,
+            combineDuplicates = true,
+            delimiter = " ",
+            linkStyle = LINK_STYLE_DEFAULT,
         },
     },
 }
 
 addon.savedVars = ZO_SavedVars:NewAccountWide(addon.name .. "SV", 1, GetWorldName(), addon.defaults)
 
-addon.summary = LibLootSummary({ sortedByQuality = true })
-summary:SetOptions(addon.savedVars.chatSummary, addon.defaults.chatSummary)
+addon.summary = LibLootSummary()
 
 local addonPanel = {
     type = "panel",
@@ -169,7 +207,10 @@ local addonPanel = {
 }
 
 local optionControls = {
-    addon.summary:GenerateLam2LootOptions(addon.title, addon.savedVars.chatSummary, addon.defaults.chatSummary),
+    --[[ 'chatSummary' is the name of the saved var setting that holds all chat options
+         Note: the following automatically calls 
+         summary:SetOptions(addon.savedVars, addon.defaults, 'chatSummary') ]]
+    addon.summary:GenerateLam2LootOptions(addon.title, addon.savedVars, addon.defaults, 'chatSummary'),
 }
 
 -- Alternatively, you can use GenerateLam2ItemOptions() instead.

@@ -103,10 +103,17 @@ function CS.STYLE()
 	[105] = {2,2776,160611}, -- Ancestral Orc
 	[106] = {2,2849,166973}, -- Thorn Legion
 	[107] = {2,2850,166990}, -- Hazardous Alchemy
+	[108] = {2,2903,167174}, -- Ancestral Akaviri
 	[110] = {2,2905,167271}, -- Ancestral Reach
-	--[111] = {2,?,?}, -- Nighthollow
+	[111] = {2,2926,167944}, -- Nighthollow
 	[112] = {2,2938,167961}, -- Arkthzand Armory
-	--[113] = {2,?,?}, -- Wayward Guardian
+	[113] = {2,2998,167978}, -- Wayward Guardian
+	[116] = {2,2984,171552}, -- True-Sworn
+	[117] = {2,2998,171581}, -- Waking Flame
+	--[120] - {2, ?, ?}, -- Black Fin Legion
+	[121] = {2,3001,171896}, -- Ivory Brigade
+	--[122] = {2, ?, ?}, -- Sul-Xan
+	
   }
   --|H1:item:96954:5:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h
   
@@ -202,9 +209,15 @@ function CS.STYLE()
 	[105] = {160610, 160611, 160625, 0}, -- Ancestral Orc
 	[106] = {166972, 166973, 166987, 0}, -- Thorn Legion
 	[107] = {166989, 166990, 167004, 0}, -- Hazardous Alchemy
+	[108] = {0     , 167174, 0     , 0}, -- Ancestral Akaviri
 	[110] = {167270, 167271, 167285, 0}, -- Ancestral Reach
+	[111] = {167943, 167944, 167958, 0}, -- Nighthollow
 	[112] = {167960, 167961, 167975, 0}, -- Arkthzand Armory
-  }
+	[113] = {167977, 167978, 167992, 0}, -- Wayward Guardian
+	[116] = {171551, 171552, 171566, 0}, -- True-Sworn
+	[117] = {171580, 171581, 171595, 0}, -- Waking Flame
+	[121] = {171895, 171896, 171910, 0}, -- Ivory Brigade
+	}
   
 	--build visual motif number list
 	for style,data in pairs(styles) do

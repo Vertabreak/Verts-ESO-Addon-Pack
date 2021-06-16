@@ -63,7 +63,7 @@ WritWorthyInventoryList.SORT_KEYS = {
 , ["ui_detail5"     ] = {tiebreaker="ui_is_queued"}
 , ["ui_is_queued"   ] = {tiebreaker="ui_use_mimic"}
 , ["ui_use_mimic"   ] = {tiebreaker="ui_can_queue"}
-                        -- Not a visible columns, but still affect sort.
+                        -- Not visible columns, but still affect sort.
 , ["ui_can_queue"   ] = {}
 , ["ui_station_sort"] = {tiebreaker="ui_voucher_ct"}
 }
@@ -115,69 +115,22 @@ WritWorthyInventoryList.CELL_UNTEXT_LIST = {
 -- WritWorthyUI: The window around the inventory list ------------------------
 
 function WritWorthyUI_RestorePos()
-    local pos = WritWorthy.default.position
-    if      WritWorthy
-        and WritWorthy.savedVariables
-        and WritWorthy.savedVariables.position then
-        pos = WritWorthy.savedVariables.position
-    end
-
-    if not WritWorthyUI then
-                        -- Common crash that occurs when I've messed up
-                        -- the XML somehow. Force it to crash here in this
-                        -- if block rather than mysteriously on the
-                        -- proper SetAnchor() line later.
-        d("Your XML probably did not load. Fix it.")
-        local _ = WritWorthyUI.SetAnchor
-    end
-    WritWorthyUI:ClearAnchors()
-    WritWorthyUI:SetAnchor(
-              TOPLEFT
-            , GuiRoot
-            , TOPLEFT
-            , pos[1]
-            , pos[2]
-            )
-
-    if pos[3] and pos[4] then
-        WritWorthyUI:SetWidth( pos[3] - pos[1])
-        WritWorthyUI:SetHeight(pos[4] - pos[2])
-    end
+    Util.RestorePos(WritWorthyUI, "position")
 end
 
-function WritWorthyUI_SavePos()
-    local l = WritWorthyUI:GetLeft()
-    local t = WritWorthyUI:GetTop()
-    local r = WritWorthyUI:GetRight()
-    local b = WritWorthyUI:GetBottom()
-    -- d("SavePos ltrb=".. l .. " " .. t .. " " .. r .. " " .. b)
-    local pos = { l, t, r, b }
-    WritWorthy.savedVariables.position = pos
+function WritWorthyUI_SavePos()  -- 2019-12-20 can dead code strip
+    Util.SavePos(WritWorthyUI, "position")
 end
 
 function WritWorthyUI_OnMoveStop()
-    local l = WritWorthyUI:GetLeft()
-    local t = WritWorthyUI:GetTop()
-    local r = WritWorthyUI:GetRight()
-    local b = WritWorthyUI:GetBottom()
-    WritWorthyUI_SavePos()
+    Util.OnMoveStop(WritWorthyUI, "position")
 end
 
 function WritWorthyUI_OnResizeStop()
-    local l = WritWorthyUI:GetLeft()
-    local t = WritWorthyUI:GetTop()
-    local r = WritWorthyUI:GetRight()
-    local b = WritWorthyUI:GetBottom()
-    WritWorthy.InventoryList:UpdateAllCellWidths()
-    WritWorthyUI_SavePos()
-
-                        -- Update vertical scrollbar and extents to
-                        -- match new scrollpane height.
-    if      WritWorthyInventoryList.singleton
-        and WritWorthyInventoryList.singleton.list then
-        local scroll_list = WritWorthyInventoryList.singleton.list
-        ZO_ScrollList_Commit(scroll_list)
-    end
+    Util.OnResizeStop( WritWorthyUI
+                     , WritWorthy.InventoryList
+                     , WritWorthyInventoryList.singleton
+                     , "position" )
 end
 
 function WritWorthyUI_ToggleUI()
@@ -185,7 +138,7 @@ function WritWorthyUI_ToggleUI()
     if not ui then
         return
     end
-    h = WritWorthyUI:IsHidden()
+    local h = WritWorthyUI:IsHidden()
     if h then
         WritWorthyUI_RestorePos()
         local t = WritWorthyUIInventoryListTitle
@@ -206,12 +159,13 @@ end
 
 -- Wrapper function called by "Refresh" shark arrow button.
 function WritWorthyUI_RefreshUI()
+    Log.Debug("WritWorthyUI_RefreshUI")
     WritWorthyUI_Refresh()
 end
 
 function WritWorthyUI_Refresh()
     WritWorthy.RequiredSkill.ResetCache()
-    list = WritWorthyInventoryList.singleton
+    local list = WritWorthyInventoryList.singleton
     list:BuildMasterlist()
     list:Refresh()
     list:UpdateSummaryAndQButtons()
@@ -222,21 +176,7 @@ end
 -- queue up a request to update the entire UI soon, and then
 -- only do so if the user has stopped typing.
 function WritWorthyUI_RefreshSoon()
-    if not WritWorthy.refreshsoon_ms then
-        zo_callLater(WritWorthyUI_RefreshSoonPoll, 250)
-    end
-    WritWorthy.refreshsoon_ms = GetFrameTimeMilliseconds() + 400
-end
-
-function WritWorthyUI_RefreshSoonPoll()
-    if not WritWorthy.refreshsoon_ms then return end
-    local now = GetFrameTimeMilliseconds() or 0
-    if now <= WritWorthy.refreshsoon_ms then
-        WritWorthy.refreshsoon_ms = nil
-        WritWorthyUI_Refresh()
-    else
-        zo_callLater(WritWorthyUI_RefreshSoonPoll, 250)
-    end
+    Util.CallSoon("refreshsoon_ms", WritWorthyUI_Refresh)
 end
 
 function WritWorthyUI_MaxGPV_TextChanged(new_text)
@@ -530,23 +470,12 @@ function WritWorthyInventoryList:CreateRowControlCells(row_control, header_contr
         local y_offset           = 0
         if is_text then y_offset = 3 end
 
-        if i == 1 then
-                        -- Leftmost column is flush up against
-                        -- the left of the container
-            cell_control:SetAnchor( LEFT                -- point
-                                  , row_control         -- relativeTo
-                                  , LEFT                -- relativePoint
-                                  , 0                   -- offsetX
-                                  , y_offset )          -- offsetY
-        else
-            local offsetX = header_cell_control:GetLeft()
-                          - rel_to_left
-            cell_control:SetAnchor( LEFT                -- point
-                                  , row_control         -- relativeTo
-                                  , LEFT                -- relativePoint
-                                  , offsetX             -- offsetX
-                                  , y_offset )          -- offsetY
-        end
+        Util.SetAnchorCellLeft( row_control
+                              , cell_control
+                              , header_cell_control
+                              , i == 1
+                              , y_offset
+                              , rel_to_left )
         cell_control:SetHidden(false)
 
         if not is_text then
@@ -560,29 +489,9 @@ function WritWorthyInventoryList:CreateRowControlCells(row_control, header_contr
             cell_control:SetFont("ZoFontGame")
             cell_control:SetWrapMode(TEXT_WRAP_MODE_ELLIPSIS)
 
-                        -- Surprise! Headers:GetNamedChild() returns a control
-                        -- instance that lacks a "Name" sub-control, which we
-                        -- need if we want to match text alignment. Fall back
-                        -- to the control we passed to
-                        -- ZO_SortHeader_Initialize().
-            local header_name_control = header_control:GetNamedChild("Name")
-            if not header_name_control then
-                local hc2 = self.list_header_controls[cell_name]
-                if hc2 then
-                    header_name_control = hc2:GetNamedChild("Name")
-                end
-            end
-            local horiz_align = TEXT_ALIGN_LEFT
-            if header_name_control then
-                horiz_align = header_name_control:GetHorizontalAlignment()
-            end
-            cell_control:SetHorizontalAlignment(horiz_align)
-
-                            -- Align all cells to top so that long/multiline
-                            -- text still look acceptable. But hopefully we'll
-                            -- never need this because TEXT_WRAP_MODE_ELLIPSIS
-                            -- above should prevent multiline text.
-            cell_control:SetVerticalAlignment(TEXT_ALIGN_TOP)
+            Util.SetCellToHeaderAlign( row_control
+                                     , header_control
+                                     , self.list_header_controls[cell_name] )
 
                             -- Click to toggle item tooltip for row's
                             -- Sealed Master Writ.
@@ -668,12 +577,7 @@ function WritWorthyInventoryList:UpdateColumnWidths(row_control)
             end
         end
     end
-                        -- I don't always have a background, but when I do,
-                        -- I want it to stretch all the way across this row.
-    local background_control = GetControl(row_control, "BG")
-    if background_control then
-        background_control:SetWidth(row_control:GetWidth())
-    end
+    Util.StretchBGWidth(row_control)
 end
 
 -- Abbreviate strings so that they fit in narrow columns.
@@ -689,7 +593,7 @@ function WritWorthyInventoryList.Shorten(text)
 end
 
 function WritWorthyInventoryList:IsQueued(inventory_data)
-    local LLC = self:GetLLC()
+    local LLC = WritWorthyInventoryList:GetLLC()
     local x = LLC:findItemByReference(inventory_data.unique_id)
     if 0 < #x then
         return true
@@ -940,7 +844,7 @@ function WritWorthyInventoryList_EnqueueToggled(cell_control, checked)
     else
         self:Dequeue(cell_control.inventory_data)
     end
-    -- self.LogLLCQueue(self:GetLLC().personalQueue)
+    -- self.LogLLCQueue(WritWorthyInventoryList:GetLLC().personalQueue)
     self:UpdateUISoon(cell_control.inventory_data)
 end
 
@@ -1208,6 +1112,7 @@ function WritWorthyInventoryList_LLCCompleted(event, station, llc_result)
     if inventory_data then
         self:UpdateUISoon(inventory_data)
         self:HSMDeleteMark(inventory_data)
+        self.EmitQueueChanged()
     end
 end
 
@@ -1226,7 +1131,7 @@ end
 function WritWorthyInventoryList:UpdateUISoon(inventory_data)
     Log:Add("WritWorthyInventoryList:UpdateUISoon  unique_id:"
             ..tostring(inventory_data.unique_id))
-    self.LogLLCQueue(self:GetLLC().personalQueue)
+    self.LogLLCQueue(WritWorthyInventoryList:GetLLC().personalQueue)
     self:UpdateSummaryAndQButtons()
     self:Refresh()
 end
@@ -1388,7 +1293,7 @@ function WritWorthy_LLC_IsItemCraftable(self, station_crafting_type, request)
     end
                         -- Is this a set bonus request but at the wrong
                         -- set bonus station?
-    local llc = self:GetLLC()
+    local llc = WritWorthyInventoryList:GetLLC()
     if request.setIndex and 1 < request.setIndex
             and request.setIndex ~= llc.GetCurrentSetInteractionIndex() then
         return orig_can_craft
@@ -1513,8 +1418,7 @@ function WritWorthyInventoryList:Enqueue(inventory_data)
               unique_id
             , WritWorthyInventoryList.STATE_QUEUED)
 
-    -- nur zum Testen
-    -- self.LogLLCQueue(self:GetLLC().personalQueue)
+    self.EmitQueueChanged()
 end
 
 -- The LazyLibCrafting-only portion of enqueing a request, no list UI work
@@ -1541,7 +1445,7 @@ function WritWorthyInventoryList.EnqueueLLC(unique_id, inventory_data)
                         -- supports the required API. We might get stuck
                         -- with some other add-on's older version.
     local i_d = inventory_data
-    local LLC = self:GetLLC()
+    local LLC = WritWorthyInventoryList:GetLLC()
     if not LLC[i_d.llc_func] then
         self:LLC_Missing(i_d.llc_func)
         return
@@ -1563,7 +1467,7 @@ end
 -- A required LibLazyCrafting function is missing?
 -- Maybe due to some old or incombatible LLC version?
 function WritWorthyInventoryList:LLC_Missing(llc_func)
-    local LLC = self:GetLLC()
+    local LLC = WritWorthyInventoryList:GetLLC()
     d("WritWorthy: LibLazyCrafting function missing:"..tostring(llc_func))
     grey("WritWorthy version:"..WritWorthy.version)
     grey("LibLazyCrafting version:"..tostring(LLC.version))
@@ -1589,13 +1493,14 @@ function WritWorthyInventoryList:Dequeue(inventory_data)
     local unique_id = inventory_data.unique_id
     Log:Add("Dequeue "..tostring(unique_id))
 
-    local LLC = self:GetLLC()
+    local LLC = WritWorthyInventoryList:GetLLC()
     LLC:cancelItemByReference(inventory_data.unique_id)
                         -- Remove from savedChariables so that we do not
                         -- re-queue this row upon /reloadui.
     self.SaveChariableState(unique_id, nil)
 
     self:HSMDeleteMark(inventory_data)
+    self.EmitQueueChanged()
 end
 
 -- Reload the LibLazyCrafting queue from savedChariables
@@ -1613,6 +1518,7 @@ function WritWorthyInventoryList.RestoreFromSavedChariables()
         local sav       = savedChariables.writ_unique_id[unique_id]
         if sav and sav.state == WritWorthyInventoryList.STATE_QUEUED then
             WritWorthyInventoryList.EnqueueLLC(unique_id, inventory_data)
+            WritWorthyInventoryList:HSMRestoreMark(inventory_data)
         end
     end
 end
@@ -1648,11 +1554,21 @@ function WritWorthyInventoryList.LogLLCQueue(queue)
     end
 end
 
+-- Tell "all who are interested" that our list of enequeued writs has changed.
+-- For now, the only interested party is MatUI, so I don't need a
+-- general-purpose broadcaster/listener machine here.
+--
+function WritWorthyInventoryList.EmitQueueChanged()
+    if not WritWorthy.MatUI then return end
+    WritWorthy.MatUI.OnWWQueueChanged()
+end
+
 -- O(n) scan to collect a hash of unique item ids of items actually
 -- in LibLazyCrafting's queue.
 function WritWorthyInventoryList:QueuedReferenceList()
     local queued_ids = {}
-    for station, queued in ipairs(self:GetLLC().personalQueue) do
+    local llc = WritWorthyInventoryList:GetLLC()
+    for station, queued in ipairs(llc.personalQueue) do
         if type(queued) == "table" then
             for i, request in ipairs(queued) do
                 if request.reference then
@@ -1790,6 +1706,20 @@ function WritWorthyInventoryList:HSMDeleteMark(inventory_data)
     local set_id, station_id = self:InventoryDataToHSMTuple(inventory_data)
     if not station_id then return end
     HomeStationMarker.DeleteMarker(set_id, station_id)
+end
+
+-- Re-add a mark that was lost during a /reloadui.
+--
+-- Older versions of HomeStationMarker would retain their refcount table in
+-- saved variables, which meant that WritWorthy did not need to re-add marks
+-- after every load. But as of HomeStationMarker 7.0.2 2021-05-30,
+-- HomeStationMarker stopped doing that to make it easier for Dolgubon's
+-- LibLazyCrafting. LLC can now unconditionally call AddMarker() after load.
+--
+function WritWorthyInventoryList:HSMRestoreMark(inventory_data)
+    if not HomeStationMarker then return end
+    if not HomeStationMarker.is_ref_counts_forgotten then return end
+    WritWorthyInventoryList:HSMAddMark(inventory_data)
 end
 
 function WritWorthyInventoryList:InventoryDataToHSMTuple(inventory_data)

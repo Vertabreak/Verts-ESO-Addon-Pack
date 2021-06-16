@@ -1,0 +1,18 @@
+--[[	
+		_addon.label:SetHidden(showf==false)
+		_addon.stock:SetHidden((showf and (_addon.showStock or _addon.showRawStock))==false)
+		_addon.surveys:SetHidden((showf and _addon.showSurveys)==false)
+		if showf==false then
+			_addon.bgStyle = 0
+		else
+			if _addon.shareStyle then
+				_addon.bgStyle = _addon.accountSettings.bgStyle
+			else
+				_addon.bgStyle = _addon.characterSettings.bgStyle
+			end
+		end
+		_addon.updateBackgrounds()
+		if showf==false then
+			showf = true
+		end	
+]]--

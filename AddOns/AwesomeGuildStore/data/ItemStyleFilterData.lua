@@ -3,7 +3,7 @@ local AGS = AwesomeGuildStore
 local gettext = AGS.internal.gettext
 local logger = AGS.internal.logger
 
-local NEXT_UNASSIGNED_STYLE_ID = 114
+local NEXT_UNASSIGNED_STYLE_ID = 122
 local ICON_SIZE = "100%"
 
 local isValidStyleId = {}
@@ -14,10 +14,14 @@ for itemStyleIndex = 1, GetNumValidItemStyles() do
     end
 end
 
-local newStyles = { 110, 111, 112, 113 }
+local newStyles = { 108, 116, 117, 120, 121 }
 -- automatically fill in new styles if there are any
 for styleId = NEXT_UNASSIGNED_STYLE_ID, GetHighestItemStyleId() do
     newStyles[#newStyles + 1] = styleId
+end
+
+local function GetFormattedCategoryName(collectibleId)
+    return zo_strformat("<<1>>", GetCollectibleName(collectibleId))
 end
 
 local STYLE_CATEGORIES = {
@@ -38,20 +42,20 @@ local STYLE_CATEGORIES = {
         values = {38, 42, 53, 58, 59, 55},
     },
     {
-        label = GetCollectibleName(593), -- "Morrowind"
+        label = GetFormattedCategoryName(593), -- "Morrowind"
         values = {43, 54, 48, 49, 51, 50, 52, 61, 62, 65, 66, 69, 70, 60},
     },
     {
-        label = GetCollectibleName(5107), -- "Summerset"
+        label = GetFormattedCategoryName(5107), -- "Summerset"
         values = {71, 72, 73, 74, 75, 77, 78, 79, 80, 81},
     },
     {
-        label = GetCollectibleName(5843), -- "Elsweyr"
+        label = GetFormattedCategoryName(5843), -- "Elsweyr"
         values = {82, 83, 84, 85, 86, 89, 92, 93, 94, 95},
     },
     {
-        label = GetCollectibleName(7466), -- "Greymoor"
-        values = {97, 98, 100, 101, 102, 103, 104, 105, 106, 107},
+        label = GetFormattedCategoryName(7466), -- "Greymoor"
+        values = {97, 98, 100, 101, 102, 103, 104, 105, 106, 107, 110, 111, 112, 113},
     },
     {
         label = gettext("New"),

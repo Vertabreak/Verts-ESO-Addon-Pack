@@ -16,7 +16,7 @@ function BUI.Player:Initialize()
 	BUI.Player.accname=GetUnitDisplayName('player')
 	BUI.Player.race	=GetUnitRace('player')
 	BUI.Player.class	=BUI.Player:GetClass(GetUnitClassId('player'))
-	CPcap=GetMaxSpendableChampionPointsInAttribute()*3
+	CPcap=GetMaxSpendableChampionPointsInAttribute()
 	BUI.Player:GetLevel()
 	--Load starting attributes
 	local stats={
@@ -197,6 +197,8 @@ function BUI.Player:UpdateShield(unitTag, value, maxValue)
 		if BUI.Vars.CurvedFrame~=0 and not isGroup then BUI.Curved.Shield(unitTag,value,pct,data.health.current) end
 	end
 end
+--[[ API<100034
+local STAT_CRIT_DMG_MAG,STAT_CRIT_DMG_PHIS,STAT_BLOCK_COST,STAT_BLOCK_MITIGATION=1140,1141,1142,1143
 
 local function GetProtectBonus()
 	local protect={["Minor Protection"]=8,["Minor Aegis"]=5,["Major Protection"]=30}
@@ -366,7 +368,7 @@ function BUI.Player.StatSection()
 		local k=1 while k~=0 do n,k=string.gsub(n,"^(-?%d+)(%d%d%d)", '%1 %2') end return n
 	end
 	--Player attributes section
-	if BUI.Vars.PlayerStatSection then
+	if BUI.Vars.PlayerStatSection and BUI.API<100034 then
 		local AddStatRowOrg=ZO_Stats.AddStatRow
 		local missingParameter
 		local function GetStat(stat)
@@ -426,10 +428,10 @@ function BUI.Player.StatSection()
 	end
 end
 
-	--HELPER FUNCTIONS ----------------------------------
 BUI.GetCritDamage=GetCritDamage
 BUI.GetBlockCost=GetBlockCost
-
+--]]
+	--HELPER FUNCTIONS ----------------------------------
 function BUI:IsCritter(unitTag)
 	--Critters meet all the following criteria: Level 1, Difficulty=NONE, and Neutral or Friendly reaction
 	return false	--(GetUnitLevel(unitTag)==1 and GetUnitDifficulty(unitTag)==MONSTER_DIFFICULTY_NONE and (GetUnitReaction(unitTag)==UNIT_REACTION_NEUTRAL or GetUnitReaction(unitTag)==UNIT_REACTION_FRIENDLY))

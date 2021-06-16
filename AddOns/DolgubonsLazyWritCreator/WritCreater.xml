@@ -214,6 +214,15 @@
 					    	<FontColors normalColor="FFFFFF" mouseOverColor="d9d9d9" pressedColor="b3b3b3"/>
 		         			<Dimensions x="130"  />
 							<OnClicked>
+								if WritCreater.autoFix then
+									WritCreater.autoFix()
+									return
+								end
+								if WritCreater.dismissable then
+									DolgubonsWrits:SetHidden(true)
+									WritCreater.dismissable = false
+									self:SetText("Craft")
+								end
 								WritCreater.craft()
 							</OnClicked>
 			    		</Button>

@@ -7,6 +7,7 @@ local TrialGroupInit
 local dot_off,dot_on="esoui/art/buttons/featuredot_inactive.dds","esoui/art/buttons/featuredot_active.dds"	--"/BanditsUserInterface/textures/point_off.dds","/BanditsUserInterface/textures/point_on.dds"
 local dodge_icon="esoui/art/icons/passive_armor_009.dds"
 local ReactionColor={
+	[UNIT_REACTION_COMPANION]={.1,.5,.1,1},
 	[UNIT_REACTION_DEFAULT]={.6,.1,.2,1},
 	[UNIT_REACTION_FRIENDLY]={.1,.5,.1,1},
 	[UNIT_REACTION_HOSTILE]={.6,.1,.2,1},
@@ -991,7 +992,7 @@ function BUI.Frames.TargetReactionUpdate()
 		if BUI.Target.Invul then
 			color=ReactionColor["INVULNERABLE"]
 		else
-			color=ReactionColor[GetUnitReaction('reticleover')]
+			color=ReactionColor[GetUnitReaction('reticleover')] or ReactionColor[UNIT_REACTION_NEUTRAL]
 		end
 		BUI.Target.color=color
 		BUI_TargetFrame.health.bar:SetColor(unpack(color))
@@ -1080,7 +1081,7 @@ function BUI.Frames.GetGroupData()
 	local list,tanks,healers,dds={},{},{},{}
 	for i=1,BUI.Group.members do
 		local unitTag	=GetGroupUnitTagByIndex(i)
-		if string.sub(unitTag, 0, 5)=="group" then	-- and DoesUnitExist(unitTag)
+		if unitTag and string.sub(unitTag, 0, 5)=="group" then	-- and DoesUnitExist(unitTag)
 			local accname	=GetUnitDisplayName(unitTag)
 			local name		=string.gsub(GetUnitName(unitTag),"%^%w+","")
 			local role_n	=GetGroupMemberSelectedRole(unitTag)
@@ -1474,7 +1475,7 @@ local function GetAvailableEnlightenedPool()
 end
 
 function BUI.Frames:SetupAltBar()
-	local done,icon,color,pct=true
+	local done,icon,color,pct=true,"/esoui/art/icons/icon_experience.dds",{.7,.7,0,1},1
 	if IsMounted() then
 		BUI.Player.alt="mount"
 		icon="/esoui/art/icons/mapkey/mapkey_stables.dds"
@@ -1496,7 +1497,9 @@ function BUI.Frames:SetupAltBar()
 	elseif BUI.Vars.EnableXPBar then
 		BUI.Player.alt=nil
 		if (BUI.Player.level>=50) then
-			--Get champion rank
+			icon="/esoui/art/champion/champion_icon_32.dds"
+			color={.7,.7,0,1}
+--[[			--Get champion rank
 			local rank=GetChampionPointAttributeForRank(GetPlayerChampionPointsEarned()+1)
 			--The Warrior
 			if rank==1 then icon="/esoui/art/champion/champion_points_health_icon-hud-32.dds" color={0.6,0.2,0}
@@ -1504,12 +1507,11 @@ function BUI.Frames:SetupAltBar()
 			elseif rank==2 then icon="/esoui/art/champion/champion_points_magicka_icon-hud-32.dds" color={0,0.6,1}
 			--The Thief
 			else icon="/esoui/art/champion/champion_points_stamina_icon-hud-32.dds" color={0.3,0.6,0.1} end
+--]]
 			--Fetch the current experience level
 			maxExp=GetNumChampionXPInChampionPoint(BUI.Player.clevel) or 1
 			pct=math.min(BUI.Player.cxp/maxExp,1)
 		else
-			icon="/esoui/art/compass/quest_icon_assisted.dds"
-			color={0,1,1,1}
 			--Fetch the current experience level
 			maxExp=GetUnitXPMax('player')
 			pct=math.min(BUI.Player.exp/maxExp,1)
@@ -1561,8 +1563,12 @@ function BUI.Frames:UpdateAltBar(powerValue, powerMax, powerEffectiveMax,context
 end
 
 function BUI.Frames:SafetyCheck()
-	--Don't update the player in combat
-	if BUI.inCombat then return end
+	--Group frames
+	if BUI.Vars.RaidFrames then
+		BUI.InGroup=IsUnitGrouped('player')
+		if BUI.InGroup then BUI.Frames:SetupGroup() elseif not BUI.inMenu and not BUI.move then BUI_RaidFrame:SetHidden(true) end
+	end
+	if BUI.inCombat then return end --Don't update the player in combat
 	if BUI.Vars.PlayerFrame then
 		--Make sure attributes are up to date
 		if not BUI.inMenu then
@@ -1571,10 +1577,5 @@ function BUI.Frames:SafetyCheck()
 			BUI.Player:UpdateAttribute(	'player',POWERTYPE_STAMINA,nil,nil,nil)
 			BUI.Player:UpdateShield(	'player',nil,nil)
 		end
-	end
-	--Group frames
-	if BUI.Vars.RaidFrames then
-		BUI.InGroup=IsUnitGrouped('player')
-		if BUI.InGroup then BUI.Frames:SetupGroup() elseif not BUI.inMenu then BUI_RaidFrame:SetHidden(true) end
 	end
 end

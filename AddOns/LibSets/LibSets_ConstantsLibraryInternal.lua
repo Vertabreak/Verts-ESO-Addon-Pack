@@ -1,5 +1,5 @@
 --Library base values
-local MAJOR, MINOR = "LibSets", 0.24
+local MAJOR, MINOR = "LibSets", 0.30
 
 --Check if the library was loaded before already + chat output
 function IsLibSetsAlreadyLoaded(outputMsg)
@@ -29,36 +29,43 @@ lib.setsScanning    = false
 lib.fullyLoaded     = false
 lib.startedLoading  = true
 ------------------------------------------------------------------------------------------------------------------------
+local APIVersions = {}
+--The actual API version on the live server we are logged in
+APIVersions["live"] = GetAPIVersion()
 --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 --!!!!!!!!!!! Update this if a new scan of set data was done on the new APIversion at the PTS  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 --The last checked API version for the setsData in file "LibSets_Data.lua", see table "lib.setDataPreloaded = { ..."
 -->Update here after a new scan of the set itemIds was done -> See LibSets_Data.lua, description in this file
 -->above the sub-table ["setItemIds"] (data from debug function LibSets.DebugScanAllSetData())
-lib.lastSetsPreloadedCheckAPIVersion = 100033 --Markarth (2020-10-20, PTS, API 100033)
+lib.lastSetsPreloadedCheckAPIVersion = 100035 --Blackwood (2021-04-21, PTS, API 100035)
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 --!!!!!!!!!!! Update this if a new scan of set data was done on the new APIversion at the PTS  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ------------------------------------------------------------------------------------------------------------------------
-local APIVersions = {}
---The actual API version on the live server we are logged in
-APIVersions["live"] = GetAPIVersion()
 --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 --!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Update this if PTS increases to a new APIVersion !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 --The current PTS APIVersion
 --Update this in order to let the API comparison function "checkIfPTSAPIVersionIsLive" work properly and recognize what version
 --of the game you are playing: live or PTS
---> Several automatic routines like "scan the librray for new sets" is draised via this comparison function and LibSets' event
+--> Several automatic routines like "scan the librray for new sets" is raised via this comparison function and LibSets' event
 --> EVENT_ADD_ON_LOADED -> function LoadSets()
-APIVersions["PTS"] = 100033 --Markarth 2020-09-21
+-- as well as setIds and zoneIds in file LibSets_Data_All.lua, tables "setsOfNewerAPIVersion" and "zoneIdsOfNewAPIVersionOnly"
+-- will be excluded from the LibSets tables, if the PTS version differs from the live version (GetAPIVersion())!
+-- Normally this will be the same as the "last sets preloaded check API version" above, as long as the PTS is not updated to a
+-- newer API patch. But as soon as the PTS was updated the both might differ and you need to update the vaalue here if you plan
+-- to test on PTS and live with the same files
+--APIVersions["PTS"] = lib.lastSetsPreloadedCheckAPIVersion
+APIVersions["PTS"] = 100035
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 --!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Update this if PTS increases to a new APIVersion !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 --Check if the PTS APIVersion is now live
 local function checkIfPTSAPIVersionIsLive()
-    local APIVersionLive = APIVersions["live"]
-    local APIVersionPTS  = APIVersions["PTS"]
+    local APIVersionLive = tonumber(APIVersions["live"])
+    local APIVersionPTS  = tonumber(APIVersions["PTS"])
     return (APIVersionLive >= APIVersionPTS) or false
 end
 lib.checkIfPTSAPIVersionIsLive = checkIfPTSAPIVersionIsLive
@@ -85,6 +92,12 @@ LIBSETS_TABLEKEY_NAMES                          = "Names"
 LIBSETS_TABLEKEY_SETITEMIDS                     = "setItemIds"
 LIBSETS_TABLEKEY_SETITEMIDS_NO_SETID            = LIBSETS_TABLEKEY_SETITEMIDS .. noSetIdString
 LIBSETS_TABLEKEY_SETITEMIDS_COMPRESSED          = LIBSETS_TABLEKEY_SETITEMIDS .."_Compressed"
+LIBSETS_TABLEKEY_SETS_EQUIP_TYPES               = "setsEquipTypes"
+--LIBSETS_TABLEKEY_SETS_ARMOR                     = "setsWithArmor"
+LIBSETS_TABLEKEY_SETS_ARMOR_TYPES               = "setsArmorTypes"
+LIBSETS_TABLEKEY_SETS_JEWELRY                   = "setsWithJewelry"
+--LIBSETS_TABLEKEY_SETS_WEAPONS                   = "setsWithWeapons"
+LIBSETS_TABLEKEY_SETS_WEAPONS_TYPES             = "setsWeaponTypes"
 LIBSETS_TABLEKEY_SETNAMES                       = "set" .. LIBSETS_TABLEKEY_NAMES
 LIBSETS_TABLEKEY_SETNAMES_NO_SETID              = "set" .. LIBSETS_TABLEKEY_NAMES .. noSetIdString
 LIBSETS_TABLEKEY_LASTCHECKEDAPIVERSION          = "lastSetsCheckAPIVersion"
@@ -110,24 +123,32 @@ LIBSETS_TABLEKEY_SET_ITEM_COLLECTIONS_ZONE_MAPPING = "setItemCollectionsZoneMapp
 --> If you change these be sure to check the following tables below and add/change/remove entries as well:
 --lib.setTypeToLibraryInternalVariableNames
 --lib.setTypesToName
-LIBSETS_SETTYPE_ITERATION_BEGIN                 = 1 -- Start of iteration over allowed SetTypes
-LIBSETS_SETTYPE_ARENA                           = 1 --"Arena"
-LIBSETS_SETTYPE_BATTLEGROUND                    = 2 --"Battleground"
-LIBSETS_SETTYPE_CRAFTED                         = 3 --"Crafted"
-LIBSETS_SETTYPE_CYRODIIL                        = 4 --"Cyrodiil"
-LIBSETS_SETTYPE_DAILYRANDOMDUNGEONANDICREWARD   = 5 --"DailyRandomDungeonAndICReward"
-LIBSETS_SETTYPE_DUNGEON                         = 6 --"Dungeon"
-LIBSETS_SETTYPE_IMPERIALCITY                    = 7 --"Imperial City"
-LIBSETS_SETTYPE_MONSTER                         = 8 --"Monster"
-LIBSETS_SETTYPE_OVERLAND                        = 9 --"Overland"
-LIBSETS_SETTYPE_SPECIAL                         = 10 --"Special"
-LIBSETS_SETTYPE_TRIAL                           = 11 --"Trial"
-LIBSETS_SETTYPE_MYTHIC                          = 12 --"Mythic"
+local possibleSetTypes = {
+    [1]  = "LIBSETS_SETTYPE_ARENA",                         --"Arena"
+    [2]  = "LIBSETS_SETTYPE_BATTLEGROUND",                  --"Battleground"
+    [3]  = "LIBSETS_SETTYPE_CRAFTED",                       --"Crafted"
+    [4]  = "LIBSETS_SETTYPE_CYRODIIL",                      --"Cyrodiil"
+    [5]  = "LIBSETS_SETTYPE_DAILYRANDOMDUNGEONANDICREWARD", --"DailyRandomDungeonAndICReward"
+    [6]  = "LIBSETS_SETTYPE_DUNGEON",                       --"Dungeon"
+    [7]  = "LIBSETS_SETTYPE_IMPERIALCITY",                  --"Imperial City"
+    [8]  = "LIBSETS_SETTYPE_MONSTER",                       --"Monster"
+    [9]  = "LIBSETS_SETTYPE_OVERLAND",                      --"Overland"
+    [10] = "LIBSETS_SETTYPE_SPECIAL",                       --"Special"
+    [11] = "LIBSETS_SETTYPE_TRIAL",                         --"Trial"
+    [12] = "LIBSETS_SETTYPE_MYTHIC",                        --"Mythic"
+}
 --SetTypes only available on current PTS, or automatically available if PTS->live
 if checkIfPTSAPIVersionIsLive() then
+    --possibleSetTypes[13] = "..." --New LibSets set type
 end
---End of iteration over SetTypes. !!!!! Increase this variable to the maximum setType if new setTypes are added !!!!!
-LIBSETS_SETTYPE_ITERATION_END                   = LIBSETS_SETTYPE_MYTHIC
+--Loop over the possible DLC ids and create them in the global table _G
+for setTypeId, setTypeName in ipairs(possibleSetTypes) do
+    _G[setTypeName] = setTypeId
+end
+local maxSetTypes = #possibleSetTypes
+LIBSETS_SETTYPE_ITERATION_BEGIN     = LIBSETS_SETTYPE_ARENA
+LIBSETS_SETTYPE_ITERATION_END       = _G[possibleSetTypes[maxSetTypes]]
+
 lib.allowedSetTypes = {}
 for i = LIBSETS_SETTYPE_ITERATION_BEGIN, LIBSETS_SETTYPE_ITERATION_END do
     lib.allowedSetTypes[i] = true
@@ -320,6 +341,114 @@ lib.equipTypesValid = {
     [EQUIP_TYPE_TWO_HAND]   = true,
     [EQUIP_TYPE_WAIST]      = true,
 }
+--The equip type check tables
+--Jewelry
+lib.isJewelryEquipType = {
+    [EQUIP_TYPE_NECK] = true,
+    [EQUIP_TYPE_RING] = true,
+}
+--Weapons
+lib.isWeaponEquipType = {
+    [EQUIP_TYPE_MAIN_HAND]  = true,
+    [EQUIP_TYPE_OFF_HAND]   = true,
+    [EQUIP_TYPE_ONE_HAND]   = true,
+    [EQUIP_TYPE_TWO_HAND]   = true,
+}
+
+--The trait types valid for set items
+lib.traitTypesValid = {
+    --Not allowed
+    --Allowed
+    [ITEM_TRAIT_TYPE_NONE] = true,
+    --Armor
+    [ITEM_TRAIT_TYPE_ARMOR_DIVINES] = true,
+    [ITEM_TRAIT_TYPE_ARMOR_IMPENETRABLE] = true,
+    [ITEM_TRAIT_TYPE_ARMOR_INFUSED] = true,
+    [ITEM_TRAIT_TYPE_ARMOR_INTRICATE] = true,
+    [ITEM_TRAIT_TYPE_ARMOR_NIRNHONED] = true,
+    [ITEM_TRAIT_TYPE_ARMOR_ORNATE] = true,
+    [ITEM_TRAIT_TYPE_ARMOR_PROSPEROUS] = true,
+    [ITEM_TRAIT_TYPE_ARMOR_REINFORCED] = true,
+    [ITEM_TRAIT_TYPE_ARMOR_STURDY] = true,
+    [ITEM_TRAIT_TYPE_ARMOR_TRAINING] = true,
+    [ITEM_TRAIT_TYPE_ARMOR_WELL_FITTED] = true,
+    --Jewelry
+    [ITEM_TRAIT_TYPE_JEWELRY_ARCANE] = true,
+    [ITEM_TRAIT_TYPE_JEWELRY_BLOODTHIRSTY] = true,
+    [ITEM_TRAIT_TYPE_JEWELRY_HARMONY] = true,
+    [ITEM_TRAIT_TYPE_JEWELRY_HEALTHY] = true,
+    [ITEM_TRAIT_TYPE_JEWELRY_INFUSED] = true,
+    [ITEM_TRAIT_TYPE_JEWELRY_INTRICATE] = true,
+    [ITEM_TRAIT_TYPE_JEWELRY_ORNATE] = true,
+    [ITEM_TRAIT_TYPE_JEWELRY_PROTECTIVE] = true,
+    [ITEM_TRAIT_TYPE_JEWELRY_ROBUST] = true,
+    [ITEM_TRAIT_TYPE_JEWELRY_SWIFT] = true,
+    [ITEM_TRAIT_TYPE_JEWELRY_TRIUNE] = true,
+    --Weapons
+    [ITEM_TRAIT_TYPE_WEAPON_CHARGED] = true,
+    [ITEM_TRAIT_TYPE_WEAPON_DECISIVE] = true,
+    [ITEM_TRAIT_TYPE_WEAPON_DEFENDING] = true,
+    [ITEM_TRAIT_TYPE_WEAPON_INFUSED] = true,
+    [ITEM_TRAIT_TYPE_WEAPON_INTRICATE] = true,
+    [ITEM_TRAIT_TYPE_WEAPON_NIRNHONED] = true,
+    [ITEM_TRAIT_TYPE_WEAPON_ORNATE] = true,
+    [ITEM_TRAIT_TYPE_WEAPON_POWERED] = true,
+    [ITEM_TRAIT_TYPE_WEAPON_PRECISE] = true,
+    [ITEM_TRAIT_TYPE_WEAPON_SHARPENED] = true,
+    [ITEM_TRAIT_TYPE_WEAPON_TRAINING] = true,
+}
+--The enchanting EnchantmentSearchCategoryType that are valid
+lib.enchantSearchCategoryTypesValid = {
+    --Not allowed
+    --Allowed
+    [ENCHANTMENT_SEARCH_CATEGORY_ABSORB_HEALTH] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_ABSORB_MAGICKA] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_ABSORB_STAMINA] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_BEFOULED_WEAPON] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_BERSERKER] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_CHARGED_WEAPON] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_DAMAGE_HEALTH] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_DAMAGE_SHIELD] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_DECREASE_PHYSICAL_DAMAGE] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_DECREASE_SPELL_DAMAGE] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_DISEASE_RESISTANT] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_FIERY_WEAPON] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_FIRE_RESISTANT] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_FROST_RESISTANT] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_FROZEN_WEAPON] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_HEALTH] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_HEALTH_REGEN] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_INCREASE_BASH_DAMAGE] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_INCREASE_PHYSICAL_DAMAGE] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_INCREASE_POTION_EFFECTIVENESS] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_INCREASE_SPELL_DAMAGE] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_INVALID] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_MAGICKA] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_MAGICKA_REGEN] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_NONE] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_POISONED_WEAPON] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_POISON_RESISTANT] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_PRISMATIC_DEFENSE] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_PRISMATIC_ONSLAUGHT] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_PRISMATIC_REGEN] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_REDUCE_ARMOR] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_REDUCE_BLOCK_AND_BASH] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_REDUCE_FEAT_COST] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_REDUCE_POTION_COOLDOWN] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_REDUCE_POWER] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_REDUCE_SPELL_COST] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_SHOCK_RESISTANT] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_STAMINA] = true,
+    [ENCHANTMENT_SEARCH_CATEGORY_STAMINA_REGEN] = true,
+}
+--Variables for the generateddata tables, coming from the preloaded setitem data
+lib.equipTypesSets = {}
+lib.armorSets = {}
+lib.armorTypesSets = {}
+lib.jewelrySets = {}
+lib.weaponSets = {}
+lib.weaponTypesSets = {}
+
 ------------------------------------------------------------------------------------------------------------------------
 --Number of currently available set bonus for a monster set piece (2: head, shoulder)
 lib.countMonsterSetBonus = 2
@@ -383,28 +512,36 @@ lib.weaponTypeNames = {
 }
 ------------------------------------------------------------------------------------------------------------------------
 --Drop mechanics / cities / etc. for additional drop location information
-LIBSETS_DROP_MECHANIC_ITERATION_BEGIN                             = 1
-LIBSETS_DROP_MECHANIC_MAIL_PVP_REWARDS_FOR_THE_WORTHY   = 1	    --Rewards for the worthy (Cyrodiil/Battleground mail)
-LIBSETS_DROP_MECHANIC_CITY_CYRODIIL_BRUMA	            = 2	    --City Bruma (quartermaster)
-LIBSETS_DROP_MECHANIC_CITY_CYRODIIL_ERNTEFURT	        = 3	    --City Erntefurt (quartermaster)
-LIBSETS_DROP_MECHANIC_CITY_CYRODIIL_VLASTARUS	        = 4	    --City Vlastarus (quartermaster)
-LIBSETS_DROP_MECHANIC_ARENA_STAGE_CHEST                 = 5     --Arena stage chest
-LIBSETS_DROP_MECHANIC_MONSTER_NAME                      = 6     --The name of a monster (e.g. a boss in a dungeon) is specified in the excel and transfered to the setInfo table entry with the attribute dropMechanicNames (a table containing the monster name in different languages)
-LIBSETS_DROP_MECHANIC_OVERLAND_BOSS_DELVE               = 7     --Overland delve bosses
-LIBSETS_DROP_MECHANIC_OVERLAND_WORLDBOSS                = 8     --Overland world group bosses
-LIBSETS_DROP_MECHANIC_OVERLAND_BOSS_PUBLIC_DUNGEON      = 9     --Overland public dungeon bosses
-LIBSETS_DROP_MECHANIC_OVERLAND_CHEST                    = 10    --Overland chests
-LIBSETS_DROP_MECHANIC_BATTLEGROUND_REWARD               = 11    --Battleground rewards
-LIBSETS_DROP_MECHANIC_MAIL_DAILY_RANDOM_DUNGEON_REWARD  = 12    --Daily random dungeon mail rewards
-LIBSETS_DROP_MECHANIC_IMPERIAL_CITY_VAULTS              = 13    --Imperial city vaults
-LIBSETS_DROP_MECHANIC_LEVEL_UP_REWARD                   = 14    --Level up reward
-LIBSETS_DROP_MECHANIC_ANTIQUITIES                       = 15    --Antiquities (Mythic set items)
---DropMechanic only available on current PTS, or automatically available if PTS->live
+local possibleDropMechanics = {
+    [1]  = "LIBSETS_DROP_MECHANIC_MAIL_PVP_REWARDS_FOR_THE_WORTHY",     --Rewards for the worthy (Cyrodiil/Battleground mail)
+    [2]  = "LIBSETS_DROP_MECHANIC_CITY_CYRODIIL_BRUMA",                 --City Bruma (quartermaster)
+    [3]  = "LIBSETS_DROP_MECHANIC_CITY_CYRODIIL_ERNTEFURT",             --City Erntefurt (quartermaster)
+    [4]  = "LIBSETS_DROP_MECHANIC_CITY_CYRODIIL_VLASTARUS",             --City Vlastarus (quartermaster)
+    [5]  = "LIBSETS_DROP_MECHANIC_ARENA_STAGE_CHEST",                   --Arena stage chest
+    [6]  = "LIBSETS_DROP_MECHANIC_MONSTER_NAME",                        --The name of a monster (e.g. a boss in a dungeon) is specified in the excel and transfered to the setInfo table entry with the attribute dropMechanicNames (a table containing the monster name in different languages)
+    [7]  = "LIBSETS_DROP_MECHANIC_OVERLAND_BOSS_DELVE",                 --Overland delve bosses
+    [8]  = "LIBSETS_DROP_MECHANIC_OVERLAND_WORLDBOSS",                  --Overland world group bosses
+    [9]  = "LIBSETS_DROP_MECHANIC_OVERLAND_BOSS_PUBLIC_DUNGEON",        --Overland public dungeon bosses
+    [10] = "LIBSETS_DROP_MECHANIC_OVERLAND_CHEST",                      --Overland chests
+    [11] = "LIBSETS_DROP_MECHANIC_BATTLEGROUND_REWARD",                 --Battleground rewards
+    [12] = "LIBSETS_DROP_MECHANIC_MAIL_DAILY_RANDOM_DUNGEON_REWARD",    --Daily random dungeon mail rewards
+    [13] = "LIBSETS_DROP_MECHANIC_IMPERIAL_CITY_VAULTS",                --Imperial city vaults
+    [14] = "LIBSETS_DROP_MECHANIC_LEVEL_UP_REWARD",                     --Level up reward
+    [15] = "LIBSETS_DROP_MECHANIC_ANTIQUITIES",                         --Antiquities (Mythic set items)
+}
+--Enable DLCids that are not live yet e.g. only on PTS
 if checkIfPTSAPIVersionIsLive() then
-    --LIBSETS_DROP_MECHANIC_ = number
+     --LIBSETS_DROP_MECHANIC_ = number
+    --possibleDropMechanics[16] = "LIBSETS_DROP_MECHANIC_..." --new dropmechanic ...
 end
---Increase the maximum drop mechanic here after updating the drop mechanics !!!
-LIBSETS_DROP_MECHANIC_ITERATION_END                     = LIBSETS_DROP_MECHANIC_ANTIQUITIES
+--Loop over the possible DLC ids and create them in the global table _G
+for dropMechanicId, dropMechanicName in ipairs(possibleDropMechanics) do
+    _G[dropMechanicName] = dropMechanicId
+end
+local maxDropMechanicIds = #possibleDropMechanics
+LIBSETS_DROP_MECHANIC_ITERATION_BEGIN                             = 1
+LIBSETS_DROP_MECHANIC_ITERATION_END                     = _G[possibleDropMechanics[maxDropMechanicIds]]
+
 lib.allowedDropMechanics = { }
 for i = LIBSETS_DROP_MECHANIC_ITERATION_BEGIN, LIBSETS_DROP_MECHANIC_ITERATION_END do
     lib.allowedDropMechanics[i] = true

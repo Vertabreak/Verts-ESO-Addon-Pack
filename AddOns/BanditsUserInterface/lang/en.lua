@@ -51,8 +51,8 @@ HelperToolTip=
 	.."\n"
 	.."Need to:\n"
 	.."Keep listed buffs on self\n"
-	.."Keep listed debuffs on target skeleton\n"
-	.."Use listed abilitys on target skeleton\n"
+	.."Keep listed debuffs on target dummy\n"
+	.."Use listed abilitys on target dummy\n"
 	.."\n"
 	.."To start test: Use Light attack",
 
@@ -420,7 +420,7 @@ RaidCompact	="Compact mode",
 RaidCompactDesc	="(Group buffs and DPS will be disabled)\n"..default..(BUI.Defaults.RaidCompact and on or off),
 GroupAnimation	="Group Animation",
 GroupAnimationDesc	="Enables animation for reneneration/degeneration states\n"..default..(BUI.Defaults.GroupAnimation and on or off),
-GroupDeathSound	="Group death sound",
+GroupDeathSound	="Group members death sound",
 --GroupDeathSoundDesc	="Play sound on group member death\n"..default..(BUI.Defaults.GroupDeathSound and on or off),
 RaidLevels	="Show levels",
 RaidLevelsDesc	=default..(BUI.Defaults.RaidLevels and on or off),
@@ -547,7 +547,7 @@ BlackListHeader	="Buffs black list",
 EnableBlackList	="Apply black list to buffs",
 EnableBlackListDesc	=default..(BUI.Defaults.EnableBlackList and on or off),
 BlackListAdd	="Add to black list",
-BlackListAddDesc	="Enter name or buff id to add it to black list. Or just right click on it in buff panel.",
+BlackListAddDesc	="Enter buff name (for all buffs with specific name, case sensitive) or id to add it to black list.\nOr just right click on it in buff panel.",
 BlackListDel	="Remove from black list",
 BlackListDelDesc	="Select buff to remove it from black list",
 
@@ -692,7 +692,9 @@ Meters_Header	="Meters",
 Meter_Speed	="Speed",
 Meter_SpeedDesc	="Shows player movement speed.",
 Meter_Power	="Power",
-Meter_PowerDesc	="Shows player magic and weapon power.",
+Meter_PowerDesc	="Shows player magic or weapon power.",
+Meter_Crit	="Crit",
+Meter_CritDesc	="Shows player magic or weapon critical chance.",
 Meter_Exp	="Experience",
 Meter_ExpDesc	="Shows player experience.",
 Meter_DPS	="DPS",

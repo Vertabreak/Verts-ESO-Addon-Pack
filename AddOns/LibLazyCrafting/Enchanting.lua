@@ -82,6 +82,7 @@ local function LLC_CraftEnchantingGlyphItemID(self, potencyItemID, essenceItemID
 		requestTable["station"] = CRAFTING_TYPE_ENCHANTING
 	end
 
+	LibLazyCrafting.AddHomeMarker(nil, CRAFTING_TYPE_ENCHANTING)
 	table.insert(craftingQueue[self.addonName][CRAFTING_TYPE_ENCHANTING],requestTable)
 
 	--sortCraftQueue()
@@ -426,7 +427,7 @@ local function applyGlyphToItem(requestTable)
 	local numLoops = math.min(#glyphInfo, #equipInfo)
 	for i = numLoops,1, -1 do
 
-		local equipBag , equipSlot = searchUniqueId(equipInfo[i].uniqueId)
+		local equipBag, equipSlot = searchUniqueId(equipInfo[i].uniqueId)
 		local glyphBag, glyphSlot = searchUniqueId(glyphInfo[i].uniqueId)
 		if not equipBag or not glyphBag then
 			if not equipBag then
@@ -463,7 +464,7 @@ local function wasItemMade(bag, slot)
 	return  GetItemLinkName(GetItemLink(BAG_BACKPACK, slot,0)) == GetItemLinkName(currentCraftAttempt.link)
 		and GetItemLinkQuality(GetItemLink(BAG_BACKPACK, slot,0)) == GetItemLinkQuality(currentCraftAttempt.link)
 end
-local function handleEnchantComplete(event, station, slot)
+local function handleEnchantComplete(station, slot)
 			-- We found it!
 		dbug("ACTION:RemoveQueueItem")
 		local removedTable = craftingQueue[currentCraftAttempt.Requester][CRAFTING_TYPE_ENCHANTING][currentCraftAttempt.position]
@@ -471,12 +472,13 @@ local function handleEnchantComplete(event, station, slot)
 			removedTable = table.remove(craftingQueue[currentCraftAttempt.Requester][CRAFTING_TYPE_ENCHANTING] , currentCraftAttempt.position )
 			removedTable.quantity = removedTable.quantity - 1
 			currentCraftAttempt.quantity = currentCraftAttempt.quantity - 1
+
+			LibLazyCrafting.DeleteHomeMarker(nil, CRAFTING_TYPE_ENCHANTING)
 		else
 			removedTable =  craftingQueue[currentCraftAttempt.Requester][CRAFTING_TYPE_ENCHANTING][currentCraftAttempt.position]
 			removedTable.quantity = removedTable.quantity - 1
 			currentCraftAttempt.quantity = currentCraftAttempt.quantity - 1
 		end
-		-- d(removedTable)
 		if removedTable.dualEnchantingSmithing then
 			removedTable.glyphInfo= removedTable.glyphInfo or {}
 			table.insert(removedTable.glyphInfo,
@@ -506,7 +508,7 @@ local function handleEnchantComplete(event, station, slot)
 		return removedTable
 end
 
-local function LLC_EnchantingCraftingComplete(event, station, lastCheck)
+local function LLC_EnchantingCraftingComplete(station, lastCheck)
 	if currentCraftAttempt.allRunesKnown==false then -- User didn't know all the glyphs, so we get the item link *now* since now they know them
 	-- Hopefully they have more than one
 		currentCraftAttempt.link = GetEnchantingResultingItemLink(unpack(currentCraftAttempt.locations))
@@ -517,7 +519,7 @@ local function LLC_EnchantingCraftingComplete(event, station, lastCheck)
 	local found = false
 	local removedTable
 	while slot ~= nil do
-		removedTable = handleEnchantComplete(event, station, slot)
+		removedTable = handleEnchantComplete(station, slot)
 		bag, slot = LibLazyCrafting.findNextSlotIndex(wasItemMade, slot+1)
 		found = true
 	end

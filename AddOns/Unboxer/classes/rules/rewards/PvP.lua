@@ -29,7 +29,7 @@ function class.PvP:Match(data)
   
     -- Old Rewards for the Worthy containers
     if addon:StringContainsStringIdOrDefault(data.name, SI_UNBOXER_UNKNOWN_ITEM_PATTERN)
-       and data.quality == (ITEM_QUALITY_ARTIFACT or ITEM_FUNCTIONAL_QUALITY_ARTIFACT)
+       and data.quality == ITEM_FUNCTIONAL_QUALITY_ARTIFACT
        and data.flavorText == ""
        and data.bindType ~= BIND_TYPE_ON_PICKUP
     then

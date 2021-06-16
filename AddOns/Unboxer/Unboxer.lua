@@ -2,7 +2,7 @@ Unboxer = {
     name = "Unboxer",
     title = GetString(SI_UNBOXER),
     author = "silvereyes",
-    version = "3.7.3",
+    version = "3.9.0",
     itemSlotStack = {},
     defaultLanguage = "en",
     debugMode = false,
@@ -227,7 +227,9 @@ function addon:GetItemLinkData(itemLink, language, slotData)
     for _, rule in ipairs(self.rules) do
         if rule:MatchKnownIds(data) then
             data["containerType"] = rule.name
-            data["isUnboxable"] = slotData["collectibleUnlocked"] == nil or not slotData["collectibleUnlocked"]
+            if data["isUnboxable"] == nil then
+                data["isUnboxable"] = slotData["collectibleUnlocked"] == nil or not slotData["collectibleUnlocked"]
+            end
             data.rule = rule
             break
         end
@@ -236,7 +238,9 @@ function addon:GetItemLinkData(itemLink, language, slotData)
         for _, rule in ipairs(self.rules) do
             if rule:Match(data) then
                 data["containerType"] = rule.name
-                data["isUnboxable"] = slotData["collectibleUnlocked"] == nil or not slotData["collectibleUnlocked"]
+                if data["isUnboxable"] == nil then
+                    data["isUnboxable"] = slotData["collectibleUnlocked"] == nil or not slotData["collectibleUnlocked"]
+                end
                 data.rule = rule
                 break
             end
@@ -292,6 +296,7 @@ local function OnContainerOpened(itemLink, lootReceived, rule)
                 self.summary:AddItemLink(loot.itemLink, loot.quantity)
             end
         end
+        self.summary:IncrementCounter()
     end
     addon.Debug("Opened " .. tostring(itemLink) .. " containing " .. tostring(#lootReceived) .. " items. Matched rule "
                 .. (rule and rule.name or ""))
@@ -460,6 +465,9 @@ local function OnAddonLoaded(event, name)
     self:RegisterCategoryRule(rules.currency.TelVar)
     local transmutationRule = 
         self:RegisterCategoryRule(rules.currency.Transmutation)
+    if ITEMFILTERTYPE_COMPANION then
+        self:RegisterCategoryRule(rules.general.Companions)
+    end
     self:RegisterCategoryRule(rules.general.Festival)
     self:RegisterCategoryRule(rules.general.Fishing)
     self:RegisterCategoryRule(rules.general.Legerdemain)
@@ -482,7 +490,7 @@ local function OnAddonLoaded(event, name)
     self.unboxAll:RegisterCallback("Opened", OnContainerOpened)
     self.unboxAll:RegisterCallback("BeforeOpen", RefreshUnboxAllKeybind)
     
-    -- Protect Rewards for the Worthy containers when their transmutation geode loot is on cooldown
+    -- Protect Rewards for the Worthy containers when their transmutation geode loot is on 20-hour cooldown
     self.protector = self.classes.BoxProtector:New(self.unboxAll)
     local rewardsForTheWorthyItemIds = { 145577, 134619 }
     local transmutationItemIds = {}
@@ -490,7 +498,7 @@ local function OnAddonLoaded(event, name)
         table.insert(transmutationItemIds, itemId)
     end
     table.sort(transmutationItemIds, function(a, b) return a > b end)
-    self.protector:Protect( rewardsForTheWorthyItemIds, transmutationItemIds, ZO_ONE_DAY_IN_SECONDS )
+    self.protector:Protect( rewardsForTheWorthyItemIds, transmutationItemIds, ZO_ONE_HOUR_IN_SECONDS * 20 )
     
     --[[ Testing cooldown protection w/ Unfathomable Wooden Weapon boxes
     if false then

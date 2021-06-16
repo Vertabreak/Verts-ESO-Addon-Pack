@@ -228,6 +228,24 @@ local IgnoreAbility={
 [105204]=true,--Crushing Darkness
 }
 local Trial_Alert_id={
+--Rockgrove
+[149531]=true,--Blistering Smash
+[149648]=true,--Ravenous Chomp
+[150065]=true,--Rend Flesh
+[150308]=true,--Power Bash
+[153181]=true,[156982]=true,--Sunburst
+[156995]=true,--Monstrous Cleave
+[157265]=true,--Kiss of Poison
+[157471]=true,--Uppercut
+[149180]=true,[153448]=true,[153450]=true,--Scathing Evisceration
+[149414]=true,[157932]=true,--Savage Blitz
+[152688]=true,--Cinder Cleave
+[150026]=true,--Convoke the Flesh
+[155357]=true,--Meteor Swarm
+[152414]=true,--Meteor Call
+[157236]=true,--Astral Shield
+[157243]=true,--Taking Aim
+[150137]=true,--Hot Spring
 --Kine's Kiss
 [139827]=true,--Wrath of Tides
 [133685]=true,--Shield Bash

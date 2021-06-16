@@ -4,9 +4,8 @@
 
 ZO_CreateStringId("DP_CRAFTING_QUEST",      "Versorgerschrieb")                   -- [de.lang.csv] "52420949","0","5409","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_MASTER",     "Ein meisterhaftes Mahl")             -- [de.lang.csv] "52420949","0","5977","xxxxxxxx"
-ZO_CreateStringId("DP_CRAFTING_EVENT1",     "Eine wohltätige Unternehmung")       -- [de.lang.csv] "52420949","0","6327","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_WITCH",      "Hexenfestschrieb")                   -- [de.lang.csv] "52420949","0","6427","xxxxxxxx"
-
+ZO_CreateStringId("DP_CRAFTING_EVENT1",     "Eine wohltätige Unternehmung")       -- [de.lang.csv] "52420949","0","6327","xxxxxxxx"
 ZO_CreateStringId("DP_CRAFTING_EVENT1BOOK", "kaiserlicher Wohltätigkeitsschrieb") -- [de.lang.csv] "242841733","0","167169","xxxxxxxx"
 
 ZO_CreateStringId("DP_BULK_HEADER",         "Massenerstellung")
@@ -22,6 +21,8 @@ ZO_CreateStringId("DP_CANCEL_WRIT_MSG",     "Stornierte Versiegelter Meisterschr
 
 ZO_CreateStringId("DP_OTHER_HEADER",        "Andere")
 ZO_CreateStringId("DP_ACQUIRE_ITEM",        "Gegenstände von der Bank abholen")
+ZO_CreateStringId("DP_DELAY",               "Verzögerungszeit(Sekunden)")
+ZO_CreateStringId("DP_DELAY_TOOLTIP",       "Verzögerungszeit zum Abrufen des Elements\nWenn Sie den Gegenstand nicht gut herausnehmen können, erhöhen Sie ihn.")
 ZO_CreateStringId("DP_AUTO_EXIT",           "Automatischer Austritt aus dem Crafting-Fenster")
 ZO_CreateStringId("DP_AUTO_EXIT_TOOLTIP",   "Automatischer Austritt aus dem Crafting-Fenster, wenn alles abgeschlossen ist.")
 ZO_CreateStringId("DP_DONT_KNOW",           "Deaktivieren Autocrafting,wenn Rezept nicht kennen")
@@ -37,80 +38,94 @@ ZO_CreateStringId("DP_SHORT_OF",            " ... Mangel an Materialien (<<1>>)"
 
 
 
-function DailyProvisioning:CraftingConditions()
-    local list = {
-        "Stellt",
-    }
-    return list
-end
-
 function DailyProvisioning:ConvertedItemNameForDisplay(itemName)
     return itemName:gsub("(\^).*", ""):gsub("(\|).*", "")
 end
 
 function DailyProvisioning:ConvertedItemNames(itemName)
 
-    local function Convert(itemName)
+    local list = {
+        {"%-",   " "},
+        {"%^.*", ""},
+        {"ﻻ",    " "}, -- A piece of BOM ? (239)
+        {"Ä",    "A"}, -- Replace Umlaut
+        {"ä",    "a"}, -- Replace Umlaut
+        {"ö",    "o"}, -- Replace Umlaut
+        {"ü",    "u"}, -- Replace Umlaut
+    }
 
-        local list = {
-            {"(\-)",            "(\-)"},
-            {"(\^P)",           ""},
-            {"atherischer Tee", "Ätherischen Tee"},
-            {"%l%l ",           "%%l* "},
-            {"ﻻ",               " "}, -- A piece of BOM ? (239)
-        }
-
-        local convertedItemName = itemName
-        for _, value in ipairs(list) do
-            convertedItemName = string.gsub(convertedItemName, value[1], value[2])
-        end
-        return convertedItemName
+    local convertedItemName = itemName
+    for _, value in ipairs(list) do
+        convertedItemName = string.gsub(convertedItemName, value[1], value[2])
     end
 
 
-    if string.match(itemName, "(\|)") then
-        local itemName1 = itemName:gsub("(\|)[%a%s%p]*", ""):gsub("(\^)%a*", ""):gsub("ä", "a"):gsub("ö", "o"):gsub("ü", "u")
-        local itemName2 = itemName:gsub("[%a%s%p]*(\|)", ""):gsub("(\^)%a*", ""):gsub("ä", "a"):gsub("ö", "o"):gsub("ü", "u")
-        local list = {}
+    local convertedItemName2 = convertedItemName
+    local list2 = {
+        {"atherischer Tee",          "Atherischen Tee"},
+        {"bretonische Fleischwurst", "Bretonische Fleischwurst"},
+        {"heiliger Strohsack",       "Heiligen Strohsack"},
+        {"klarer Syrahwein",         "Klaren Syrahwein"},
+        {"eltherischer Fusel",       "eltherischen Fusel"},
+    }
+    for _, value in ipairs(list2) do
+        convertedItemName2 = string.gsub(convertedItemName2, value[1], value[2])
+    end
 
-        local convertedItemName1 = Convert(itemName1)
-        if convertedItemName1 == itemName1 then
-            list[#list + 1] = itemName1
-        else
-            list[#list + 1] = convertedItemName1
-            list[#list + 1] = itemName1
-        end
-
-        local convertedItemName2 = Convert(itemName2)
-        if convertedItemName2 == itemName2 then
-            list[#list + 1] = itemName2
-        else
-            list[#list + 1] = convertedItemName2
-            list[#list + 1] = itemName2
-        end
-
-        return list
+    if convertedItemName == convertedItemName2 then
+        return {convertedItemName}
     else
-        itemName = itemName:gsub("(\^)%a*", ""):gsub("(\^)%a*", ""):gsub("ä", "a"):gsub("ö", "o"):gsub("ü", "u")
-        local convertedItemName = Convert(itemName)
-        if convertedItemName == itemName then
-            return {
-                itemName
-            }
-        else
-            return {
-                Convert(itemName),
-                itemName,
-            }
-        end
+        return {convertedItemName, convertedItemName2}
     end
 end
 
 function DailyProvisioning:ConvertedJournalCondition(journalCondition)
-    return journalCondition:gsub("ä", "a"):gsub("ö", "o"):gsub("ü", "u"):gsub("\n", "") -- Replace Umlaut
+
+    local list = {
+        {"Ä",       "A"},   -- Replace Umlaut
+        {"ä",       "a"},   -- Replace Umlaut
+        {"ö",       "o"},   -- Replace Umlaut
+        {"ü",       "u"},   -- Replace Umlaut
+        {"\n",      ""},
+        {" ",       " "},   -- code(0xA0) > space(0x20): HTML non-breaking space ?("0xC2 0xA0")
+        {"%-",      " "},
+        {" Her:",   " her:"},
+
+        -- Master Writ(Create from context menu)
+        {".+:Stellt (e%w*) (.*) her.",  "Stellt %1 [%2]"},
+        {".+:Stellt (.*) her.",         "Stellt [%1]"},
+
+        -- Master Writ(in Journal)
+        {"Stellt (e%w*) (.*) her.*:",   "Stellt %1 [%2]"},
+        {"Stellt (.*) her.*:",          "Stellt [%1]"},
+
+        -- Dayly
+        {"Stellt (e%w*) (.*) her:",     "Stellt %1 [%2]"},
+        {"Stellt (.*) her:",            "Stellt [%1]"},
+
+    }
+
+    local convertedCondition = journalCondition
+    for _, value in ipairs(list) do
+        convertedCondition = string.gsub(convertedCondition, value[1], value[2])
+    end
+    return convertedCondition
 end
 
-function DailyProvisioning:isAlchemy(journalCondition)
-    return string.match(journalCondition, "Stellt .* mit bestimmten Eigenschaften her")
+function DailyProvisioning:CraftingConditions()
+    local list = {
+        "Stellt ",
+    }
+    return list
 end
 
+function DailyProvisioning:isProvisioning(journalCondition)
+    local list = {
+        "Stellt .* mit bestimmten Eigenschaften her",   -- SI_MASTER_WRIT_QUEST_ALCHEMY_FORMAT_STRING
+        "Schmiedehändler verkaufen diese .*",           -- [de.lang.csv] "7949764","0","61966","xxxxxxxx"
+        "Schneiderhändler verkaufen diese .*",          -- [de.lang.csv] "7949764","0","61968","xxxxxxxx"
+        "Schreinerhändler verkaufen diese .*",          -- [de.lang.csv] "7949764","0","61970","xxxxxxxx"
+        "Schreiner verkaufen diese .*",                 -- [de.lang.csv] "7949764","0","68075","xxxxxxxx"
+    }
+    return not self:Contains(journalCondition, list)
+end

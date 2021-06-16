@@ -2659,6 +2659,10 @@ end
 
 function CS.GetTrait(link)
   if not link then return false end
+  local actorCategory = GetItemLinkActorCategory(link)
+  if actorCategory ~= 0 then
+	return false
+  end
   local trait,eq,craft=GetItemLinkTraitInfo(link),GetItemLinkEquipType(link)
   if not CS.IsValidEquip(eq)or not CS.IsValidTrait(trait)then return false end
   local at,wt,line=GetItemLinkArmorType(link),GetItemLinkWeaponType(link),nil
@@ -2776,18 +2780,14 @@ function CS.IsResearchable(link,current)
 	return false
 end
 
---API for whether a recipe or blueprint can be learned
+--API for whether a recipe, blueprint or style can be learned
 function CS.IsLearnable(link,current)
 	if not current then current = false end
 	local needed = {}
 	local id = CS.SplitLink(link,3)
 	for _, char in pairs(CS.GetCharacters()) do
 		if current == false or (char == CS.CurrentPlayer and current == true) then
-			if CS.Data.cook.knowledge[char][id] == nil then
-				needed[#needed+1] = {char,not CS.Data.furnisher.knowledge[char][id]}
-			else	
-				needed[#needed+1] = {char,not CS.Data.cook.knowledge[char][id]}
-			end	
+   		    needed[#needed+1] = {char,not (CS.Data.cook.knowledge[char][id] or CS.Data.furnisher.knowledge[char][id] or CS.Data.style.knowledge[char][id])}
 		end
 	end	
 	return needed
@@ -2922,7 +2922,7 @@ function CS.OptionSetSelect(control,button)
     CS.ToChat(control.data.link)
   else
     for x = 1,3 do
-      local zone = {GetMapInfo(control.data.zone[x])}
+      local zone = {GetZoneNameByIndex(control.data.zone[x])}
       local node = {GetFastTravelNodeInfo(control.data.node[x])}
       local nr, travel, zonename, nodename = control.data.nr, true, ZOSF('<<C:1>>',zone[1]), CS.Loc.unknown
       if CS.Sets[nr].nodes[x] == -1 then nodename = CS.Loc.TT[17]

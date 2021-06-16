@@ -1,16 +1,33 @@
 
-function DailyAlchemy:Acquire(eventCode)
+function DailyAlchemy:Acquire()
 
-    if (not self.savedVariables.isAcquireItem) then
-        return
+    self:Debug("[Acquire]", self.checkColor)
+    if self:IsDebug() and self.savedVariables.isDebugSettings then
+        self:Debug("　　savedVariables.bulkQuantity=" .. tostring(self.savedVariables.bulkQuantity))
+        self:Debug("　　savedVariables.isAcquireItem=" .. tostring(self.savedVariables.isAcquireItem))
+        self:Debug("　　savedVariables.acquireDelay=" .. tostring(self.savedVariables.acquireDelay))
+        self:Debug("　　savedVariables.isAutoExit=" .. tostring(self.savedVariables.isAutoExit))
+        self:Debug("　　savedVariables.isLog=" .. tostring(self.savedVariables.isLog))
+        self:Debug("　　savedVariables.isDebug=" .. tostring(self.savedVariables.isDebug))
+        self:Debug("　　savedVariables.isDebugSettings=" .. tostring(self.savedVariables.isDebugSettings))
+        self:Debug("　　savedVariables.isDebugQuest=" .. tostring(self.savedVariables.isDebugQuest))
+        self:Debug("　　savedVariables.isDebugSolvent=" .. tostring(self.savedVariables.isDebugSolvent))
+        self:Debug("　　savedVariables.isDebugTrait=" .. tostring(self.savedVariables.isDebugTrait))
+        self:Debug("　　savedVariables.isDebugReagent=" .. tostring(self.savedVariables.isDebugReagent))
+        self:Debug("　　savedVariables.isDebugPriority=" .. tostring(self.savedVariables.isDebugPriority))
+        self:Debug("　　FCOIS=" .. (FCOIS and "Exists") or "nil")
+        self:Debug("　　self.savedVariables.useItemLock=" .. tostring(self.savedVariables.useItemLock))
     end
 
 
-    self:Debug("[Pre Acquire]")
     local infos = self:GetQuestInfos()
     if (not infos) or #infos == 0 then
-        self:Debug("　　No Quest")
+        self:Debug("　　>No Quest")
         return true
+    end
+    if self.isStationInteract then
+        self:Debug("　　break Case1", self.checkColor)
+        return
     end
 
 
@@ -26,28 +43,44 @@ function DailyAlchemy:Acquire(eventCode)
     if self.acquiredItemId and self.acquiredItemCurrent then
         self.stackList[self.acquiredItemId] = (self.stackList[self.acquiredItemId] or 0) - self.acquiredItemCurrent
     end
+    if self.isStationInteract then
+        self:Debug("　　break Case2", self.checkColor)
+        return
+    end
 
 
-    self:Debug("[Acquire]")
+    local parameterList
     for _, info in ipairs(infos) do
-        local parameterList
         if info.current < info.max then
-            --self:Debug(zo_strformat("　　journal(O):<<1>>", info.txt))
-            self:Debug(zo_strformat("　　journal(O):<<1>> (<<2>>/<<3>>)<<4>>", info.convertedTxt,
-                                                                               info.current,
-                                                                               info.max,
-                                                                               info.bulkMark))
+            self:Debug("　　--------")
+            self:Debug("　　txt=\"<<1>>\" (<<2>>/<<3>>)<<4>>", info.txt,
+                                                               info.current,
+                                                               info.max,
+                                                               info.bulkMark)
+            self:Debug("　　convertedTxt=\"<<1>>\" (<<2>>/<<3>>)<<4>>", info.convertedTxt,
+                                                                        info.current,
+                                                                        info.max,
+                                                                        info.bulkMark)
 
             if info.isCrafting then
                 parameterList = self:Advice(info.convertedTxt, info.current, info.max, info.isMaster)
                 self:Debug("　　　　[AcquireItem(Potion or Poison)]")
+                self:AcquireItem(info, parameterList)
             else
                 self:Debug("　　　　[AcquireItem(Solvent or Reagent)]")
+                self:AcquireItem(info)
             end
-            self:AcquireItem(info, parameterList)
+            if self.isStationInteract then
+                self:Debug("　　break Case3" .. tostring(tostring(info.convertedTxt)), self.checkColor)
+                return
+            end
         end
 
         if info.isCrafting and info.current < info.max then
+            if self.isStationInteract then
+                self:Debug("　　break Case4" .. tostring(tostring(info.convertedTxt)), self.checkColor)
+                return
+            end
             self:Debug("　　　　[AcquireMaterial]")
             self:AcquireMaterial(info, parameterList)
         end
@@ -63,7 +96,6 @@ function DailyAlchemy:AcquireItem(info, parameterList)
                                     and WritCreater
                                     and WritCreater:GetSettings().shouldGrab
                                     and WritCreater:GetSettings()[CRAFTING_TYPE_ALCHEMY]
-                                    and (not self.isSilent)
                                     and (GetBankingBag() == BAG_BANK)
     local moved = 0
     local bagIdList = self:GetItemBagList()
@@ -116,15 +148,17 @@ function DailyAlchemy:AcquireMaterial(info, parameterList)
 
 
     if self:IsDebug() then
-        local reagent3Info = ""
+        local materials = {}
+        materials[1] = solvent.icon .. tostring(solvent.itemLink)
+        materials[2] = reagent1.icon .. tostring(reagent1.itemLink)
+        materials[3] = reagent2.icon .. tostring(reagent2.itemLink)
         if reagent3.itemLink then
-            reagent3Info = ", " .. zo_iconFormat(GetItemLinkIcon(reagent3.itemLink), 18, 18) .. reagent3.itemLink
+            materials[4] = reagent3.icon .. tostring(reagent3.itemLink)
         end
-        self:Debug("　　　　　　" .. tostring(parameter.resultLink) .. " x " .. quantity .. " ["
-                                  .. zo_iconFormat(GetItemLinkIcon(solvent.itemLink), 18, 18) .. tostring(solvent.itemLink) .. ", "
-                                  .. zo_iconFormat(GetItemLinkIcon(reagent1.itemLink), 18, 18) .. tostring(reagent1.itemLink) .. ", "
-                                  .. zo_iconFormat(GetItemLinkIcon(reagent2.itemLink), 18, 18) .. tostring(reagent2.itemLink)
-                                  .. tostring(reagent3Info) .. "]" )
+        self:Debug("　　　　　　<<1>><<2>> x <<3>> [<<4>>]", parameter.icon,
+                                                             parameter.resultLink,
+                                                             quantity,
+                                                             table.concat(materials, ", "))
     end
 
     local bagIdList = self:GetHouseBankIdList()
@@ -142,13 +176,24 @@ function DailyAlchemy:AcquireMaterial(info, parameterList)
             end
             local used = math.min(materialMax, stack)
             self.stackList[material.itemId] = stack - used
-            local materialCurrent = self:Choice(material.itemName, used, materialMax)
-            self:Debug("　　　　　　　　" .. material.itemName
-                                          .. "(" .. stack .. "/" .. materialMax .. ")"
-                                          .. " UsedStack x" .. used
-                                          .. " HouseStack x" .. houseStack
-                                          .. " Acquired x" .. acquired)
+            local materialCurrent = (material.itemName and used) or materialMax
 
+            if materialCurrent < materialMax then
+                self:Debug("　　　　　　<<1>>(<<2>>/<<3>>) UsedStack x<<4>> HouseStack x<<5>> Acquired x<<6>>", material.itemName,
+                                                                                                                stack,
+                                                                                                                materialMax,
+                                                                                                                used,
+                                                                                                                houseStack,
+                                                                                                                acquired)
+            else
+                self:Debug("　　　　　　<<1>>(<<2>>/<<3>>) UsedStack x<<4>> HouseStack x<<5>> Acquired x<<6>>", material.itemName,
+                                                                                                                stack,
+                                                                                                                materialMax,
+                                                                                                                used,
+                                                                                                                houseStack,
+                                                                                                                acquired,
+                                                                                                                self.disabledColor)
+            end
             local moved = self:MoveByItem(material.itemLink, materialCurrent, materialMax, bagIdList)
             if (moved + materialCurrent >= materialMax) then
                 total = total + 1
@@ -163,28 +208,9 @@ end
 
 
 
-function DailyAlchemy:Camehome(eventCode)
-    if IsOwnerOfCurrentHouse() then
-        zo_callLater(function()
-            self:Acquire(eventCode)
-            self:Finalize()
-
-            zo_callLater(function()
-                self.isSilent = true
-                self:Acquire(eventCode)
-                self:Finalize()
-            end, 5000)
-
-        end, 5000)
-    end
-end
-
-
-
-
 function DailyAlchemy:CountByConditions(conditionText, current, max, bagIdList)
 
-    self:Debug("　　　　　　　　[CountByConditions " .. " (" .. current .. " to " .. max .. ")]")
+    self:Debug("　　　　　　　　[CountByConditions (<<1>> to <<2>>)]", current, max)
     local counted = 0
     local itemLink = nil
     for _, bagId in ipairs(bagIdList) do
@@ -264,21 +290,6 @@ end
 
 
 
-function DailyAlchemy:CreateParameterQuiet(conditionText, isMaster)
-
-    if self:IsDebug() then
-        self.savedVariables.isDebug = false
-        local parameterList = self:CreateParameter(conditionText, isMaster)
-        self.savedVariables.isDebug = true
-        return parameterList
-    else
-        return self:CreateParameter(conditionText, isMaster)
-    end
-end
-
-
-
-
 function DailyAlchemy:GetEffectiveParameter(quantity, parameterList)
     local materialMax = math.ceil(quantity / self:GetAmountToMake(parameterList[1].itemType))
     for i, parameter in ipairs(parameterList) do
@@ -343,7 +354,12 @@ function DailyAlchemy:GetItemKey(itemLink)
         return nil
     end
 
-    local key = string.match(itemLink, ":(item:%d+:%d+:%d+)")
+    local key
+    if GetItemLinkItemType(itemLink) == ITEMTYPE_REAGENT then
+        key = string.match(itemLink, ":(item:%d+)")
+    else
+        key = string.match(itemLink, ":(item:%d+:%d+:%d+)")
+    end
     return tostring(key)
 end
 
@@ -386,12 +402,18 @@ function DailyAlchemy:IsValidItem(text, bagId, slotIndex)
         end
 
         local icon = zo_iconFormat(GetItemInfo(bagId, slotIndex), 18, 18)
+        local itemId = GetItemId(bagId, slotIndex)
         local convertedItemNames = self:ConvertedItemNames(itemName)
         if self:Contains(text, convertedItemNames) then
-            self:Debug("　　　　　　　　　　|cFFFFFF(O):" .. icon .. table.concat(convertedItemNames, ", ") .. "|r")
+            self:Debug("　　　　　　　　　　(O):<<1>><<2>><<3>>", itemId,
+                                                                  icon,
+                                                                  table.concat(convertedItemNames, ", "))
             return GetItemId(bagId, slotIndex)
         else
-            self:Debug("　　　　　　　　　　|c5c5c5c(X):" .. icon .. table.concat(convertedItemNames, ", ") .. "|r")
+            self:Debug("　　　　　　　　　　(X):<<1>><<2>><<3>>", itemId,
+                                                                  icon,
+                                                                  table.concat(convertedItemNames, ", "),
+                                                                  self.disabledColor)
         end
     end
     return nil
@@ -402,17 +424,29 @@ end
 
 function DailyAlchemy:MoveByConditions(conditionText, current, max, bagIdList)
 
-    self:Debug("　　　　　　　　[MoveByConditions " .. " (" .. current .. " to " .. max .. ")]")
+    self:Debug("　　　　　　[MoveByConditions (<<1>> to <<2>>)]", current, max)
+
+    local toHide = self:IsDebug() and (not self.savedVariables.isDebugReagent)
+    if toHide then
+        self.savedVariables.isDebug = false
+    end
+
     local moved = 0
-    local itemLink = nil
+    local itemLink
     for _, bagId in ipairs(bagIdList) do
         if current >= max then
+            if toHide then
+                self.savedVariables.isDebug = true
+            end
             return moved, itemLink
         end
 
         local slotIndex = ZO_GetNextBagSlotIndex(bagId, nil)
         while slotIndex do
             if (current >= max) then
+                if toHide then
+                    self.savedVariables.isDebug = true
+                end
                 return moved, itemLink
             end
 
@@ -437,6 +471,10 @@ function DailyAlchemy:MoveByConditions(conditionText, current, max, bagIdList)
             slotIndex = ZO_GetNextBagSlotIndex(bagId, slotIndex)
         end
     end
+
+    if toHide then
+        self.savedVariables.isDebug = true
+    end
     return moved, itemLink
 end
 
@@ -454,7 +492,7 @@ function DailyAlchemy:MoveByItem(itemLink, current, max, bagIdList)
 
 
     local itemKey = self:GetItemKey(itemLink)
-    self:Debug("　　　　　　　　[MoveByItem " .. itemLink .. " (" .. current .. " to " .. max .. ")] " .. itemKey)
+    self:Debug("　　　　　　[MoveByItem <<1>> (<<2>> to <<3>>)] <<4>>", itemLink, current, max, itemKey)
     local moved = 0
     for _, bagId in ipairs(bagIdList) do
         if current >= max then
@@ -468,7 +506,6 @@ function DailyAlchemy:MoveByItem(itemLink, current, max, bagIdList)
             end
 
             local itemLink = GetItemLink(bagId, slotIndex)
-            --d("　　　　　　　　" .. tostring(itemLink) .. " ".. tostring(self:GetItemKey(itemLink)))
             if self:GetItemKey(itemLink) == itemKey and self:IsUnLocked(bagId, slotIndex) then
                 local _, stack = GetItemInfo(bagId, slotIndex)
                 local quantity = math.min(max - current, stack)
@@ -489,5 +526,56 @@ function DailyAlchemy:MoveByItem(itemLink, current, max, bagIdList)
         end
     end
     return moved
+end
+
+
+function DailyAlchemy:Camehome()
+
+    self:Debug("[Camehome]", self.checkColor)
+    if (not IsOwnerOfCurrentHouse()) then
+        return
+    end
+
+    self:OnOpenBank()
+end
+
+
+
+
+function DailyAlchemy:OnOpenBank()
+
+    if (not self.savedVariables.isAcquireItem) then
+        return
+    end
+
+
+    local acquireDelay = self.savedVariables.acquireDelay
+    if acquireDelay and acquireDelay > 0 then
+        zo_callLater(function()
+            self:Debug("[OnOpenBank]")
+            if DailyProvisioning and DailyProvisioning.isAcquire then
+                zo_callLater(function()
+                    self:OnOpenBank()
+                end, 1000)
+            end
+            if self.isStationInteract then
+                self:Debug("[OnOpenBank] > No Call Acquire()", self.checkColor)
+                return
+            end
+            self.isAcquire = true
+            self:Acquire()
+            self.isAcquire = false
+        end, acquireDelay * 1000)
+    else
+        self:Debug("[OnOpenBank]", self.checkColor)
+        if DailyProvisioning and DailyProvisioning.isAcquire then
+            zo_callLater(function()
+                self:OnOpenBank()
+            end, 1000)
+        end
+        self.isAcquire = true
+        self:Acquire()
+        self.isAcquire = false
+    end
 end
 

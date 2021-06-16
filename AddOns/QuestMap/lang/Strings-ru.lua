@@ -8,15 +8,18 @@ https://github.com/CaptainBlagbird
 
 local strings = {
     -- General
-    QUESTMAP_UNCOMPLETED            = "Не завершённые",
     QUESTMAP_COMPLETED              = "Завершённые",
+    QUESTMAP_UNCOMPLETED            = "Не завершённые",
     QUESTMAP_HIDDEN                 = "Скрытые вручную",
     QUESTMAP_STARTED                = "Стартовые",
-    QUESTMAP_REPEATABLE             = "Повторяемые",
+    QUESTMAP_GUILD                = "Guild",
     QUESTMAP_DAILY                  = "Ежедневные",
-    QUESTMAP_CADWELL                = "Кэдвелл",
     QUESTMAP_SKILL                  = "Очки навыков",
+    QUESTMAP_CADWELL                = "Кэдвелл",
+    QUESTMAP_DUNGEON              = "Dungeon",
     QUESTMAP_HOLIDAY              = "Holiday",
+    QUESTMAP_WEEKLY               = "Weekly",
+    QUESTMAP_ZONESTORY            = "Zone Story",
 
     QUESTMAP_HIDE                   = "Скрыть задание",
     QUESTMAP_UNHIDE                 = "Раскрыть задание",
@@ -95,19 +98,12 @@ local strings = {
     QUESTMAP_STARTED_TOOLTIP_COLOR  = "Цвет подсказок стартовых заданий",
     QUESTMAP_STARTED_TOOLTIP_COLOR_DESC  = "Смена цвета подсказок стартовых заданий",
 
-    -- Repeatable quest pin text
-    QUESTMAP_REPEATABLE_PIN_COLOR  = "Цвет меток повторяемых заданий",
-    QUESTMAP_REPEATABLE_PIN_COLOR_DESC  = "Смена цвета меток повторяемых заданий",
+    -- Guild quest pin text
+    QUESTMAP_GUILD_PIN_COLOR  = "Guild Quest Pin Color",
+    QUESTMAP_GUILD_PIN_COLOR_DESC  = "Change Guild Quest Pin Color",
 
-    QUESTMAP_REPEATABLE_TOOLTIP_COLOR  = "Цвет подсказок повторяемых заданий",
-    QUESTMAP_REPEATABLE_TOOLTIP_COLOR_DESC  = "Смена цвета подсказок повторяемых заданий",
-
-    -- Holiday quest pin text
-    QUESTMAP_HOLIDAY_PIN_COLOR  = "Holiday Quest Pin Color",
-    QUESTMAP_HOLIDAY_PIN_COLOR_DESC  = "Change Holiday Quest Pin Color",
-
-    QUESTMAP_HOLIDAY_TOOLTIP_COLOR  = "Holiday Quest Tooltip Color",
-    QUESTMAP_HOLIDAY_TOOLTIP_COLOR_DESC  = "Change Holiday Quest Tooltip Color",
+    QUESTMAP_GUILD_TOOLTIP_COLOR  = "Guild Quest Tooltip Color",
+    QUESTMAP_GUILD_TOOLTIP_COLOR_DESC  = "Change Guild Quest Tooltip Color",
 
     -- Daily quest pin text
     QUESTMAP_DAILY_PIN_COLOR  = "Цвет меток ежедневных заданий",
@@ -115,6 +111,20 @@ local strings = {
 
     QUESTMAP_DAILY_TOOLTIP_COLOR  = "Цвет подсказок ежедневных заданий",
     QUESTMAP_DAILY_TOOLTIP_COLOR_DESC  = "Смена цвета подсказок ежедневных заданий",
+
+    -- Weekly Duration quest pin text
+    QUESTMAP_WEEKLY_PIN_COLOR  = "Weekly Quest Pin Color",
+    QUESTMAP_WEEKLY_PIN_COLOR_DESC  = "Change Weekly Quest Pin Color",
+
+    QUESTMAP_WEEKLY_TOOLTIP_COLOR  = "Weekly Quest Tooltip Color",
+    QUESTMAP_WEEKLY_TOOLTIP_COLOR_DESC  = "Change Weekly Quest Tooltip Color",
+
+    -- Holiday quest pin text
+    QUESTMAP_HOLIDAY_PIN_COLOR  = "Holiday Quest Pin Color",
+    QUESTMAP_HOLIDAY_PIN_COLOR_DESC  = "Change Holiday Quest Pin Color",
+
+    QUESTMAP_HOLIDAY_TOOLTIP_COLOR  = "Holiday Quest Tooltip Color",
+    QUESTMAP_HOLIDAY_TOOLTIP_COLOR_DESC  = "Change Holiday Quest Tooltip Color",
 
     -- Cadwell quest pin text
     QUESTMAP_CADWELL_PIN_COLOR  = "Цвет меток заданий Кэдвелла",
@@ -131,11 +141,32 @@ local strings = {
     QUESTMAP_SKILL_TOOLTIP_COLOR_DESC  = "Смена цвета подсказок заданий на очки навыков",
 
     -- Dungeon quest pin text
-    QUESTMAP_DUNGEON_PIN_COLOR  = "Цвет меток заданий для подземелий",
-    QUESTMAP_DUNGEON_PIN_COLOR_DESC  = "Смена цвета меток заданий для подземелий",
+    QUESTMAP_DUNGEON_PIN_COLOR  = "Dungeon Quest Pin Color",
+    QUESTMAP_DUNGEON_PIN_COLOR_DESC  = "Change Dungeon Quest Pin Color",
 
-    QUESTMAP_DUNGEON_TOOLTIP_COLOR  = "Цвет подсказок заданий для подземелий",
-    QUESTMAP_DUNGEON_TOOLTIP_COLOR_DESC  = "Смена цвета подсказок заданий для подземелий",
+    QUESTMAP_DUNGEON_TOOLTIP_COLOR  = "Dungeon Quest Tooltip Color",
+    QUESTMAP_DUNGEON_TOOLTIP_COLOR_DESC  = "Change Dungeon Quest Tooltip Color",
+
+    -- Zonestory quest pin text
+    QUESTMAP_ZONESTORY_PIN_COLOR  = "Zonestory Quest Pin Color",
+    QUESTMAP_ZONESTORY_PIN_COLOR_DESC  = "Change Zonestory Quest Pin Color",
+
+    QUESTMAP_ZONESTORY_TOOLTIP_COLOR  = "Zonestory Quest Tooltip Color",
+    QUESTMAP_ZONESTORY_TOOLTIP_COLOR_DESC  = "Change Zonestory Quest Tooltip Color",
+
+    -- Prologue quest pin text
+    QUESTMAP_PROLOGUE_PIN_COLOR  = "Prologue Quest Pin Color",
+    QUESTMAP_PROLOGUE_PIN_COLOR_DESC  = "Change Prologue Quest Pin Color",
+
+    QUESTMAP_PROLOGUE_TOOLTIP_COLOR  = "Prologue Quest Tooltip Color",
+    QUESTMAP_PROLOGUE_TOOLTIP_COLOR_DESC  = "Change Prologue Quest Tooltip Color",
+
+    -- Pledges quest pin text
+    QUESTMAP_PLEDGES_PIN_COLOR  = "Pledges Quest Pin Color",
+    QUESTMAP_PLEDGES_PIN_COLOR_DESC  = "Change Pledges Quest Pin Color",
+
+    QUESTMAP_PLEDGES_TOOLTIP_COLOR  = "Pledges Quest Tooltip Color",
+    QUESTMAP_PLEDGES_TOOLTIP_COLOR_DESC  = "Change Pledges Quest Tooltip Color",
 
 }
 

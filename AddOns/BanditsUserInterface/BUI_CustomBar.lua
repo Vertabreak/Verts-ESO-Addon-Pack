@@ -34,6 +34,7 @@ local SlashCommands={
 	{enable=false,command="/script BUI.Vars.EnableWidgets=not BUI.Vars.EnableWidgets BUI.Frames.Widgets_Init() d('Widgets are now '..(BUI.Vars.EnableWidgets and '|c33EE33enabled|r' or '|EE3333disabled|r'))",icon="/esoui/art/progression/morph_up.dds"},
 	--Text sample
 	{enable=false,command="/script local text='Another sample'd(text) a(text)",icon="Text"},
+--	/script BUI.Vars.CustomBar.Enable=true BUI.Vars.CustomBar.Slash[12]={enable=true,icon="/esoui/art/treeicons/gamepad/gp_tutorial_idexicon_ava.dds",command="/script BUI.OnScreen.Notification(11,'Traveling to Guild Hall',nil,8000) JumpToHouse('@SiameseCat')"} BUI.CustomBarUpdate()
 }
 local BarContent={}
 
@@ -103,7 +104,7 @@ function BUI.CustomBarUpdate(theme,slots,parent)
 	local h		=UltimateSlot.slot:GetHeight()*(half and .5 or 1)-(half and space/2 or 0)
 	local height	=h*(half and .5 or 1)+(half and space or 0)
 	local width		=(h+space)*math.ceil(slots*(half and .5 or 1))
-	local anchor	=parent and {TOP,parent,BOTTOM,0,10} or {TOPLEFT,UltimateSlot.slot,TOPRIGHT,20,0}
+	local anchor	=parent and {TOP,parent,BOTTOM,0,10} or {TOPLEFT,parent,TOPRIGHT,20,0}
 	local ui		=BUI_CustomBar
 	parent=parent or ZO_ActionBar1
 	if ui then ui:SetParent(parent) else ui=WINDOW_MANAGER:CreateControl("BUI_CustomBar", parent, CT_CONTROL) end
@@ -161,14 +162,11 @@ function BUI.UseCustomSlot(i)
 end
 
 local function Menu_Init()
---	local Menu
---	if LibStub then Menu=LibStub("LibAddonMenu-b",true) if not Menu then return end else return end
 	local Panel={
 		type="panel",
 		name="20. |t32:32:/esoui/art/icons/achievements_indexicon_collections_up.dds|t"..BUI.Loc("CustomBarHeader"),
 		displayName="20. "..BUI.Loc("CustomBarHeader"),
 		}
---	Menu:RegisterAddonPanel("BUI_MenuCustomBar",Panel)
 	BUI.Menu.RegisterPanel("BUI_MenuCustomBar",Panel)
 
 	local theme_color=BUI.Vars.Theme==6 and {1,204/255,248/255,1} or BUI.Vars.Theme==7 and BUI.Vars.AdvancedThemeColor or BUI.Vars.Theme>3 and BUI.Vars.CustomEdgeColor or {1,1,1,1}
