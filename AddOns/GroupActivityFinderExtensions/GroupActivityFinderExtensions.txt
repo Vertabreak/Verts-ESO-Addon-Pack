@@ -1,0 +1,58 @@
+## Title: Group & Activity Finder Extensions
+## Description: Quality of life improvements for the Group & Activity Finder.
+## Author: Panicida
+## APIVersion: 100035
+## AddOnVersion: 040110
+## DependsOn: LibAddonMenu-2.0
+## SavedVariables: GroupActivityFinderExtensions_Vars
+
+; DISCLAIMER:
+;
+; This Add-on is not created by, affiliated with or sponsored by ZeniMax
+; Media Inc. or its affiliates. The Elder Scrolls® and related logos are
+; registered trademarks or trademarks of ZeniMax Media Inc. in the United
+; States and/or other countries. All rights reserved.
+;
+; You can read the full terms at:
+; https://account.elderscrollsonline.com/add-on-terms
+
+Infrastructure/Vars.lua
+Infrastructure/Constants.lua
+Infrastructure/Utils.lua
+Infrastructure/Controls.lua
+Infrastructure/Debug.lua
+Infrastructure/Chat.lua
+
+lang\en.lua
+lang\$(language).lua
+
+Ui/Button.xml
+Ui/Counter.xml
+Ui/Texture.xml
+
+Business/FinderExtensions/FinderActivityExtender.lua
+
+Business/DungeonFinder/DungeonActivityData.lua
+Business/DungeonFinder/DungeonPledgeList.lua
+Business/DungeonFinder/DungeonPledgeQuestName.en.lua
+Business/DungeonFinder/DungeonPledgeQuestName.$(language).lua
+Business/DungeonFinder/DungeonFinder.lua
+Business/DungeonFinder/DungeonFinderCommands.lua
+
+Business/Pledges/PledgeChatterOptions.en.lua
+Business/Pledges/PledgeChatterOptions.$(language).lua
+Business/Pledges/PledgeQuestHandler.lua
+
+Business/Trials/SortedLocationsData.lua
+Business/Trials/TrialManager.lua
+
+Business/TrialFinder/TrialChestTimer.lua
+Business/TrialFinder/TrialActivityData.lua
+Business/QueueManager/QueueManager.lua
+Business/TrialFinder/TrialFinder.lua
+
+Business/AutoConfirm.lua
+
+
+SettingsMenu.lua
+Main.lua

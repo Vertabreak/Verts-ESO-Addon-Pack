@@ -1,0 +1,13 @@
+## Title: Shopping List
+## Author: Sharlikran
+## APIVersion: 100034 100035
+## Description: Original author: MildFlavour. Records your purchases from guild kiosks.
+## AddOnVersion: 102
+## Version: 1.0.2
+## DependsOn: LibAddonMenu-2.0>=32 MasterMerchant>=3520
+## OptionalDependsOn: LibDebugLogger>=196 DebugLogViewer AwesomeGuildStore>=2677
+## SavedVariables: ShoppingListVar
+
+ShoppingList.xml
+i18n\$(language).lua
+ShoppingList.lua

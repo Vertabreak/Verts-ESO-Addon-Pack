@@ -1,0 +1,10 @@
+<GuiXml>
+    <Controls>
+        <!-- Base Button -->
+        <Control name="GAFE_Texture" virtual="true" hidden="false">
+            <Dimensions x="32" y="32" />
+
+            <!-- <Texture normal="/esoui/art/buttons/gamepad/gp_plus.dds"/> -->
+        </Control>
+    </Controls>
+</GuiXml>

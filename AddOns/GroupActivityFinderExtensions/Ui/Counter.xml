@@ -1,0 +1,38 @@
+<GuiXml>
+    <Controls>
+        <Control name="GAFE_Counter" virtual="true" hidden="false">
+            <Dimensions x="96" y="64" />
+            <Controls>
+                <Label name="$(parent)Label" font="ZoFontAnnounceMedium" horizontalAlignment="CENTER" verticalAlignment="CENTER" text="Label">
+                    <Dimensions x="96" y="32" />
+                    <Anchor point="TOP" relativeTo="$(parent)" relativePoint="TOP"/>
+                </Label>
+                <Control name="$(parent)Actions">
+                    <Dimensions x="96" y="32" />
+                    <Anchor point="BOTTOM" relativeTo="$(parent)" relativePoint="BOTTOM"/>
+
+                    <Controls>
+                        <Button name="$(parent)Substract" inherits="ZO_ButtonBehaviorClickSound">
+                            <Dimensions x="32" y="32" />
+                            <Anchor point="LEFT" relativeTo="$(parent)" relativePoint="LEFT"/>
+
+                            <Textures normal="/esoui/art/buttons/gamepad/gp_minus.dds"/>
+                        </Button>
+
+                        <Label name="$(parent)Count" font="ZoFontGame" horizontalAlignment="CENTER" verticalAlignment="CENTER" text="00">
+                            <Dimensions x="64" y="32" />
+                            <Anchor point="CENTER" relativeTo="$(parent)" relativePoint="CENTER"/>
+                        </Label>
+
+                        <Button name="$(parent)Add" inherits="ZO_ButtonBehaviorClickSound">
+                            <Dimensions x="32" y="32" />
+                            <Anchor point="RIGHT" relativeTo="$(parent)" relativePoint="RIGHT"/>
+
+                            <Textures normal="/esoui/art/buttons/gamepad/gp_plus.dds"/>
+                        </Button>
+                    </Controls>
+                </Control>
+            </Controls>
+        </Control>
+    </Controls>
+</GuiXml>
