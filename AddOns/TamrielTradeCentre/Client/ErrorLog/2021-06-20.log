@@ -1,0 +1,53 @@
+Sunday, June 20, 2021
+---------------------------------------------------------------------
+System.Windows.Markup.XamlParseException: The invocation of the constructor on type 'ESOTradeDesktop.MainWindowView' that matches the specified binding constraints threw an exception. ---> System.PlatformNotSupportedException: Operation is not supported on this platform.
+  at ESOTradeDesktop.Util.CreateShortCut (System.Environment+SpecialFolder folder, System.String arguments) [0x00011] in <75068475ce254216a786cc48f10fef57>:0 
+  at ESOTradeDesktop.Util.CreateShortCut (System.Environment+SpecialFolder folder) [0x00000] in <75068475ce254216a786cc48f10fef57>:0 
+  at ESOTradeDesktop.MainWindowView..ctor () [0x00063] in <75068475ce254216a786cc48f10fef57>:0 
+  at System.Xaml.Schema.XamlTypeInvoker+DefaultCtorXamlActivator.InvokeDelegate (System.Action`1[T] action, System.Object argument) [0x00001] in <fef83785edb042599df7b58b014c112c>:0 
+  at System.Xaml.Schema.XamlTypeInvoker+DefaultCtorXamlActivator.CallCtorDelegate (System.Xaml.Schema.XamlTypeInvoker type) [0x00012] in <fef83785edb042599df7b58b014c112c>:0 
+  at System.Xaml.Schema.XamlTypeInvoker+DefaultCtorXamlActivator.CreateInstance (System.Xaml.Schema.XamlTypeInvoker type) [0x00013] in <fef83785edb042599df7b58b014c112c>:0 
+  at System.Xaml.Schema.XamlTypeInvoker.CreateInstance (System.Object[] arguments) [0x0002d] in <fef83785edb042599df7b58b014c112c>:0 
+  at MS.Internal.Xaml.Runtime.ClrObjectRuntime.CreateInstanceWithCtor (System.Xaml.XamlType xamlType, System.Object[] args) [0x00007] in <fef83785edb042599df7b58b014c112c>:0 
+  at MS.Internal.Xaml.Runtime.ClrObjectRuntime.CreateInstance (System.Xaml.XamlType xamlType, System.Object[] args) [0x0002e] in <fef83785edb042599df7b58b014c112c>:0 
+   --- End of inner exception stack trace ---
+  at System.Windows.Markup.XamlReader.RewrapException (System.Exception e, System.Xaml.IXamlLineInfo lineInfo, System.Uri baseUri) [0x00009] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Markup.WpfXamlLoader.Load (System.Xaml.XamlReader xamlReader, System.Xaml.IXamlObjectWriterFactory writerFactory, System.Boolean skipJournaledProperties, System.Object rootObject, System.Xaml.XamlObjectWriterSettings settings, System.Uri baseUri) [0x00120] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Markup.WpfXamlLoader.LoadBaml (System.Xaml.XamlReader xamlReader, System.Boolean skipJournaledProperties, System.Object rootObject, System.Xaml.Permissions.XamlAccessLevel accessLevel, System.Uri baseUri) [0x00017] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Markup.XamlReader.LoadBaml (System.IO.Stream stream, System.Windows.Markup.ParserContext parserContext, System.Object parent, System.Boolean closeStream) [0x00123] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Application.LoadBamlStreamWithSyncInfo (System.IO.Stream stream, System.Windows.Markup.ParserContext pc) [0x0003b] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Application.LoadComponent (System.Uri resourceLocator, System.Boolean bSkipJournaledProperties) [0x00052] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Application.DoStartup () [0x0008d] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Application.<.ctor>b__1_0 (System.Object unused) [0x00027] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Threading.ExceptionWrapper.InternalRealCall (System.Delegate callback, System.Object args, System.Int32 numArgs) [0x000c6] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.ExceptionWrapper.TryCatchWhen (System.Object source, System.Delegate callback, System.Object args, System.Int32 numArgs, System.Delegate catchHandler) [0x00004] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.Dispatcher.WrappedInvoke (System.Delegate callback, System.Object args, System.Int32 numArgs, System.Delegate catchHandler) [0x00001] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.DispatcherOperation.InvokeImpl () [0x00099] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.DispatcherOperation.InvokeInSecurityContext (System.Object state) [0x00008] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at MS.Internal.CulturePreservingExecutionContext.CallbackWrapper (System.Object obj) [0x0001d] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Threading.ExecutionContext.RunInternal (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00071] in <db04fe9e4bca4610adf3414d35e3c1a4>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <db04fe9e4bca4610adf3414d35e3c1a4>:0 
+  at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <db04fe9e4bca4610adf3414d35e3c1a4>:0 
+  at MS.Internal.CulturePreservingExecutionContext.Run (MS.Internal.CulturePreservingExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x00047] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.DispatcherOperation.Invoke () [0x00016] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.Dispatcher.ProcessQueue () [0x00114] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.Dispatcher.WndProcHook (System.IntPtr hwnd, System.Int32 msg, System.IntPtr wParam, System.IntPtr lParam, System.Boolean& handled) [0x00061] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at MS.Win32.HwndWrapper.WndProc (System.IntPtr hwnd, System.Int32 msg, System.IntPtr wParam, System.IntPtr lParam, System.Boolean& handled) [0x0003a] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at MS.Win32.HwndSubclass.DispatcherCallbackOperation (System.Object o) [0x00042] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.ExceptionWrapper.InternalRealCall (System.Delegate callback, System.Object args, System.Int32 numArgs) [0x000c6] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.ExceptionWrapper.TryCatchWhen (System.Object source, System.Delegate callback, System.Object args, System.Int32 numArgs, System.Delegate catchHandler) [0x00004] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.Dispatcher.WrappedInvoke (System.Delegate callback, System.Object args, System.Int32 numArgs, System.Delegate catchHandler) [0x00001] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.Dispatcher.LegacyInvokeImpl (System.Windows.Threading.DispatcherPriority priority, System.TimeSpan timeout, System.Delegate method, System.Object args, System.Int32 numArgs) [0x000fc] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.Dispatcher.Invoke (System.Windows.Threading.DispatcherPriority priority, System.Delegate method, System.Object arg) [0x00011] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at MS.Win32.HwndSubclass.SubclassWndProc (System.IntPtr hwnd, System.Int32 msg, System.IntPtr wParam, System.IntPtr lParam) [0x00154] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at (wrapper native-to-managed) MS.Win32.HwndSubclass.SubclassWndProc(intptr,int,intptr,intptr)
+  at (wrapper managed-to-native) MS.Win32.UnsafeNativeMethods.DispatchMessage(System.Windows.Interop.MSG&)
+  at System.Windows.Threading.Dispatcher.TranslateAndDispatchMessage (System.Windows.Interop.MSG& msg) [0x0001a] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.Dispatcher.PushFrameImpl (System.Windows.Threading.DispatcherFrame frame) [0x0004c] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.Dispatcher.PushFrame (System.Windows.Threading.DispatcherFrame frame) [0x00077] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Threading.Dispatcher.Run () [0x00006] in <8cc4b4d3b9bf49f9a896f02fe9510c3d>:0 
+  at System.Windows.Application.RunDispatcher (System.Object ignore) [0x00023] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Application.RunInternal (System.Windows.Window window) [0x0010d] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Application.Run (System.Windows.Window window) [0x00008] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at System.Windows.Application.Run () [0x00009] in <f00957a6e4874da69b95b38df22f98be>:0 
+  at ESOTradeDesktop.App.Main () [0x0000b] in <75068475ce254216a786cc48f10fef57>:0 

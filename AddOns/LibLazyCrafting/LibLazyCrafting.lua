@@ -17,7 +17,7 @@ end
 
 -- Initialize libraries
 local libLoaded
-local LIB_NAME, VERSION = "LibLazyCrafting", 3.073
+local LIB_NAME, VERSION = "LibLazyCrafting", 3.074
 local LibLazyCrafting, oldminor
 if LibStub then
 	LibLazyCrafting, oldminor = LibStub:NewLibrary(LIB_NAME, VERSION)
@@ -182,7 +182,7 @@ LibLazyCrafting.craftResultFunctions = craftResultFunctions
 function LibLazyCrafting.AddHomeMarker(setId, station)
 	-- d("Add " .. tostring(setId) .." : " .. station)
 	if HomeStationMarker then
-		if setId == INDEX_NO_SET then
+		if setId == LibLazyCrafting.INDEX_NO_SET then
 			HomeStationMarker.AddMarker(nil, station)
 		else
 			HomeStationMarker.AddMarker(setId, station)
@@ -193,7 +193,7 @@ end
 function LibLazyCrafting.DeleteHomeMarker(setId, station)
 	-- d("Delete " .. tostring(setId) .." : " .. station)
 	if HomeStationMarker then
-		if setId == INDEX_NO_SET then
+		if setId == LibLazyCrafting.INDEX_NO_SET then
 			HomeStationMarker.DeleteMarker(nil, station)
 		else
 			HomeStationMarker.DeleteMarker(setId, station)

@@ -1,0 +1,10 @@
+﻿-- Translation by @Frackou
+SafeAddString(SI_VOTANS_ADDONLIST_LIB, "Librairie")
+SafeAddString(SI_VOTANS_ADDONLIST_OUTDATED, "Cette extension a été publiée lors d'une version antérieure du client.\nVeuillez vérifier si une nouvelle version est disponible.")
+SafeAddString(SI_ADDON_MANAGER_LOAD_OUT_OF_DATE_ADDONS, "Autoriser les extensions compatibles avec d'autres versions du client", 1)
+SafeAddString(SI_VOTANS_ADDONLIST_LOAD_OUT_OF_DATE_ADDONS_DESC, "Si cette case est cochée, vous êtes autorisé à utiliser des extensions qui ont été testées avec une autre version d'API.\n\nCeci ne corrigera pas la dite extension!\n\nVous devrez vérifier par vous-même sur la page web de l'extension (www.esoui.com) si elle est compatible ou non avec la version actuelle du jeu.")
+SafeAddString(SI_VOTANS_ADDONLIST_DISABLE_ALL_ADDONS, "Désactiver toutes les extensions")
+SafeAddString(SI_VOTANS_ADDONLIST_DISABLE_ALL_LIBS, "Désactiver toutes les librairies")
+SafeAddString(SI_VOTANS_ADDONLIST_OPTIONAL_LIB, "Librairie Optionelle")
+SafeAddString(SI_VOTANS_ADDONLIST_USED_BY, "Utilisée par:")
+SafeAddString(SI_VOTANS_ADDONLIST_SUSPICIOUS_PATH, "Chemin suspect. Attendu:\n%s")
