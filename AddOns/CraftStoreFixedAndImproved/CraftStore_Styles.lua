@@ -109,7 +109,7 @@ function CS.STYLE()
 	[112] = {2,2938,167961}, -- Arkthzand Armory
 	[113] = {2,2998,167978}, -- Wayward Guardian
 	[116] = {2,2984,171552}, -- True-Sworn
-	[117] = {2,2998,171581}, -- Waking Flame
+	[117] = {2,2991,171581}, -- Waking Flame
 	--[120] - {2, ?, ?}, -- Black Fin Legion
 	[121] = {2,3001,171896}, -- Ivory Brigade
 	--[122] = {2, ?, ?}, -- Sul-Xan
