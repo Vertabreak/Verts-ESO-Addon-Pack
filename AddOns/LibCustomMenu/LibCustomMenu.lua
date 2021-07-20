@@ -118,6 +118,7 @@ local Submenu = ZO_Object:Subclass()
 
 local SUBMENU_ITEM_MOUSE_ENTER = 1
 local SUBMENU_ITEM_MOUSE_EXIT = 2
+local SUBMENU_ITEM_MOUSE_CLICKED = 3
 local SUBMENU_SHOW_TIMEOUT = 350
 local SUBMENU_HIDE_TIMEOUT = 350
 
@@ -164,6 +165,12 @@ function Submenu:Initialize(name)
 	submenuControl:SetHidden(true)
 	-- OnMouseEnter: Stop hiding of submenu initiated by mouse exit of parent
 	submenuControl:SetHandler("OnMouseEnter", ClearTimeout)
+
+	local function RefreshSubMenu()
+		if self.parent and self.parent.OnSelect then
+			self.parent:OnSelect(SUBMENU_ITEM_MOUSE_ENTER)
+		end
+	end
 
 	local function ExitSubMenu()
 		if self.parent and self.parent.OnSelect then
@@ -277,6 +284,8 @@ function Submenu:Initialize(name)
 		self.refCount = (self.refCount or 0) + 1
 		local parent = control:GetParent()
 		parent.OnSelect(ZO_CheckButton_IsChecked(control))
+		RefreshSubMenu()
+		control:GetHandler("OnMouseEnter")(control)
 	end
 	local function CheckBoxFactory(pool)
 		local control = CreateControlFromVirtual("ZO_CustomSubMenuItemCheckButton", submenuControl, "ZO_CheckButton", pool:GetNextControlId())
@@ -463,6 +472,10 @@ function Submenu:AddItem(entry, myfont, normalColor, highlightColor, itemYPad)
 	local enabled = not GetValueOrCallback(entry.disabled or false, ZO_Menu, item)
 	nameControl:SetColor((enabled and nameControl.normalColor or ZO_DEFAULT_DISABLED_COLOR):UnpackRGBA())
 	item:SetMouseEnabled(enabled)
+	if checkboxItemControl then
+		checkboxItemControl:SetMouseEnabled(enabled)
+		checkboxItemControl:SetAlpha(enabled and 1 or 0.6)
+	end
 end
 
 function Submenu:Show(parent)
@@ -535,6 +548,11 @@ local function SubMenuItemFactory(pool)
 		clicked = true
 		control:OnSelect(SUBMENU_ITEM_MOUSE_ENTER)
 	end
+	local function MouseUp(control, button, upInside)
+		if upInside and button == MOUSE_BUTTON_INDEX_LEFT then
+			control:OnSelect(SUBMENU_ITEM_MOUSE_CLICKED)
+		end
+	end
 
 	local label = wm:CreateControl("$(parent)Name", control, CT_LABEL)
 	label:SetAnchor(TOPLEFT)
@@ -543,6 +561,7 @@ local function SubMenuItemFactory(pool)
 	control:SetHandler("OnMouseEnter", MouseEnter)
 	control:SetHandler("OnMouseExit", MouseExit)
 	control:SetHandler("OnMouseDown", MouseDown)
+	control:SetHandler("OnMouseUp", MouseUp)
 
 	return control
 end
@@ -719,7 +738,7 @@ function AddCustomMenuTooltip(tooltip, index)
 	ZO_Menu.items[index].item.tooltip = tooltip
 end
 
-function AddCustomSubMenuItem(mytext, entries, myfont, normalColor, highlightColor, itemYPad)
+function AddCustomSubMenuItem(mytext, entries, myfont, normalColor, highlightColor, itemYPad, callback)
 	local function CreateSubMenu(control, state)
 		if state == SUBMENU_ITEM_MOUSE_ENTER then
 			lib.submenu:Clear()
@@ -730,6 +749,12 @@ function AddCustomSubMenuItem(mytext, entries, myfont, normalColor, highlightCol
 			lib.submenu:Show(control)
 		elseif state == SUBMENU_ITEM_MOUSE_EXIT then
 			lib.submenu:Clear()
+		elseif state == SUBMENU_ITEM_MOUSE_CLICKED then
+			if callback and type(callback) == "function" then
+				lib.submenu:Clear()
+				ClearMenu()
+				callback(control)
+			end
 		end
 	end
 
@@ -739,6 +764,7 @@ function AddCustomSubMenuItem(mytext, entries, myfont, normalColor, highlightCol
 	ZO_Menu.itemPool = lib.submenuPool
 	ZO_Menu.checkBoxPool = lib.checkBoxPool
 
+	mytext = string.format("%s |u16:0::|u", mytext)
 	local index = AddMenuItem(mytext, CreateSubMenu, MENU_ADD_OPTION_LABEL, myfont, normalColor, highlightColor, itemYPad)
 
 	ZO_Menu.itemPool = orgItemPool

@@ -356,7 +356,7 @@ function CS.IsLocked(bagId,slotIndex)
 	end
 	
 	--Check default locking mechanism
-	_,_,_,_,locked,equipType = GetItemInfo(bagId,slotIndex)
+	local _,_,_,_,locked,equipType = GetItemInfo(bagId,slotIndex)
 
 	--Check for player locked
 	if not locked then

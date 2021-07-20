@@ -4,7 +4,7 @@ CS.Debug = (GetWorldName() == "PTS" or GetDisplayName()=="@VladislavAksjonov")
 CS.Name = 'CraftStoreFixedAndImproved'
 CS.Title = 'CraftStore'
 CS.Author = 'AlphaLemming, BlackSwan, Rhyono'
-CS.Version = '2.63'
+CS.Version = '2.65'
 CS.Account = nil
 CS.Character = nil
 CS.Init = false
@@ -275,79 +275,79 @@ CS.Mount = {
 	['stamina'] = 'esoui/art/mounts/ridingskill_stamina.dds',
 }
 
-CS.Sets = { --Items: Heavy, Medium, Robe, Shirt GetUnitZoneIndex('player')
-  {traits=2,nodes={  7,175, 77},item={ 43873, 49584, 49575, 49580} ,zone={  2, 15, 11}},  -- Ashen Grip
-  {traits=2,nodes={  1,177, 71},item={ 46507, 46519, 43805, 46516} ,zone={  2, 15, 11}},  -- Death's Wind
-  {traits=2,nodes={216,121, 65},item={ 47272, 43816, 47279, 47284} ,zone={  2, 15, 11}},  -- Night's Silence
-  {traits=2,nodes={339,339,339},item={130383,130398,130390,130395} ,zone={611,611,611}},  -- CC:Innate Axiom
-  {traits=2,nodes={376,376,376},item={143174,143189,143181,143186} ,zone={402,402,402}},  -- Murkmire:Naga Shaman
-  
-  {traits=3,nodes={ 15,169,205},item={ 46890, 46902, 43808, 46900} ,zone={  4,  7, 10}},  -- Twilight's Embrace
-  {traits=3,nodes={ 23,164, 32},item={ 43830, 48051, 48042, 48047} ,zone={  4,  7, 10}},  -- Armor of the Seducer
-  {traits=3,nodes={ 19,165, 24},item={ 50715, 50728, 43979, 50725} ,zone={  4,  7, 10}},  -- Torug's Pact
-  {traits=3,nodes={237,237,237},item={ 69928, 69935, 69942, 69943} ,zone={ 27, 27, 27}},  -- Trial by Fire
-  {traits=3,nodes={276,276,276},item={121564,121579,121571,121576} ,zone={ 30, 30, 30}},  -- Assassin's Guile
-  {traits=3,nodes={359,359,359},item={135730,135745,135737,135742} ,zone={641,641,641}},  -- Summerset:Adept Rider
-  {traits=3,nodes={382,382,382},item={148701,148716,148708,148713} ,zone={712,712,712}},  -- Elsweyr:Vastarie's Tutelage
-  {traits=3,nodes={403,403,403},item={155417,155432,155424,155429} ,zone={719,719,719}},  -- Dragonhold:Daring Corsair
-  {traits=3,nodes={430,430,430},item={163070,163085,163082,163077} ,zone={744,744,744}},  -- Greymoor:Spell Parasite
-  {traits=3,nodes={ -3, -3, -3},item={158329,158344,158336,158341} ,zone={14,14,14}},  -- Harrowstorm:Critical Riposte
-  {traits=3,nodes={ -3, -3, -3},item={158703,158718,158710,158715} ,zone={14,14,14}},  -- Harrowstorm:Unchained Aggressor
-  {traits=3,nodes={ -3, -3, -3},item={159077,159092,159084,159089} ,zone={14,14,14}},  -- Harrowstorm:Dauntless Combatant
-  {traits=3,nodes={447,447,447},item={168012,168027,168019,168024} ,zone={42,42,42}},  -- Markarth:Red Eagle's Fury
-  {traits=3,nodes={464,464,464},item={172468,172483,172475,172480} ,zone={834,834,834}},  -- Blackwood:Hist Whisperer	
- 
-  {traits=4,nodes={  9,154, 51},item={ 51098, 43998, 51105, 51110} ,zone={  3, 16,  9}},  -- Hist Bark
-  {traits=4,nodes={ 82,151, 78},item={ 47656, 47672, 47663, 47668} ,zone={  3, 16,  9}},  -- Whitestrake's Retribution
-  {traits=4,nodes={ 13,148, 48},item={ 48805, 48817, 43849, 48813} ,zone={  3, 16,  9}},  -- Magnus' Gift
-  {traits=4,nodes={337,337,337},item={130733,130748,130740,130745} ,zone={612,612,612}},  -- CC:Fortified Brass
-  {traits=4,nodes={379,379,379},item={143544,143559,143551,143556} ,zone={402,402,402}},  -- Murkmire:Might of the Lost Legion
-  
-  {traits=5,nodes={ 58,101, 93},item={ 43834, 48434, 48425, 48430} ,zone={ 5, 8,13}},  -- Vampire's Kiss
-  {traits=5,nodes={137,103, 89},item={ 44016, 52252, 52243, 52248} ,zone={ 5, 8,13}},  -- Song of Lamae
-  {traits=5,nodes={155,105, 95},item={ 44022, 52633, 52624, 52629} ,zone={ 5, 8,13}},  -- Alessia's Bulwark
-  {traits=5,nodes={199,201,203},item={ 60273, 60288, 60280, 60285} ,zone={26,26,26}},  -- Noble's Conquest
-  {traits=5,nodes={257,257,257},item={ 71792, 71799, 71806, 71807} ,zone={28,28,28}},  -- Tava's Favor
-  {traits=5,nodes={254,254,254},item={ 75399, 75414, 75406, 75411} ,zone={29,29,29}},  -- DB:Kvatch Gladiator
-  {traits=5,nodes={397,397,397},item={148331,148346,148338,148343} ,zone={712,712,712}},  -- Elsweyr:Senche-Raht's Grit
-  {traits=5,nodes={418,418,418},item={161234,161249,161241,161246} ,zone={743,743,743}},  -- Greymoor:Stuhn's Favor (or 416)
-  {traits=5,nodes={461,461,461},item={173216,173231,173223,173228} ,zone={834,834,834}},  -- Blackwood:Diamond's Victory (or 481)	
-	
-  {traits=6,nodes={ 35,144,111},item={ 51479, 44005, 51486, 51491} ,zone={  6, 17, 12}},  -- Willow's Path
-  {traits=6,nodes={ 39,161,113},item={ 51857, 51873, 51864, 51869} ,zone={  6, 17, 12}},  -- Hunding's Rage
-  {traits=6,nodes={ 34,156,118},item={ 49188, 43861, 49195, 49200} ,zone={  6, 17, 12}},  -- Night Mother's Gaze
-  {traits=6,nodes={241,241,241},item={ 69578, 69585, 69592, 69593} ,zone={ 27, 27, 27}},  -- Law of Julianos
-  {traits=6,nodes={282,282,282},item={122264,122279,122271,122276} ,zone={ 30, 30, 30}},  -- Shacklebreaker
-  {traits=6,nodes={338,338,338},item={131083,131098,131090,131095} ,zone={611,611,611}},  -- CC:Mechanical Acuity
-  {traits=6,nodes={360,360,360},item={136080,136095,136087,136092} ,zone={657,657,657}},  -- Summerset:Sload's Semblance
-  {traits=6,nodes={407,407,407},item={155791,155806,155798,155803} ,zone={732,732,732}},  -- Dragonhold:Ancient Dragonguard
-  {traits=6,nodes={442,442,442},item={168386,168401,168393,168398} ,zone={42,42,42}},  -- Markarth:Karth's
-  
-  {traits=7,nodes={199,201,203},item={ 60623, 60638, 60630, 60635} ,zone={ 26, 26, 26}},  -- Redistributor
-  {traits=7,nodes={257,257,257},item={ 72142, 72149, 72156, 72157} ,zone={ 28, 28, 28}},  -- Clever Alchemist
-  {traits=7,nodes={251,251,251},item={ 75749, 75764, 75756, 75761} ,zone={ 29, 29, 29}},  -- DB:Varen's Legacy
-  {traits=7,nodes={375,375,375},item={142804,142819,142811,142816} ,zone={402,402,402}},  -- Murkmire:Grave-Stake Collector
-  {traits=7,nodes={417,417,417},item={161608,161623,161620,161615} ,zone={743,743,743}},  -- Greymoor:Dragon's Appetite (or 429)
-  {traits=7,nodes={483,483,483},item={172842,172857,172849,172854} ,zone={834,834,834}},  -- Blackwood:Heartland Conqueror's
- 
-  {traits=8,nodes={135,135,135},item={ 49954, 49965, 43968, 49962} ,zone={23,23,23}},  -- Oblivion's Foe
-  {traits=8,nodes={133,133,133},item={ 50335, 50346, 43972, 50343} ,zone={23,23,23}},  -- Spectre's Eye
-  {traits=8,nodes={ -1, -1, -1},item={ 53384, 53394, 44053, 53392} ,zone={ 6,17,12}},  -- Eyes of Mara
-  {traits=8,nodes={ -1, -1, -1},item={ 44102, 54158, 54149, 54154} ,zone={ 6,17,12}},  -- Shalidor's Curse
-  {traits=8,nodes={ -2, -2, -2},item={ 53765, 44082, 53772, 53777} ,zone={ 6,17,12}},  -- Kagrenac's Hope
-  {traits=8,nodes={ -2, -2, -2},item={ 44033, 53015, 53006, 53011} ,zone={ 6,17,12}},  -- Orgnum's Scales
-  {traits=8,nodes={217,217,217},item={ 54942, 54949, 54963, 54956} ,zone={25,25,25}},  -- Way of the Arena
-  {traits=8,nodes={329,329,329},item={121914,121929,121921,121926} ,zone={30,30,30}},  -- Daedric Trickery  
-  {traits=8,nodes={386,386,386},item={147961,147976,147968,147973} ,zone={712,712,712}},  -- Elsweyr:Coldharbour's Favorite
-  
-  {traits=9,nodes={234,234,234},item={ 58154, 58161, 58174, 58168} ,zone={ 25, 25, 25}},  -- Twice-Born Star
-  {traits=9,nodes={199,201,203},item={ 60973, 60988, 60980, 60985} ,zone={ 26, 26, 26}},  -- Armor Master
-  {traits=9,nodes={237,237,237},item={ 70628, 70635, 70642, 70643} ,zone={ 27, 27, 27}},  -- Morkuldin
-  {traits=9,nodes={255,255,255},item={ 72492, 72499, 72506, 72507} ,zone={ 28, 28, 28}},  -- Eternal Hunt
-  {traits=9,nodes={254,254,254},item={ 76099, 76114, 76106, 76111} ,zone={ 29, 29, 29}},  -- DB:Pelinal's Aptitude
-  {traits=9,nodes={354,354,354},item={136430,136445,136437,136442} ,zone={641,641,641}},  -- Summerset:Nocturnal's Favored (or 356)
-  {traits=9,nodes={406,406,406},item={156165,156180,156172,156177} ,zone={719,719,719}},  -- Dragonhold:New Moon Acolyte (or 405)
-  {traits=9,nodes={430,430,430},item={168760,168775,168767,168772} ,zone={41,41,41}},  -- Markarth:Aetherial Ascension (may not be closest)
+CS.Sets = { --Items: Heavy, Medium, Robe, Shirt GetUnitZoneIndex('player') { Daggerfall , Aldmeri, Ebonheart }
+  {traits=2,nodes={  7,175, 77}, item={ 43873, 49584, 49575, 49580}, zone={  2,178,  9}},  -- Ashen Grip
+  {traits=2,nodes={  1,177, 71}, item={ 46507, 46519, 43805, 46516}, zone={  2,178,  9}},  -- Death's Wind
+  {traits=2,nodes={216,121, 65}, item={ 47272, 43816, 47279, 47284}, zone={  2,178,  9}},  -- Night's Silence
+  {traits=2,nodes={339,339,339}, item={130383,130398,130390,130395}, zone={589,589,589}},  -- CC:Innate Axiom
+  {traits=2,nodes={376,376,376}, item={143174,143189,143181,143186}, zone={407,407,407}},  -- Murkmire:Naga Shaman
+
+  {traits=3,nodes={359,359,359}, item={135730,135745,135737,135742}, zone={616,616,616}},  -- Summerset:Adept Rider
+  {traits=3,nodes={276,276,276}, item={121564,121579,121571,121576}, zone={467,467,467}},  -- Assassin's Guile
+  {traits=3,nodes={ 19,165, 24}, item={ 50715, 50728, 43979, 50725}, zone={  4,180, 10}},  -- Torug's Pact
+  {traits=3,nodes={237,237,237}, item={ 69928, 69935, 69942, 69943}, zone={379,379,379}},  -- Trial by Fire
+  {traits=3,nodes={ 15,169,205}, item={ 46890, 46902, 43808, 46900}, zone={  4,180, 10}},  -- Twilight's Embrace
+  {traits=3,nodes={ 23,164, 32}, item={ 43830, 48051, 48042, 48047}, zone={  4,180, 10}},  -- Armor of the Seducer
+  {traits=3,nodes={382,382,382}, item={148701,148716,148708,148713}, zone={681,681,681}},  -- Elsweyr:Vastarie's Tutelage
+  {traits=3,nodes={403,403,403}, item={155417,155432,155424,155429}, zone={720,720,720}},  -- Dragonhold:Daring Corsair
+  {traits=3,nodes={ -3, -3, -3}, item={158329,158344,158336,158341}, zone={ 37, 37, 37}},  -- Harrowstorm:Critical Riposte
+  {traits=3,nodes={ -3, -3, -3}, item={158703,158718,158710,158715}, zone={ 37, 37, 37}},  -- Harrowstorm:Unchained Aggressor
+  {traits=3,nodes={ -3, -3, -3}, item={159077,159092,159084,159089}, zone={ 37, 37, 37}},  -- Harrowstorm:Dauntless Combatant
+  {traits=3,nodes={430,430,430}, item={163070,163085,163082,163077}, zone={744,744,744}},  -- Greymoor:Spell Parasite
+  {traits=3,nodes={447,447,447}, item={168012,168027,168019,168024}, zone={783,783,783}},  -- Markarth:Red Eagle's Fury
+  {traits=3,nodes={464,464,464}, item={172468,172483,172475,172480}, zone={834,834,834}},  -- Blackwood:Hist Whisperer	
+
+  {traits=4,nodes={  9,154, 51}, item={ 51098, 43998, 51105, 51110}, zone={  5, 18, 19}},  -- Hist Bark
+  {traits=4,nodes={ 13,148, 48}, item={ 48805, 48817, 43849, 48813}, zone={  5, 18, 19}},  -- Magnus' Gift
+  {traits=4,nodes={ 82,151, 78}, item={ 47656, 47672, 47663, 47668}, zone={  5, 18, 19}},  -- Whitestrake's Retribution
+  {traits=4,nodes={337,337,337}, item={130733,130748,130740,130745}, zone={589,589,589}},  -- CC:Fortified Brass
+  {traits=4,nodes={379,379,379}, item={143544,143559,143551,143556}, zone={407,407,407}},  -- Murkmire:Might of the Lost Legion
+
+  {traits=5,nodes={155,105, 95}, item={ 44022, 52633, 52624, 52629}, zone={ 17, 11, 15}},  -- Alessia's Bulwark
+  {traits=5,nodes={254,254,254}, item={ 75399, 75414, 75406, 75411}, zone={448,448,448}},  -- DB:Kvatch Gladiator
+  {traits=5,nodes={199,201,203}, item={ 60273, 60288, 60280, 60285}, zone={346,346,346}},  -- Noble's Conquest
+  {traits=5,nodes={397,397,397}, item={148331,148346,148338,148343}, zone={681,681,681}},  -- Elsweyr:Senche-Raht's Grit
+  {traits=5,nodes={137,103, 89}, item={ 44016, 52252, 52243, 52248}, zone={ 17, 11, 15}},  -- Song of Lamae
+  {traits=5,nodes={257,257,257}, item={ 71792, 71799, 71806, 71807}, zone={442,442,442}},  -- Tava's Favor
+  {traits=5,nodes={ 58,101, 93}, item={ 43834, 48434, 48425, 48430}, zone={ 17, 11, 15}},  -- Vampire's Kiss
+  {traits=5,nodes={418,418,418}, item={161234,161249,161241,161246}, zone={743,743,743}},  -- Greymoor:Stuhn's Favor (or 416)
+  {traits=5,nodes={461,461,461}, item={173216,173231,173223,173228}, zone={834,834,834}},  -- Blackwood:Diamond's Victory (or 481)	
+
+  {traits=6,nodes={338,338,338}, item={131083,131098,131090,131095}, zone={589,589,589}},  -- CC:Mechanical Acuity
+  {traits=6,nodes={ 34,156,118}, item={ 49188, 43861, 49195, 49200}, zone={ 14,179, 16}},  -- Night Mother's Gaze
+  {traits=6,nodes={282,282,282}, item={122264,122279,122271,122276}, zone={467,467,467}},  -- Shacklebreaker
+  {traits=6,nodes={ 35,144,111}, item={ 51479, 44005, 51486, 51491}, zone={ 14,179, 16}},  -- Willow's Path
+  {traits=6,nodes={ 39,161,113}, item={ 51857, 51873, 51864, 51869}, zone={ 14,179, 16}},  -- Hunding's Rage
+  {traits=6,nodes={241,241,241}, item={ 69578, 69585, 69592, 69593}, zone={379,379,379}},  -- Law of Julianos
+  {traits=6,nodes={360,360,360}, item={136080,136095,136087,136092}, zone={632,632,632}},  -- Summerset:Sload's Semblance
+  {traits=6,nodes={407,407,407}, item={155791,155806,155798,155803}, zone={720,720,720}},  -- Dragonhold:Ancient Dragonguard
+  {traits=6,nodes={442,442,442}, item={168386,168401,168393,168398}, zone={783,783,783}},  -- Markarth:Karth's
+
+  {traits=7,nodes={199,201,203}, item={ 60623, 60638, 60630, 60635}, zone={346,346,346}},  -- Redistributor
+  {traits=7,nodes={257,257,257}, item={ 72142, 72149, 72156, 72157}, zone={442,442,442}},  -- Clever Alchemist
+  {traits=7,nodes={251,251,251}, item={ 75749, 75764, 75756, 75761}, zone={448,448,448}},  -- DB:Varen's Legacy
+  {traits=7,nodes={375,375,375}, item={142804,142819,142811,142816}, zone={407,407,407}},  -- Murkmire:Grave-Stake Collector
+  {traits=7,nodes={417,417,417}, item={161608,161623,161620,161615}, zone={743,743,743}},  -- Greymoor:Dragon's Appetite (or 429)
+  {traits=7,nodes={483,483,483}, item={172842,172857,172849,172854}, zone={834,834,834}},  -- Blackwood:Heartland Conqueror's
+
+  {traits=8,nodes={386,386,386}, item={147961,147976,147968,147973}, zone={681,681,681}},  -- Elsweyr:Coldharbour's Favorite
+  {traits=8,nodes={329,329,329}, item={121914,121929,121921,121926}, zone={467,467,467}},  -- Daedric Trickery  
+  {traits=8,nodes={ -2, -2, -2}, item={ 53765, 44082, 53772, 53777}, zone={ 14,179, 16}},  -- Kagrenac's Hope
+  {traits=8,nodes={ -2, -2, -2}, item={ 44033, 53015, 53006, 53011}, zone={ 14,179, 16}},  -- Orgnum's Scales
+  {traits=8,nodes={ -1, -1, -1}, item={ 53384, 53394, 44053, 53392}, zone={ 14,179, 16}},  -- Eyes of Mara
+  {traits=8,nodes={ -1, -1, -1}, item={ 44102, 54158, 54149, 54154}, zone={ 14,179, 16}},  -- Shalidor's Curse
+  {traits=8,nodes={135,135,135}, item={ 49954, 49965, 43968, 49962}, zone={154,154,154}},  -- Oblivion's Foe
+  {traits=8,nodes={133,133,133}, item={ 50335, 50346, 43972, 50343}, zone={154,154,154}},  -- Spectre's Eye
+  {traits=8,nodes={217,217,217}, item={ 54942, 54949, 54963, 54956}, zone={500,500,500}},  -- Way of the Arena
+
+  {traits=9,nodes={234,234,234}, item={ 58154, 58161, 58174, 58168}, zone={500,500,500}},  -- Twice-Born Star
+  {traits=9,nodes={199,201,203}, item={ 60973, 60988, 60980, 60985}, zone={346,346,346}},  -- Armor Master
+  {traits=9,nodes={237,237,237}, item={ 70628, 70635, 70642, 70643}, zone={379,379,379}},  -- Morkuldin
+  {traits=9,nodes={255,255,255}, item={ 72492, 72499, 72506, 72507}, zone={442,442,442}},  -- Eternal Hunt
+  {traits=9,nodes={254,254,254}, item={ 76099, 76114, 76106, 76111}, zone={448,448,448}},  -- DB:Pelinal's Aptitude
+  {traits=9,nodes={354,354,354}, item={136430,136445,136437,136442}, zone={616,616,616}},  -- Summerset:Nocturnal's Favored (or 356)
+  {traits=9,nodes={406,406,406}, item={156165,156180,156172,156177}, zone={720,720,720}},  -- Dragonhold:New Moon Acolyte (or 405)
+  {traits=9,nodes={430,430,430}, item={168760,168775,168767,168772}, zone={783,783,783}},  -- Markarth:Aetherial Ascension (may not be closest)
 }
 
 CS.AccountInit = {

@@ -6,7 +6,7 @@
 
 ## Title: CraftStore
 ## APIVersion: 100035
-## Version: 2.63
+## Version: 2.65
 ## SavedVariables: CraftStore_Account CraftStore_Character
 ## Author: AlphaLemming, BlackSwan, Rhyono
 ## Description: A tool for crafting research, with style and recipe tracking and new crafting interfaces. 
